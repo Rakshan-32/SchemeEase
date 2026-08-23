@@ -4,7 +4,7 @@ import { AuthPage } from './Auth';
 import ProfileSetup from './ProfileSetup';
 import { Dashboard } from './sections';
 import SchemePublicView from './SchemePublicView';
-import { extractProfile } from './data';
+import { extractProfile, fetchScheme } from './data';
 import { motion } from 'framer-motion';
 import { Search, Loader2, Mic, MicOff, Moon, Sun, Globe } from 'lucide-react';
 
@@ -25,6 +25,7 @@ function App() {
   const [voiceError, setVoiceError] = useState('');
   const recognitionRef = useRef(null);
   const voiceSupported = ('webkitSpeechRecognition' in window) || ('SpeechRecognition' in window);
+  const [deepLinkNotFound, setDeepLinkNotFound] = useState(false);
 
   // Check for existing session on mount
   useEffect(() => {
@@ -198,6 +199,13 @@ function App() {
     localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
   };
 
+  // For authenticated deep-links, verify the scheme ID actually exists
+  useEffect(() => {
+    if (!schemeMatch || authState !== 'dashboard') return;
+    const { schemeId } = schemeMatch.params;
+    fetchScheme(schemeId).then(s => { if (!s) setDeepLinkNotFound(true); });
+  }, [schemeMatch?.params?.schemeId, authState]);
+
   // Deep-link: /schemes/:schemeId
   if (schemeMatch) {
     const { schemeId } = schemeMatch.params;
@@ -212,6 +220,21 @@ function App() {
 
     // Authenticated: render dashboard with that scheme's modal pre-opened
     if (authState === 'dashboard') {
+      if (deepLinkNotFound) {
+        return (
+          <div className={`min-h-screen flex flex-col items-center justify-center gap-4 bg-slate-50 dark:bg-slate-900 ${darkMode ? 'dark' : ''}`}>
+            <p className="text-lg font-semibold text-slate-700 dark:text-slate-200">
+              {language === 'en' ? 'Scheme not found.' : 'திட்டம் கண்டுபிடிக்கப்படவில்லை.'}
+            </p>
+            <button
+              onClick={() => { setDeepLinkNotFound(false); navigate('/'); }}
+              className="text-primary dark:text-teal-400 underline text-sm"
+            >
+              {language === 'en' ? '← Back to All Schemes' : '← அனைத்து திட்டங்களுக்கு திரும்பு'}
+            </button>
+          </div>
+        );
+      }
       return (
         <div className={`relative ${darkMode ? 'dark' : ''}`}>
           <Dashboard
