@@ -1,4 +1,9 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+// Set VITE_API_BASE_URL in frontend/.env (see .env.example). No trailing slash.
+const API_BASE = import.meta.env.VITE_API_BASE_URL || (
+  import.meta.env.PROD
+    ? (() => { throw new Error('VITE_API_BASE_URL is not configured for production'); })()
+    : 'http://localhost:8000'
+);
 
 export const fetchScheme = async (schemeId) => {
   try {

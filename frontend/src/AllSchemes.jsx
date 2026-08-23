@@ -100,7 +100,7 @@ const AllSchemes = ({ profile, onUpdateProfile, onProvideMissingInfo, onViewDeta
       <div className="fixed inset-0 -z-10">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1580541631950-7282082b53ce?q=80&w=2340')" }}
+          style={{ backgroundImage: "url('/ribbon-building.jpg')" }}
         ></div>
         <div className={`absolute inset-0 ${darkMode ? 'bg-slate-900/95' : 'bg-white/95'} backdrop-blur-sm`}></div>
       </div>
