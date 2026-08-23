@@ -6,7 +6,7 @@ import MissingInfoModal from './MissingInfoModal';
 import SchemeDetailModal from './SchemeDetailModal';
 import AllSchemes from './AllSchemes';
 import ProfileForm from './ProfileForm';
-import { Search, UserCircle, Save, SlidersHorizontal, Bell, FileCheck, HelpCircle, Mail, GitCompare, Printer, Share2, ChevronDown, CheckCircle, Clock, X, List, ExternalLink, AlertCircle, AlertTriangle } from 'lucide-react';
+import { Search, UserCircle, Save, SlidersHorizontal, Bell, FileCheck, HelpCircle, Mail, GitCompare, Printer, Share2, ChevronDown, CheckCircle, Clock, X, List, ExternalLink, AlertCircle, AlertTriangle, Trash2 } from 'lucide-react';
 
 export const Landing = ({ onLogin, darkMode, language }) => {
   return (
@@ -917,34 +917,100 @@ const ComparisonView = ({ schemes, onRemove, darkMode, language }) => {
   );
 };
 
+// --- Application Tracker data layer ---
+
+export const APPLICATION_STATUSES = [
+  'Not Started',
+  'Documents Prepared',
+  'Application Submitted',
+  'Under Review',
+  'Approved',
+  'Rejected',
+];
+
+const getTrackerKey = () =>
+  `application_tracker_${(localStorage.getItem('current_user') || 'guest').toLowerCase()}`;
+
+// Upgrades a persisted record to the current shape without losing existing fields.
+// Converts locale-string lastUpdated to ISO; fills missing fields with empty strings.
+const migrateTrackerRecord = (record) => {
+  let lastUpdated = record.lastUpdated || new Date().toISOString();
+  // If it looks like a locale string (contains '/' or ',') convert it
+  if (lastUpdated && (lastUpdated.includes('/') || lastUpdated.includes(','))) {
+    const parsed = new Date(lastUpdated);
+    lastUpdated = isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
+  }
+  return {
+    ...record,
+    applicationDate: record.applicationDate ?? '',
+    referenceNumber: record.referenceNumber ?? '',
+    notes: record.notes ?? '',
+    nextAction: record.nextAction ?? '',
+    lastUpdated,
+  };
+};
+
+const loadTrackerData = () => {
+  const key = getTrackerKey();
+  const raw = localStorage.getItem(key);
+  if (raw) return JSON.parse(raw).map(migrateTrackerRecord);
+  // One-time migration from the un-namespaced legacy key
+  const legacy = localStorage.getItem('application_tracker');
+  if (legacy) {
+    const migrated = JSON.parse(legacy).map(migrateTrackerRecord);
+    localStorage.setItem(key, JSON.stringify(migrated));
+    localStorage.removeItem('application_tracker');
+    return migrated;
+  }
+  return [];
+};
+
 // Application Tracker Component
 const ApplicationTracker = ({ savedSchemes, darkMode, language }) => {
-  const [applications, setApplications] = useState(() =>
-    JSON.parse(localStorage.getItem('application_tracker') || '[]')
-  );
+  const [applications, setApplications] = useState(() => loadTrackerData());
+  const [expandedId, setExpandedId] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+
+  const persist = (updated) => {
+    setApplications(updated);
+    localStorage.setItem(getTrackerKey(), JSON.stringify(updated));
+  };
 
   const updateStatus = (schemeId, status) => {
-    const updated = applications.map(app =>
-      app.schemeId === schemeId ? { ...app, status, lastUpdated: new Date().toLocaleString() } : app
-    );
-    setApplications(updated);
-    localStorage.setItem('application_tracker', JSON.stringify(updated));
+    persist(applications.map(app =>
+      app.schemeId === schemeId ? { ...app, status, lastUpdated: new Date().toISOString() } : app
+    ));
+  };
+
+  const updateField = (appId, field, value) => {
+    persist(applications.map(app =>
+      app.id === appId ? { ...app, [field]: value, lastUpdated: new Date().toISOString() } : app
+    ));
+  };
+
+  const removeApplication = (appId) => {
+    persist(applications.filter(app => app.id !== appId));
+    if (expandedId === appId) setExpandedId(null);
+    setDeleteConfirmId(null);
   };
 
   const addApplication = (schemeId, schemeName) => {
+    if (applications.some(app => app.schemeId === schemeId)) return;
     const newApp = {
       id: Date.now(),
       schemeId,
       schemeName,
-      status: 'Not Started',
-      lastUpdated: new Date().toLocaleString()
+      status: APPLICATION_STATUSES[0],
+      applicationDate: '',
+      referenceNumber: '',
+      notes: '',
+      nextAction: '',
+      lastUpdated: new Date().toISOString(),
     };
-    const updated = [newApp, ...applications];
-    setApplications(updated);
-    localStorage.setItem('application_tracker', JSON.stringify(updated));
+    persist([newApp, ...applications]);
   };
 
-  const statuses = ['Not Started', 'Documents Prepared', 'Application Submitted', 'Under Review', 'Approved', 'Rejected'];
+  const statuses = APPLICATION_STATUSES;
 
   return (
     <div className="space-y-6">
@@ -962,27 +1028,189 @@ const ApplicationTracker = ({ savedSchemes, darkMode, language }) => {
         </div>
       ) : (
         <div className="space-y-4">
-          {applications.map(app => (
-            <GlassCard key={app.id} className={darkMode ? 'dark' : ''}>
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="flex-1">
-                  <h3 className="font-bold text-slate-800 dark:text-slate-100">{app.schemeName}</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    {language === 'en' ? 'Last Updated:' : 'கடைசியாக புதுப்பிக்கப்பட்டது:'} {app.lastUpdated}
-                  </p>
+          {applications.map(app => {
+            const currentIdx = statuses.indexOf(app.status);
+            const isRejected = app.status === 'Rejected';
+            const isExpanded = expandedId === app.id;
+            const isConfirmingDelete = deleteConfirmId === app.id;
+            const lastUpdatedDisplay = (() => {
+              try { return new Date(app.lastUpdated).toLocaleDateString(); } catch { return app.lastUpdated; }
+            })();
+
+            return (
+              <GlassCard key={app.id} className={darkMode ? 'dark' : ''}>
+                {/* Header row */}
+                <div className="flex items-start justify-between gap-3 mb-4">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-slate-800 dark:text-slate-100 truncate">{app.schemeName}</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      {language === 'en' ? 'Updated:' : 'புதுப்பிக்கப்பட்டது:'} {lastUpdatedDisplay}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {/* Expand/collapse details */}
+                    <button
+                      onClick={() => setExpandedId(isExpanded ? null : app.id)}
+                      className="flex items-center gap-1 text-xs font-medium text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-200 px-2 py-1 rounded-md hover:bg-teal-50 dark:hover:bg-teal-900/30 transition-colors"
+                    >
+                      {language === 'en' ? 'Details' : 'விவரங்கள்'}
+                      <motion.span animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }} className="inline-block">
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </motion.span>
+                    </button>
+                    {/* Delete button */}
+                    {isConfirmingDelete ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => removeApplication(app.id)}
+                          className="text-xs font-bold text-white bg-red-500 hover:bg-red-600 px-2 py-1 rounded-md transition-colors"
+                        >
+                          {language === 'en' ? 'Confirm' : 'உறுதி'}
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirmId(null)}
+                          className="text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                        >
+                          {language === 'en' ? 'Cancel' : 'ரத்து'}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setDeleteConfirmId(app.id)}
+                        className="p-1.5 rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        title={language === 'en' ? 'Remove' : 'நீக்கு'}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <select
-                  value={app.status}
-                  onChange={(e) => updateStatus(app.schemeId, e.target.value)}
-                  className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white text-sm focus:ring-2 focus:ring-primary outline-none"
-                >
-                  {statuses.map(status => (
-                    <option key={status} value={status}>{status}</option>
-                  ))}
-                </select>
-              </div>
-            </GlassCard>
-          ))}
+
+                {/* Status stepper */}
+                <div className="overflow-x-auto pb-1">
+                  <div className="flex items-center min-w-max gap-0">
+                    {statuses.map((stage, idx) => {
+                      const isCompleted = !isRejected && idx < currentIdx;
+                      const isCurrent = idx === currentIdx;
+                      const isUpcoming = !isRejected && idx > currentIdx;
+                      const isRejectedStage = isRejected && stage === 'Rejected' && idx === currentIdx;
+
+                      let dotColor, labelColor, lineColor;
+                      if (isCompleted) {
+                        dotColor = 'bg-green-500 border-green-500';
+                        labelColor = 'text-green-700 dark:text-green-400';
+                        lineColor = 'bg-green-400';
+                      } else if (isCurrent && isRejectedStage) {
+                        dotColor = 'bg-red-500 border-red-500 ring-2 ring-red-300 dark:ring-red-700';
+                        labelColor = 'text-red-600 dark:text-red-400 font-bold';
+                        lineColor = 'bg-slate-200 dark:bg-slate-600';
+                      } else if (isCurrent) {
+                        dotColor = 'bg-teal-500 border-teal-500 ring-2 ring-teal-300 dark:ring-teal-700';
+                        labelColor = 'text-teal-700 dark:text-teal-300 font-bold';
+                        lineColor = 'bg-slate-200 dark:bg-slate-600';
+                      } else {
+                        dotColor = 'bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-500';
+                        labelColor = 'text-slate-400 dark:text-slate-500';
+                        lineColor = 'bg-slate-200 dark:bg-slate-600';
+                      }
+
+                      return (
+                        <React.Fragment key={stage}>
+                          <div className="flex flex-col items-center" style={{ minWidth: '72px' }}>
+                            <button
+                              onClick={() => updateStatus(app.schemeId, stage)}
+                              title={stage}
+                              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${dotColor} hover:scale-110 focus:outline-none`}
+                            >
+                              {(isCompleted || (isCurrent && !isRejectedStage)) && (
+                                <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 10">
+                                  {isCompleted
+                                    ? <path d="M1.5 5L4 7.5L8.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                    : <circle cx="5" cy="5" r="2" fill="currentColor"/>}
+                                </svg>
+                              )}
+                              {isRejectedStage && (
+                                <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 10">
+                                  <path d="M2 2L8 8M8 2L2 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                                </svg>
+                              )}
+                            </button>
+                            <span className={`text-[10px] mt-1 text-center leading-tight ${labelColor}`} style={{ maxWidth: '68px' }}>{stage}</span>
+                          </div>
+                          {idx < statuses.length - 1 && (
+                            <div className={`h-0.5 flex-1 mx-0.5 mb-4 ${isCompleted ? 'bg-green-400' : lineColor}`} style={{ minWidth: '8px' }} />
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Expandable details */}
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                            {language === 'en' ? 'Application Date' : 'விண்ணப்ப தேதி'}
+                          </label>
+                          <input
+                            type="date"
+                            value={app.applicationDate || ''}
+                            onChange={(e) => updateField(app.id, 'applicationDate', e.target.value)}
+                            className="w-full px-3 py-1.5 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                            {language === 'en' ? 'Reference Number' : 'குறிப்பு எண்'}
+                          </label>
+                          <input
+                            type="text"
+                            value={app.referenceNumber || ''}
+                            onChange={(e) => updateField(app.id, 'referenceNumber', e.target.value)}
+                            placeholder={language === 'en' ? 'e.g. APP-2024-XXXX' : ''}
+                            className="w-full px-3 py-1.5 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                            {language === 'en' ? 'Next Action' : 'அடுத்த நடவடிக்கை'}
+                          </label>
+                          <input
+                            type="text"
+                            value={app.nextAction || ''}
+                            onChange={(e) => updateField(app.id, 'nextAction', e.target.value)}
+                            placeholder={language === 'en' ? 'e.g. Follow up on 30 Sep' : ''}
+                            className="w-full px-3 py-1.5 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                            {language === 'en' ? 'Notes' : 'குறிப்புகள்'}
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={app.notes || ''}
+                            onChange={(e) => updateField(app.id, 'notes', e.target.value)}
+                            placeholder={language === 'en' ? 'Any notes…' : ''}
+                            className="w-full px-3 py-1.5 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary outline-none resize-none"
+                          />
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </GlassCard>
+            );
+          })}
         </div>
       )}
 
