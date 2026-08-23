@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Briefcase, MapPin, User, ShieldCheck, Home } from 'lucide-react';
+import { Briefcase, MapPin, User, ShieldCheck, Home, Pencil } from 'lucide-react';
 
 const OCC_LABELS = {
   Student:              { en: 'Student',                          ta: 'மாணவர்' },
@@ -71,7 +71,7 @@ const SectionCard = ({ title, icon: Icon, rows, delay = 0 }) => (
   </motion.div>
 );
 
-const ProfilePage = ({ profile, onUpdate, darkMode, language }) => {
+const ProfilePage = ({ profile, onUpdate, onEdit, darkMode, language }) => {
   const t = (en, ta) => (language === 'en' ? en : ta);
   const name = getUserName();
   const initials = getInitials(name);
@@ -168,7 +168,18 @@ const ProfilePage = ({ profile, onUpdate, darkMode, language }) => {
 
         {/* Name + occupation + location */}
         <div className="flex-1 text-center sm:text-left min-w-0">
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-white truncate">{name}</h2>
+          <div className="flex items-start justify-center sm:justify-between gap-3">
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-white truncate">{name}</h2>
+            {onEdit && (
+              <button
+                onClick={onEdit}
+                className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-700 hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                {t('Edit', 'திருத்து')}
+              </button>
+            )}
+          </div>
           <div className="mt-2 flex flex-wrap items-center justify-center sm:justify-start gap-3">
             {occLabel && (
               <span className="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-300">

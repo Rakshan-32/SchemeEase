@@ -96,6 +96,7 @@ export const Dashboard = ({ profile, onUpdateProfile, darkMode, language, initia
   const [sortBy, setSortBy] = useState('relevance');
   const [missingInfoModal, setMissingInfoModal] = useState({ isOpen: false, schemeData: null });
   const [detailModal, setDetailModal] = useState({ isOpen: false, schemeData: null });
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('saved_schemes', JSON.stringify(savedSchemes));
@@ -187,6 +188,10 @@ export const Dashboard = ({ profile, onUpdateProfile, darkMode, language, initia
 
   useEffect(() => {
     if (activeTab === 'notifications') markAllNotificationsRead();
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab !== 'profile') setIsEditingProfile(false);
   }, [activeTab]);
 
   const clearAllNotifications = () => {
@@ -796,7 +801,26 @@ export const Dashboard = ({ profile, onUpdateProfile, darkMode, language, initia
               {activeTab === 'contact' && <ContactSection darkMode={darkMode} language={language} />}
 
               {activeTab === 'profile' && (
-                <ProfilePage profile={profile} onUpdate={onUpdateProfile} darkMode={darkMode} language={language} />
+                isEditingProfile ? (
+                  <ProfileEditor
+                    profile={profile}
+                    onUpdate={(updated) => {
+                      onUpdateProfile(updated);
+                      setIsEditingProfile(false);
+                    }}
+                    onCancel={() => setIsEditingProfile(false)}
+                    darkMode={darkMode}
+                    language={language}
+                  />
+                ) : (
+                  <ProfilePage
+                    profile={profile}
+                    onUpdate={onUpdateProfile}
+                    onEdit={() => setIsEditingProfile(true)}
+                    darkMode={darkMode}
+                    language={language}
+                  />
+                )
               )}
             </motion.div>
           </AnimatePresence>
@@ -1609,7 +1633,7 @@ const ContactSection = ({ darkMode, language }) => {
   );
 };
 
-export const ProfileEditor = ({ profile, onUpdate, darkMode, language }) => {
+export const ProfileEditor = ({ profile, onUpdate, onCancel, darkMode, language }) => {
   const [formData, setFormData] = useState(profile);
 
   const handleFieldChange = (key, value) => {
@@ -1623,22 +1647,44 @@ export const ProfileEditor = ({ profile, onUpdate, darkMode, language }) => {
 
   return (
     <GlassPanel className={`max-w-2xl mx-auto ${darkMode ? 'dark' : ''}`}>
-      <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-6">
-        {language === 'en' ? 'Your Profile' : 'உங்கள் சுயவிவரம்'}
-      </h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+          {language === 'en' ? 'Edit Profile' : 'சுயவிவரத்தை திருத்து'}
+        </h2>
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+          >
+            {language === 'en' ? 'Cancel' : 'ரத்து செய்'}
+          </button>
+        )}
+      </div>
       <form onSubmit={handleSubmit}>
         <ProfileForm
           profile={formData}
           onChange={handleFieldChange}
           language={language}
         />
-        <button
-          type="submit"
-          className="w-full mt-6 py-3 px-4 bg-primary text-white rounded-lg font-bold hover:bg-teal-800 transition-colors shadow flex items-center justify-center gap-2"
-        >
-          <Save className="w-5 h-5" />
-          {language === 'en' ? 'Save Profile & Find Schemes' : 'சுயவிவரத்தைச் சேமித்து திட்டங்களைக் கண்டறியவும்'}
-        </button>
+        <div className="flex gap-3 mt-6">
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="flex-1 py-3 px-4 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-lg font-bold hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+            >
+              {language === 'en' ? 'Cancel' : 'ரத்து செய்'}
+            </button>
+          )}
+          <button
+            type="submit"
+            className="flex-1 py-3 px-4 bg-primary text-white rounded-lg font-bold hover:bg-teal-800 transition-colors shadow flex items-center justify-center gap-2"
+          >
+            <Save className="w-5 h-5" />
+            {language === 'en' ? 'Save & Update Schemes' : 'சேமித்து திட்டங்களை புதுப்பி'}
+          </button>
+        </div>
       </form>
     </GlassPanel>
   );
