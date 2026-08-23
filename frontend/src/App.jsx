@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useMatch, useNavigate } from 'react-router-dom';
 import { AuthPage } from './Auth';
 import ProfileSetup from './ProfileSetup';
@@ -22,6 +22,9 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [voiceError, setVoiceError] = useState('');
+  const recognitionRef = useRef(null);
+  const voiceSupported = ('webkitSpeechRecognition' in window) || ('SpeechRecognition' in window);
 
   // Check for existing session on mount
   useEffect(() => {
@@ -131,29 +134,57 @@ function App() {
   };
 
   const handleVoiceSearch = () => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert('Voice search is not supported in your browser. Please try Chrome or Edge.');
+    if (!voiceSupported) return; // button is hidden when unsupported
+
+    // Stop if already listening
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
       return;
     }
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
+    setVoiceError('');
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SR();
+    recognitionRef.current = recognition;
 
-    recognition.lang = 'en-IN';
+    recognition.lang = language === 'ta' ? 'ta-IN' : 'en-IN';
     recognition.continuous = false;
     recognition.interimResults = false;
 
     recognition.onstart = () => setIsListening(true);
-    recognition.onend = () => setIsListening(false);
 
     recognition.onresult = (event) => {
       const transcript = event.results[0][0].transcript;
       setSearchQuery(transcript);
+      // Auto-submit: kick off profile extraction with the captured transcript
+      setIsSearching(true);
+      extractProfile(transcript).then((extracted) => {
+        if (extracted && extracted.profile) {
+          const updatedProfile = { ...profile, ...extracted.profile };
+          setProfile(updatedProfile);
+          if (currentUser) {
+            localStorage.setItem(`profile_${currentUser}`, JSON.stringify(updatedProfile));
+          }
+          localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
+        }
+        setIsSearching(false);
+        setSearchQuery('');
+      }).catch(() => setIsSearching(false));
     };
 
     recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
+      const msgs = {
+        'not-allowed': language === 'en' ? 'Microphone access denied. Please allow it in your browser settings.' : 'மைக்ரோஃபோன் அணுகல் மறுக்கப்பட்டது.',
+        'network':     language === 'en' ? 'Network error during voice recognition.' : 'குரல் அங்கீகாரத்தில் நெட்வொர்க் பிழை.',
+        'no-speech':   language === 'en' ? 'No speech detected. Please try again.' : 'பேச்சு கண்டறியப்படவில்லை.',
+      };
+      setVoiceError(msgs[event.error] || (language === 'en' ? `Voice error: ${event.error}` : `பிழை: ${event.error}`));
       setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      recognitionRef.current = null;
     };
 
     recognition.start();
@@ -251,9 +282,11 @@ function App() {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder={language === 'en' ? "E.g. I am a 30 year old SC farmer..." : "எ.கா. நான் 30 வயது SC விவசாயி..."}
-                className="w-full bg-slate-100/80 dark:bg-slate-800/80 dark:text-white backdrop-blur-sm border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-full py-3 px-6 pl-12 pr-12 shadow-inner outline-none transition-all"
+                onChange={e => { setSearchQuery(e.target.value); setVoiceError(''); }}
+                placeholder={isListening
+                  ? (language === 'en' ? 'Listening…' : 'கேட்கிறது…')
+                  : (language === 'en' ? 'E.g. I am a 30 year old SC farmer...' : 'எ.கா. நான் 30 வயது SC விவசாயி...')}
+                className={`w-full bg-slate-100/80 dark:bg-slate-800/80 dark:text-white backdrop-blur-sm border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-full py-3 px-6 pl-12 pr-12 shadow-inner outline-none transition-all ${isListening ? 'ring-2 ring-red-400/50 border-red-300' : ''}`}
                 disabled={isSearching || isListening}
               />
               {isSearching ? (
@@ -261,15 +294,32 @@ function App() {
               ) : (
                 <Search className="absolute left-4 top-3.5 w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
               )}
-              <button
-                type="button"
-                onClick={handleVoiceSearch}
-                className={`absolute right-4 top-3 p-1 rounded-full transition-all ${isListening ? 'bg-red-500 text-white animate-pulse' : 'hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400'}`}
-                title="Voice Search"
-              >
-                {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-              </button>
+              {voiceSupported ? (
+                <button
+                  type="button"
+                  onClick={handleVoiceSearch}
+                  disabled={isSearching}
+                  className={`absolute right-4 top-3 p-1 rounded-full transition-all disabled:opacity-40 ${isListening ? 'bg-red-500 text-white animate-pulse' : 'hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400'}`}
+                  title={isListening
+                    ? (language === 'en' ? 'Stop listening' : 'நிறுத்து')
+                    : (language === 'en' ? 'Voice search' : 'குரல் தேடல்')}
+                >
+                  {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                </button>
+              ) : (
+                <span
+                  className="absolute right-4 top-3 p-1 text-slate-300 dark:text-slate-600 cursor-default"
+                  title={language === 'en' ? 'Voice search not supported in this browser. Try Chrome or Edge.' : 'இந்த உலாவியில் குரல் தேடல் ஆதரிக்கப்படவில்லை.'}
+                >
+                  <MicOff className="w-5 h-5" />
+                </span>
+              )}
             </div>
+            {voiceError && (
+              <p className="absolute top-full mt-1 left-4 text-xs text-red-600 dark:text-red-400 bg-white dark:bg-slate-800 rounded-lg px-3 py-1.5 shadow-md border border-red-200 dark:border-red-700 z-10">
+                {voiceError}
+              </p>
+            )}
           </form>
 
           <div className="flex items-center gap-3">
