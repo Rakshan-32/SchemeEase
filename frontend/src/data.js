@@ -10,11 +10,18 @@
 function deriveProfileForEngine(profile) {
   const p = { ...profile };
   const occ = p.primaryOccupation;
-  if (occ === 'Farmer')             p.farmer = true;
-  if (occ === 'DailyWage')          p.unorganisedWorker = true;
-  if (occ === 'Entrepreneur' || occ === 'MSME') p.firstTimeEntrepreneur = true;
-  if (occ === 'StreetVendor')       p.streetVendor = true;
-  if (occ === 'PersonWithDisability') p.disability = true;
+  if (occ) {
+    // When primaryOccupation is known, it is authoritative — override any stale
+    // direct boolean values that may have been written by MissingInfoModal answers.
+    p.farmer               = (occ === 'Farmer');
+    p.unorganisedWorker    = (occ === 'DailyWage');
+    p.firstTimeEntrepreneur = (occ === 'Entrepreneur' || occ === 'MSME');
+    p.streetVendor         = (occ === 'StreetVendor');
+    // disability can also come from the secondaryIdentities checkbox — only add,
+    // never clear, so a Farmer who also has a disability keeps disability: true.
+    if (occ === 'PersonWithDisability') p.disability = true;
+  }
+  // No primaryOccupation: preserve any direct field answers (e.g. from MissingInfoModal)
   return p;
 }
 

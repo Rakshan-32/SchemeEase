@@ -36,6 +36,8 @@ const fieldToQuestion = (field, language = 'en') => {
       poorHousehold: 'Does your household have a BPL card?',
       sewerageConnection: 'Do you have a sewerage connection?',
       urbanArea: 'Do you live in an urban area?',
+      engagedInBegging: 'Are you engaged in begging / destitute?',
+      institution: 'Are you applying as or through an institution / organisation?',
       age: 'What is your age?',
       income: 'What is your annual household income (₹)?',
       gender: 'What is your gender?',
@@ -69,6 +71,13 @@ const fieldToQuestion = (field, language = 'en') => {
       minorityCommunity: 'சிறுபான்மை சமூகத்தைச் சேர்ந்தவரா?',
       disability: 'மாற்றுத்திறனாளியா?',
       poorHousehold: 'BPL அட்டை உள்ளதா?',
+      nonCorporate: 'உங்கள் தொழில் நிறுவனமற்றதா (கார்பரேட் அல்ல)?',
+      nonFarm: 'உங்கள் தொழில் விவசாயமற்ற துறையிலா?',
+      dpiitRecognized: 'உங்கள் ஸ்டார்ட்அப் DPIIT அங்கீகாரம் பெற்றதா?',
+      sewerageConnection: 'சாக்கடை இணைப்பு உள்ளதா?',
+      urbanArea: 'நகர்ப்புறத்தில் வாழ்கிறீர்களா?',
+      engagedInBegging: 'நீங்கள் பிச்சை எடுக்கும் / ஆதரவற்ற நிலையில் உள்ளீர்களா?',
+      institution: 'நிறுவனம் / அமைப்பு மூலம் விண்ணப்பிக்கிறீர்களா?',
       age: 'உங்கள் வயது என்ன?',
       income: 'ஆண்டு வருமானம் (₹)?',
       gender: 'பாலினம்?',
@@ -93,7 +102,8 @@ const FieldInput = ({ field, value, onChange, language }) => {
     'incomeTaxPayer', 'indianCitizen', 'bereavedFamily',
     'firstTimeEntrepreneur', 'nonCorporate', 'nonFarm', 'dpiitRecognized',
     'streetVendor', 'fisheriesSector', 'minorityCommunity', 'transgender',
-    'disability', 'poorHousehold', 'sewerageConnection', 'urbanArea', 'farmer'
+    'disability', 'poorHousehold', 'sewerageConnection', 'urbanArea', 'farmer',
+    'engagedInBegging', 'institution'
   ].includes(field)) {
     return (
       <div className="flex gap-3">
