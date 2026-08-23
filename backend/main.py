@@ -127,7 +127,7 @@ def contact(request: ContactRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail="Unable to send your message. Please try again.")
 
-@app.get("/scheme/{scheme_id}")
+@app.get("/schemes/{scheme_id}")
 def get_scheme(scheme_id: str):
     schemes = load_schemes()
     scheme = next((s for s in schemes if s["id"] == scheme_id), None)

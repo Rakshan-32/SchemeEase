@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import { Search, Loader2, Mic, MicOff, Moon, Sun, Globe } from 'lucide-react';
 
 function App() {
-  const schemeMatch = useMatch('/scheme/:schemeId');
+  const schemeMatch = useMatch('/schemes/:schemeId');
   const navigate = useNavigate();
   const [authState, setAuthState] = useState('loading'); // 'loading', 'auth', 'setup', 'dashboard'
   const [currentUser, setCurrentUser] = useState(null);
@@ -167,7 +167,7 @@ function App() {
     localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
   };
 
-  // Deep-link: /scheme/:schemeId
+  // Deep-link: /schemes/:schemeId
   if (schemeMatch) {
     const { schemeId } = schemeMatch.params;
 

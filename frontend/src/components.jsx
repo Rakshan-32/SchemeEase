@@ -55,7 +55,7 @@ export const SchemeCard = ({ schemeData, onSave, saved, onCompare, onView, onPro
   };
 
   const handleShare = async () => {
-    const deepLink = `${window.location.origin}/scheme/${scheme.id}`;
+    const deepLink = `${window.location.origin}/schemes/${scheme.id}`;
     const shareData = {
       title: scheme.name,
       text: `${scheme.name} - ${scheme.description}`,
