@@ -85,10 +85,10 @@ const ProfileSetup = ({ onComplete, darkMode, language, initialProfile = {} }) =
               {step === 2 && (
                 <>
                   <h3 className="text-xl font-bold text-slate-800 dark:text-white">
-                    {t('Occupation & Status', 'தொழில் & நிலை')}
+                    {t('What Best Describes You?', 'உங்களை சிறந்த முறையில் விவரிப்பது எது?')}
                   </h3>
                   <p className="text-sm text-slate-600 dark:text-slate-400 -mt-4">
-                    {t('Select all that apply to discover relevant schemes:', 'பொருந்தும் அனைத்தையும் தேர்ந்தெடுக்கவும்:')}
+                    {t('Select your primary occupation to find relevant schemes:', 'பொருத்தமான திட்டங்களைக் கண்டறிய உங்கள் முதன்மை தொழிலைத் தேர்ந்தெடுக்கவும்:')}
                   </p>
                 </>
               )}

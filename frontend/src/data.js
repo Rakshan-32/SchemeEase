@@ -1,3 +1,23 @@
+// Translate primaryOccupation (new canonical UI field) into the boolean fields
+// that backend/engine.py reads from schemes.json criteria. engine.py is unchanged.
+// primaryOccupation values → engine boolean keys:
+//   Farmer          → farmer: true
+//   DailyWage       → unorganisedWorker: true
+//   Entrepreneur    → firstTimeEntrepreneur: true
+//   MSME            → firstTimeEntrepreneur: true  (closest match in current schema)
+//   StreetVendor    → streetVendor: true
+//   PersonWithDisability → disability: true (also set by the secondary disability checkbox)
+function deriveProfileForEngine(profile) {
+  const p = { ...profile };
+  const occ = p.primaryOccupation;
+  if (occ === 'Farmer')             p.farmer = true;
+  if (occ === 'DailyWage')          p.unorganisedWorker = true;
+  if (occ === 'Entrepreneur' || occ === 'MSME') p.firstTimeEntrepreneur = true;
+  if (occ === 'StreetVendor')       p.streetVendor = true;
+  if (occ === 'PersonWithDisability') p.disability = true;
+  return p;
+}
+
 // Set VITE_API_BASE_URL in frontend/.env (see .env.example). No trailing slash.
 const API_BASE = import.meta.env.VITE_API_BASE_URL || (
   import.meta.env.PROD
@@ -22,7 +42,7 @@ export const analyzeProfile = async (profile) => {
     const res = await fetch(`${API_BASE}/analyze`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ profile })
+      body: JSON.stringify({ profile: deriveProfileForEngine(profile) })
     });
     if (!res.ok) throw new Error("API failed");
     return await res.json();

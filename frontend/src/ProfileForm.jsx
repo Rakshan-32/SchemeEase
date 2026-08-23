@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Info } from 'lucide-react';
+import {
+  AlertCircle, Info,
+  GraduationCap, Sprout, Briefcase, HardHat, Store, TrendingUp,
+  Building2, Search, Home, Clock, Heart, ShoppingCart, User,
+} from 'lucide-react';
+
+const OCCUPATION_ICONS = {
+  GraduationCap, Sprout, Briefcase, HardHat, Store, TrendingUp,
+  Building2, Search, Home, Clock, Heart, ShoppingCart, User,
+};
 import { SECTIONS, SECTION_BY_STEP } from './profileSchema';
 
 const HINT_COLORS = {
@@ -80,6 +89,38 @@ function SelectField({ field, value, onChange, t }) {
   );
 }
 
+function OccupationCardsField({ field, value, onChange, t }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+        {t(field.labelEn, field.labelTa)}
+        {field.required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {field.options.map((opt) => {
+          const Icon = OCCUPATION_ICONS[opt.icon] || User;
+          const selected = value === opt.value;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onChange(field.key, opt.value, field)}
+              className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 text-center transition-all focus:outline-none focus:ring-2 focus:ring-primary ${
+                selected
+                  ? 'border-primary bg-primary/10 dark:bg-teal-900/30 text-primary dark:text-teal-400'
+                  : 'border-slate-200 dark:border-slate-600 hover:border-primary/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-300'
+              }`}
+            >
+              <Icon className={`w-6 h-6 flex-shrink-0 ${selected ? 'text-primary dark:text-teal-400' : 'text-slate-500 dark:text-slate-400'}`} />
+              <span className="text-xs font-medium leading-tight">{t(opt.labelEn, opt.labelTa)}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function CheckboxField({ field, value, onChange, t }) {
   const isLg = field.size === 'lg';
   const padding = isLg ? 'p-4' : 'p-3';
@@ -136,98 +177,54 @@ function BasicSection({ section, profile, errors, onChange, t }) {
 }
 
 function OccupationSection({ section, profile, errors, onChange, t }) {
-  // Collect indented children keyed by their parent field key
-  const childrenOf = {};
-  section.fields.forEach((field) => {
-    if (field.indent && field.showWhen) {
-      // Find the parent: the most recent non-indent checkbox before this field
-      const idx = section.fields.indexOf(field);
-      for (let i = idx - 1; i >= 0; i--) {
-        const candidate = section.fields[i];
-        if (!candidate.indent && candidate.type === 'checkbox') {
-          (childrenOf[candidate.key] = childrenOf[candidate.key] || []).push(field);
-          break;
-        }
-      }
-    }
-  });
-
-  const renderedAsChild = new Set(
-    Object.values(childrenOf).flat().map((f) => f.key)
-  );
-
   return (
     <div className="space-y-4">
-      {section.fields
-        .filter((f) => !renderedAsChild.has(f.key))
-        .map((field) => {
-          if (field.type === 'select') {
-            return (
-              <SelectField
-                key={field.key}
-                field={field}
-                value={profile[field.key]}
-                onChange={onChange}
-                t={t}
-              />
-            );
-          }
+      {section.fields.map((field) => {
+        const visible = field.showWhen ? field.showWhen(profile) : true;
+        if (!visible) return null;
 
-          const children = childrenOf[field.key] || [];
-
+        if (field.type === 'occupation_cards') {
           return (
-            <React.Fragment key={field.key}>
-              <CheckboxField
-                field={field}
-                value={profile[field.key]}
-                onChange={onChange}
-                t={t}
-              />
-              {children.length > 0 && (
-                <AnimatePresence>
-                  {field.showWhen
-                    ? field.showWhen(profile) && profile[field.key]
-                      ? renderChildBlock(children, field, profile, onChange, t)
-                      : null
-                    : !!profile[field.key]
-                      ? renderChildBlock(children, field, profile, onChange, t)
-                      : null}
-                </AnimatePresence>
-              )}
-            </React.Fragment>
+            <OccupationCardsField
+              key={field.key}
+              field={field}
+              value={profile[field.key]}
+              onChange={onChange}
+              t={t}
+            />
           );
-        })}
+        }
+
+        if (field.type === 'select') {
+          return (
+            <motion.div
+              key={field.key}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className={`overflow-hidden${field.indent ? ' ml-8' : ''}`}
+            >
+              <SelectField field={field} value={profile[field.key]} onChange={onChange} t={t} />
+            </motion.div>
+          );
+        }
+
+        return (
+          <motion.div
+            key={field.key}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className={`overflow-hidden${field.indent ? ' ml-8' : ''}`}
+          >
+            <CheckboxField field={field} value={profile[field.key]} onChange={onChange} t={t} />
+          </motion.div>
+        );
+      })}
     </div>
   );
 }
 
-function renderChildBlock(children, parentField, profile, onChange, t) {
-  return (
-    <motion.div
-      key={`${parentField.key}-children`}
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: 'auto' }}
-      exit={{ opacity: 0, height: 0 }}
-      className="ml-8 space-y-3 overflow-hidden"
-    >
-      {parentField.groupHintEn && (
-        <HintBanner
-          color={parentField.groupHintColor || 'teal'}
-          text={t(parentField.groupHintEn, parentField.groupHintTa)}
-        />
-      )}
-      {children.map((child) => (
-        <CheckboxField
-          key={child.key}
-          field={child}
-          value={profile[child.key]}
-          onChange={onChange}
-          t={t}
-        />
-      ))}
-    </motion.div>
-  );
-}
 
 function AdditionalSection({ section, profile, errors, onChange, t }) {
   return (
