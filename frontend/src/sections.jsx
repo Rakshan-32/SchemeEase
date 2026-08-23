@@ -6,7 +6,7 @@ import MissingInfoModal from './MissingInfoModal';
 import SchemeDetailModal from './SchemeDetailModal';
 import AllSchemes from './AllSchemes';
 import ProfileForm from './ProfileForm';
-import { Search, UserCircle, Save, SlidersHorizontal, Bell, FileCheck, HelpCircle, Mail, GitCompare, Printer, Share2, ChevronDown, CheckCircle, Clock, X, List } from 'lucide-react';
+import { Search, UserCircle, Save, SlidersHorizontal, Bell, FileCheck, HelpCircle, Mail, GitCompare, Printer, Share2, ChevronDown, CheckCircle, Clock, X, List, ExternalLink, AlertCircle, AlertTriangle } from 'lucide-react';
 
 export const Landing = ({ onLogin, darkMode, language }) => {
   return (
@@ -80,7 +80,8 @@ export const Dashboard = ({ profile, onUpdateProfile, darkMode, language, initia
   const [schemes, setSchemes] = useState([]);
   const [savedSchemes, setSavedSchemes] = useState(() => JSON.parse(localStorage.getItem('saved_schemes') || '[]'));
   const [recentlyViewed, setRecentlyViewed] = useState(() => JSON.parse(localStorage.getItem('recently_viewed') || '[]'));
-  const [compareList, setCompareList] = useState([]);
+  const compareKey = `compare_list_${(localStorage.getItem('current_user') || 'guest').toLowerCase()}`;
+  const [compareList, setCompareList] = useState(() => JSON.parse(localStorage.getItem(compareKey) || '[]').slice(0, 3));
   const [notifications, setNotifications] = useState(() => JSON.parse(localStorage.getItem('notifications') || '[]'));
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('recommendations');
@@ -100,6 +101,10 @@ export const Dashboard = ({ profile, onUpdateProfile, darkMode, language, initia
   useEffect(() => {
     localStorage.setItem('notifications', JSON.stringify(notifications));
   }, [notifications]);
+
+  useEffect(() => {
+    localStorage.setItem(compareKey, JSON.stringify(compareList));
+  }, [compareList]);
 
   useEffect(() => {
     if (Object.keys(profile).length > 0) {
@@ -235,7 +240,7 @@ export const Dashboard = ({ profile, onUpdateProfile, darkMode, language, initia
   const unreadNotifCount = notifications.filter(n => !n.read).length;
 
   return (
-    <div className={`min-h-screen relative pt-24 pb-12 px-6 transition-colors duration-300`}>
+    <div className={`min-h-screen relative pt-24 px-6 transition-colors duration-300 ${compareList.length > 0 ? 'pb-32' : 'pb-12'}`}>
       {/* Missing Info Modal */}
       <MissingInfoModal
         isOpen={missingInfoModal.isOpen}
@@ -260,6 +265,18 @@ export const Dashboard = ({ profile, onUpdateProfile, darkMode, language, initia
         darkMode={darkMode}
         language={language}
       />
+      {/* Floating Compare Tray */}
+      <AnimatePresence>
+        {compareList.length > 0 && activeTab !== 'compare' && (
+          <CompareTray
+            compareList={compareList}
+            onRemove={removeFromCompare}
+            onCompareNow={() => setActiveTab('compare')}
+            language={language}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Animated Background */}
       <div className="fixed inset-0 -z-10">
         {/* Base gradient */}
@@ -750,6 +767,39 @@ const TabButton = ({ children, active, onClick, darkMode }) => (
   </button>
 );
 
+// Floating Compare Tray
+const CompareTray = ({ compareList, onRemove, onCompareNow, language }) => (
+  <motion.div
+    initial={{ y: 100, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    exit={{ y: 100, opacity: 0 }}
+    className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-700 shadow-2xl"
+  >
+    <div className="container mx-auto px-6 py-3 flex flex-wrap items-center gap-3">
+      <span className="text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2 flex-shrink-0">
+        <GitCompare className="w-4 h-4 text-primary dark:text-teal-400" />
+        {language === 'en' ? 'Comparing' : 'ஒப்பிடுகிறது'} ({compareList.length}/3)
+      </span>
+      <div className="flex flex-wrap gap-2 flex-1">
+        {compareList.map(s => (
+          <span key={s.scheme_id} className="flex items-center gap-1.5 bg-teal-50 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-700 text-teal-800 dark:text-teal-200 text-xs font-medium px-3 py-1.5 rounded-full">
+            {s.scheme.name.length > 30 ? s.scheme.name.slice(0, 30) + '…' : s.scheme.name}
+            <button onClick={() => onRemove(s.scheme_id)} className="hover:text-red-500 transition-colors ml-0.5">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </span>
+        ))}
+      </div>
+      <button
+        onClick={onCompareNow}
+        className="flex-shrink-0 px-5 py-2 bg-primary hover:bg-teal-700 text-white text-sm font-bold rounded-lg transition-colors"
+      >
+        {language === 'en' ? 'Compare Now' : 'இப்போது ஒப்பிடு'}
+      </button>
+    </div>
+  </motion.div>
+);
+
 // Comparison View Component
 const ComparisonView = ({ schemes, onRemove, darkMode, language }) => {
   if (schemes.length === 0) {
@@ -762,14 +812,14 @@ const ComparisonView = ({ schemes, onRemove, darkMode, language }) => {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse bg-white dark:bg-slate-800 rounded-lg shadow">
+      <table className="w-full min-w-[640px] border-collapse bg-white dark:bg-slate-800 rounded-lg shadow">
         <thead>
           <tr className="bg-slate-100 dark:bg-slate-700">
-            <th className="p-4 text-left font-bold text-slate-700 dark:text-slate-200">
+            <th className="p-4 text-left font-bold text-slate-700 dark:text-slate-200 sticky left-0 z-10 bg-slate-100 dark:bg-slate-700">
               {language === 'en' ? 'Attribute' : 'பண்பு'}
             </th>
             {schemes.map(s => (
-              <th key={s.scheme_id} className="p-4 text-left relative">
+              <th key={s.scheme_id} className="p-4 text-left relative min-w-[200px]">
                 <button
                   onClick={() => onRemove(s.scheme_id)}
                   className="absolute top-2 right-2 p-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900 text-red-600"
@@ -784,32 +834,80 @@ const ComparisonView = ({ schemes, onRemove, darkMode, language }) => {
         </thead>
         <tbody>
           <tr className="border-t dark:border-slate-700">
-            <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">{language === 'en' ? 'Category' : 'வகை'}</td>
-            {schemes.map(s => <td key={s.scheme_id} className="p-4 text-slate-600 dark:text-slate-400">{s.scheme.category}</td>)}
-          </tr>
-          <tr className="border-t dark:border-slate-700 bg-slate-50 dark:bg-slate-750">
-            <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">{language === 'en' ? 'Eligibility' : 'தகுதி'}</td>
-            {schemes.map(s => <td key={s.scheme_id} className="p-4 text-slate-600 dark:text-slate-400">{s.eligibility_status.replace(/_/g, ' ')}</td>)}
-          </tr>
-          <tr className="border-t dark:border-slate-700">
-            <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">{language === 'en' ? 'Relevance' : 'பொருத்தம்'}</td>
-            {schemes.map(s => <td key={s.scheme_id} className="p-4 text-slate-600 dark:text-slate-400">{s.relevance_score}%</td>)}
-          </tr>
-          <tr className="border-t dark:border-slate-700 bg-slate-50 dark:bg-slate-750">
-            <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">{language === 'en' ? 'Benefits' : 'நன்மைகள்'}</td>
+            <td className="p-4 font-semibold text-slate-700 dark:text-slate-300 sticky left-0 z-10 bg-white dark:bg-slate-800">{language === 'en' ? 'Department' : 'துறை'}</td>
             {schemes.map(s => (
-              <td key={s.scheme_id} className="p-4 text-slate-600 dark:text-slate-400">
-                <ul className="list-disc pl-4 space-y-1 text-sm">
-                  {s.scheme.benefits.map((b, i) => <li key={i}>{b}</li>)}
-                </ul>
+              <td key={s.scheme_id} className="p-4 text-slate-600 dark:text-slate-400 text-sm">{s.scheme.department}</td>
+            ))}
+          </tr>
+          <tr className="border-t dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+            <td className="p-4 font-semibold text-slate-700 dark:text-slate-300 sticky left-0 z-10 bg-slate-50 dark:bg-slate-800">{language === 'en' ? 'Official URL' : 'அதிகாரப்பூர்வ இணைப்பு'}</td>
+            {schemes.map(s => (
+              <td key={s.scheme_id} className="p-4 text-sm">
+                {s.scheme.officialUrl
+                  ? <a href={s.scheme.officialUrl} target="_blank" rel="noopener noreferrer" className="text-teal-600 dark:text-teal-400 underline break-all">{s.scheme.officialUrl}</a>
+                  : <span className="text-slate-400 dark:text-slate-500">—</span>
+                }
               </td>
             ))}
           </tr>
           <tr className="border-t dark:border-slate-700">
-            <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">{language === 'en' ? 'Documents' : 'ஆவணங்கள்'}</td>
+            <td className="p-4 font-semibold text-slate-700 dark:text-slate-300 sticky left-0 z-10 bg-white dark:bg-slate-800">{language === 'en' ? 'Matched Criteria' : 'பொருந்திய நிபந்தனைகள்'}</td>
+            {schemes.map(s => (
+              <td key={s.scheme_id} className="p-4">
+                {s.matched_criteria?.length > 0
+                  ? <div className="flex flex-wrap gap-1">{s.matched_criteria.map(c => (
+                      <span key={c} className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded text-xs border border-green-200 dark:border-green-700">✓ {c}</span>
+                    ))}</div>
+                  : <span className="text-slate-400 dark:text-slate-500 text-sm">—</span>
+                }
+              </td>
+            ))}
+          </tr>
+          <tr className="border-t dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+            <td className="p-4 font-semibold text-slate-700 dark:text-slate-300 sticky left-0 z-10 bg-slate-50 dark:bg-slate-800">{language === 'en' ? 'Missing Info' : 'விடுபட்ட தகவல்'}</td>
+            {schemes.map(s => (
+              <td key={s.scheme_id} className="p-4">
+                {s.missing_information?.length > 0
+                  ? <div className="flex flex-wrap gap-1">{s.missing_information.map(c => (
+                      <span key={c} className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-2 py-0.5 rounded text-xs border border-yellow-200 dark:border-yellow-700">? {c}</span>
+                    ))}</div>
+                  : <span className="text-green-600 dark:text-green-400 text-sm">✓ {language === 'en' ? 'None' : 'இல்லை'}</span>
+                }
+              </td>
+            ))}
+          </tr>
+          <tr className="border-t dark:border-slate-700">
+            <td className="p-4 font-semibold text-slate-700 dark:text-slate-300 sticky left-0 z-10 bg-white dark:bg-slate-800">{language === 'en' ? 'Failed Criteria' : 'தோல்வியடைந்த நிபந்தனைகள்'}</td>
+            {schemes.map(s => (
+              <td key={s.scheme_id} className="p-4">
+                {s.failed_criteria?.length > 0
+                  ? <div className="flex flex-wrap gap-1">{s.failed_criteria.map(c => (
+                      <span key={c} className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-2 py-0.5 rounded text-xs border border-red-200 dark:border-red-700">✕ {c}</span>
+                    ))}</div>
+                  : <span className="text-slate-400 dark:text-slate-500 text-sm">—</span>
+                }
+              </td>
+            ))}
+          </tr>
+          <tr className="border-t dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+            <td className="p-4 font-semibold text-slate-700 dark:text-slate-300 sticky left-0 z-10 bg-slate-50 dark:bg-slate-800">{language === 'en' ? 'Application Method' : 'விண்ணப்பிக்கும் முறை'}</td>
             {schemes.map(s => (
               <td key={s.scheme_id} className="p-4 text-slate-600 dark:text-slate-400 text-sm">
-                {s.scheme.documents.length} {language === 'en' ? 'required' : 'தேவை'}
+                {s.scheme.applicationMethod || <span className="text-slate-400 dark:text-slate-500">—</span>}
+              </td>
+            ))}
+          </tr>
+          <tr className="border-t dark:border-slate-700">
+            <td className="p-4 font-semibold text-slate-700 dark:text-slate-300 sticky left-0 z-10 bg-white dark:bg-slate-800">{language === 'en' ? 'Documents Required' : 'தேவையான ஆவணங்கள்'}</td>
+            {schemes.map(s => (
+              <td key={s.scheme_id} className="p-4">
+                <ul className="space-y-1">
+                  {s.scheme.documents.map((doc, i) => (
+                    <li key={i} className="text-slate-600 dark:text-slate-400 text-sm flex gap-1.5 items-start">
+                      <span className="text-slate-400 dark:text-slate-500 mt-0.5">•</span>{doc}
+                    </li>
+                  ))}
+                </ul>
               </td>
             ))}
           </tr>
