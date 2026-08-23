@@ -425,6 +425,29 @@ export const Dashboard = ({ profile, onUpdateProfile, darkMode, language, initia
               </div>
             </motion.div>
           </div>
+          {/* Tracker quick summary */}
+          {(() => {
+            const td = loadTrackerData();
+            if (!td.length) return null;
+            const inProgress = td.filter(a => ['Documents Prepared', 'Application Submitted', 'Under Review'].includes(a.status)).length;
+            const submitted = td.filter(a => ['Application Submitted', 'Under Review'].includes(a.status)).length;
+            const withNextAction = td.filter(a => a.nextAction?.trim()).length;
+            return (
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  {language === 'en' ? 'Tracker:' : 'கண்காணிப்பு:'}
+                </span>
+                {[
+                  { label: language === 'en' ? `${td.length} tracked` : `${td.length} கண்காணிக்கப்படுகிறது`, color: 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300' },
+                  inProgress > 0 && { label: language === 'en' ? `${inProgress} in progress` : `${inProgress} நடவடிக்கையில்`, color: 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300' },
+                  submitted > 0 && { label: language === 'en' ? `${submitted} submitted` : `${submitted} சமர்பிக்கப்பட்டது`, color: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' },
+                  withNextAction > 0 && { label: language === 'en' ? `${withNextAction} next action set` : `${withNextAction} அடுத்த நடவடிக்கை`, color: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' },
+                ].filter(Boolean).map((chip, i) => (
+                  <span key={i} className={`text-xs font-medium px-2.5 py-1 rounded-full ${chip.color}`}>{chip.label}</span>
+                ))}
+              </div>
+            );
+          })()}
         </div>
       )}
 
@@ -1018,6 +1041,12 @@ const ApplicationTracker = ({ savedSchemes, darkMode, language }) => {
         <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
           {language === 'en' ? 'Application Tracker' : 'விண்ணப்ப கண்காணிப்பு'}
         </h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
+          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+          {language === 'en'
+            ? 'Progress is tracked manually by you — SchemEase does not connect to government application portals.'
+            : 'முன்னேற்றம் உங்களால் கைமுறையாக கண்காணிக்கப்படுகிறது — SchemEase அரசு போர்ட்டல்களுடன் இணைக்கப்படவில்லை.'}
+        </p>
       </div>
 
       {applications.length === 0 ? (
