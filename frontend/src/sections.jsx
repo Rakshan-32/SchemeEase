@@ -180,6 +180,14 @@ export const Dashboard = ({ profile, onUpdateProfile, darkMode, language, initia
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
   };
 
+  const markAllNotificationsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  };
+
+  useEffect(() => {
+    if (activeTab === 'notifications') markAllNotificationsRead();
+  }, [activeTab]);
+
   const clearAllNotifications = () => {
     setNotifications([]);
   };
