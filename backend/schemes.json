@@ -764,7 +764,12 @@
     "department": "Ministry of Health and Family Welfare",
     "description": "A safe motherhood intervention under the National Health Mission (NHM) to reduce maternal and neonatal mortality by promoting institutional delivery.",
     "benefits": [
-      "Cash assistance for institutional delivery"
+      "Cash assistance of ₹1,400 for rural BPL/SC/ST/Tribal mothers for institutional delivery",
+      "Cash assistance of ₹1,000 for urban BPL/SC/ST/Tribal mothers for institutional delivery",
+      "ASHA incentive of ₹600 (rural) / ₹200 (urban) for facilitating institutional delivery",
+      "Free antenatal care (minimum 3 ANC visits) at government health centres",
+      "Free delivery and immediate post-delivery care at government health institutions",
+      "Transport assistance to health facility and back home"
     ],
     "eligibility": {
       "required_criteria": {
