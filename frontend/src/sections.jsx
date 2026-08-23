@@ -6,6 +6,7 @@ import MissingInfoModal from './MissingInfoModal';
 import SchemeDetailModal from './SchemeDetailModal';
 import AllSchemes from './AllSchemes';
 import ProfileForm from './ProfileForm';
+import ProfilePage from './ProfilePage';
 import { Search, UserCircle, Save, SlidersHorizontal, Bell, FileCheck, HelpCircle, Mail, GitCompare, Printer, Share2, ChevronDown, CheckCircle, Clock, X, List, ExternalLink, AlertCircle, AlertTriangle, Trash2 } from 'lucide-react';
 
 export const Landing = ({ onLogin, darkMode, language }) => {
@@ -795,7 +796,7 @@ export const Dashboard = ({ profile, onUpdateProfile, darkMode, language, initia
               {activeTab === 'contact' && <ContactSection darkMode={darkMode} language={language} />}
 
               {activeTab === 'profile' && (
-                <ProfileEditor profile={profile} onUpdate={onUpdateProfile} darkMode={darkMode} language={language} />
+                <ProfilePage profile={profile} onUpdate={onUpdateProfile} darkMode={darkMode} language={language} />
               )}
             </motion.div>
           </AnimatePresence>
