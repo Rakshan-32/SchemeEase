@@ -3,6 +3,44 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, AlertCircle, HelpCircle, FileText, ChevronDown, Bookmark, ExternalLink, Printer, Share2, GitCompare, X, Plus } from 'lucide-react';
 import SchemePrintView from './SchemePrintView';
 
+// ── Shared share utility ─────────────────────────────────────────────────────
+// Generates the SchemEase deep link, tries Web Share API first, then falls
+// back to Clipboard. Calls onResult('copied' | 'error') so callers can show
+// inline feedback without alert().
+export async function shareScheme(scheme, language, onResult) {
+  if (!scheme?.id) {
+    onResult?.('error');
+    return;
+  }
+  const url = `${window.location.origin}/schemes/${scheme.id}`;
+  const shareData = {
+    title: scheme.name,
+    text: language === 'en'
+      ? `${scheme.name} – Check your eligibility on SchemEase`
+      : `${scheme.name} – SchemEase-இல் உங்கள் தகுதியை சரிபார்க்கவும்`,
+    url,
+  };
+
+  if (typeof navigator !== 'undefined' && navigator.share) {
+    try {
+      await navigator.share(shareData);
+      // navigator.share resolves only on confirmed share — no further action needed.
+      return;
+    } catch (err) {
+      // AbortError = user dismissed the sheet — silent. Anything else: fall through to copy.
+      if (err?.name === 'AbortError') return;
+    }
+  }
+
+  // Clipboard fallback
+  try {
+    await navigator.clipboard.writeText(url);
+    onResult?.('copied');
+  } catch {
+    onResult?.('error');
+  }
+}
+
 export const GlassCard = ({ children, className = '', ...props }) => (
   <motion.div 
     className={`glass-card p-6 ${className}`}
@@ -25,6 +63,7 @@ export const GlassPanel = ({ children, className = '', ...props }) => (
 export const SchemeCard = ({ schemeData, onSave, saved, onCompare, onView, onProvideMissingInfo, onViewDetails, darkMode, language }) => {
   const { scheme, eligibility_status, relevance_score, matched_criteria, missing_information, failed_criteria } = schemeData;
   const printTargetRef = useRef(null);
+  const [shareState, setShareState] = useState(null); // null | 'copied' | 'error'
 
   useEffect(() => {
     if (onView) onView();
@@ -54,24 +93,11 @@ export const SchemeCard = ({ schemeData, onSave, saved, onCompare, onView, onPro
     window.print();
   };
 
-  const handleShare = async () => {
-    const deepLink = `${window.location.origin}/schemes/${scheme.id}`;
-    const shareData = {
-      title: scheme.name,
-      text: `${scheme.name} - ${scheme.description}`,
-      url: deepLink,
-    };
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        console.log('Share cancelled');
-      }
-    } else {
-      navigator.clipboard.writeText(deepLink);
-      alert(language === 'en' ? 'Scheme link copied to clipboard!' : 'திட்ட இணைப்பு நகலெடுக்கப்பட்டது!');
-    }
+  const handleShare = () => {
+    shareScheme(scheme, language, (result) => {
+      setShareState(result);
+      setTimeout(() => setShareState(null), 2500);
+    });
   };
 
   return (
@@ -191,13 +217,32 @@ export const SchemeCard = ({ schemeData, onSave, saved, onCompare, onView, onPro
         >
           <Printer className="w-4 h-4" />
         </button>
-        <button
-          onClick={handleShare}
-          className="p-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-primary hover:border-primary transition-colors"
-          title={language === 'en' ? 'Share' : 'பகிர்'}
-        >
-          <Share2 className="w-4 h-4" />
-        </button>
+        <div className="relative">
+          <button
+            onClick={handleShare}
+            className={`p-2 rounded-lg border transition-colors ${
+              shareState === 'copied'
+                ? 'bg-teal-50 dark:bg-teal-900/30 border-teal-400 text-teal-600 dark:text-teal-400'
+                : shareState === 'error'
+                ? 'bg-red-50 dark:bg-red-900/20 border-red-300 text-red-500'
+                : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-primary hover:border-primary'
+            }`}
+            title={language === 'en' ? 'Share' : 'பகிர்'}
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
+          {shareState && (
+            <motion.span
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute bottom-full mb-1.5 right-0 text-xs font-medium bg-slate-800 dark:bg-slate-700 text-white px-2 py-1 rounded whitespace-nowrap pointer-events-none"
+            >
+              {shareState === 'copied'
+                ? (language === 'en' ? 'Link copied!' : 'இணைப்பு நகலெடுக்கப்பட்டது!')
+                : (language === 'en' ? 'Copy failed' : 'நகலெடுக்க முடியவில்லை')}
+            </motion.span>
+          )}
+        </div>
       </div>
 
       {/* Hidden print target — made visible only during window.print() */}

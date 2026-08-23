@@ -1,10 +1,12 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ExternalLink, FileText, CheckCircle, AlertCircle, HelpCircle, Bookmark, GitCompare, Printer, Share2 } from 'lucide-react';
 import SchemePrintView from './SchemePrintView';
+import { shareScheme } from './components';
 
 const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompare, onProvideMissingInfo, darkMode, language }) => {
   const printTargetRef = useRef(null);
+  const [shareState, setShareState] = useState(null); // null | 'copied' | 'error'
 
   if (!isOpen || !schemeData) return null;
 
@@ -48,24 +50,11 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
     window.print();
   };
 
-  const handleShare = async () => {
-    const deepLink = `${window.location.origin}/schemes/${scheme.id}`;
-    const shareData = {
-      title: scheme.name,
-      text: `${scheme.name} - ${scheme.description}`,
-      url: deepLink,
-    };
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        console.log('Share cancelled');
-      }
-    } else {
-      navigator.clipboard.writeText(deepLink);
-      alert(language === 'en' ? 'Scheme link copied!' : 'திட்ட இணைப்பு நகலெடுக்கப்பட்டது!');
-    }
+  const handleShare = () => {
+    shareScheme(scheme, language, (result) => {
+      setShareState(result);
+      setTimeout(() => setShareState(null), 2500);
+    });
   };
 
   return (
@@ -294,10 +283,22 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
 
             <button
               onClick={handleShare}
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg font-medium transition-all"
+              className={`relative flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${
+                shareState === 'copied'
+                  ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300'
+                  : shareState === 'error'
+                  ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
+                  : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600'
+              }`}
             >
               <Share2 className="w-5 h-5" />
-              <span className="hidden sm:inline">{language === 'en' ? 'Share' : 'பகிர்'}</span>
+              <span className="hidden sm:inline">
+                {shareState === 'copied'
+                  ? (language === 'en' ? 'Copied!' : 'நகலெடுக்கப்பட்டது!')
+                  : shareState === 'error'
+                  ? (language === 'en' ? 'Copy failed' : 'தோல்வி')
+                  : (language === 'en' ? 'Share' : 'பகிர்')}
+              </span>
             </button>
           </div>
         </motion.div>
