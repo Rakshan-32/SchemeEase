@@ -49,10 +49,11 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
   };
 
   const handleShare = async () => {
+    const deepLink = `${window.location.origin}/scheme/${scheme.id}`;
     const shareData = {
       title: scheme.name,
       text: `${scheme.name} - ${scheme.description}`,
-      url: scheme.officialUrl
+      url: deepLink,
     };
 
     if (navigator.share) {
@@ -62,7 +63,7 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
         console.log('Share cancelled');
       }
     } else {
-      navigator.clipboard.writeText(`${scheme.name}\n${scheme.officialUrl}`);
+      navigator.clipboard.writeText(deepLink);
       alert(language === 'en' ? 'Scheme link copied!' : 'திட்ட இணைப்பு நகலெடுக்கப்பட்டது!');
     }
   };

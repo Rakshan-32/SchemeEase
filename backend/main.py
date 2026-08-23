@@ -127,6 +127,14 @@ def contact(request: ContactRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail="Unable to send your message. Please try again.")
 
+@app.get("/scheme/{scheme_id}")
+def get_scheme(scheme_id: str):
+    schemes = load_schemes()
+    scheme = next((s for s in schemes if s["id"] == scheme_id), None)
+    if not scheme:
+        raise HTTPException(status_code=404, detail="Scheme not found")
+    return {"status": "success", "scheme": scheme}
+
 @app.get("/health")
 def health_check():
     return {"status": "ok"}

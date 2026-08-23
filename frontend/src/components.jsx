@@ -55,10 +55,11 @@ export const SchemeCard = ({ schemeData, onSave, saved, onCompare, onView, onPro
   };
 
   const handleShare = async () => {
+    const deepLink = `${window.location.origin}/scheme/${scheme.id}`;
     const shareData = {
       title: scheme.name,
       text: `${scheme.name} - ${scheme.description}`,
-      url: scheme.officialUrl
+      url: deepLink,
     };
 
     if (navigator.share) {
@@ -68,8 +69,7 @@ export const SchemeCard = ({ schemeData, onSave, saved, onCompare, onView, onPro
         console.log('Share cancelled');
       }
     } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(`${scheme.name}\n${scheme.officialUrl}`);
+      navigator.clipboard.writeText(deepLink);
       alert(language === 'en' ? 'Scheme link copied to clipboard!' : 'திட்ட இணைப்பு நகலெடுக்கப்பட்டது!');
     }
   };

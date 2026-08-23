@@ -76,7 +76,7 @@ export const Landing = ({ onLogin, darkMode, language }) => {
   );
 };
 
-export const Dashboard = ({ profile, onUpdateProfile, darkMode, language }) => {
+export const Dashboard = ({ profile, onUpdateProfile, darkMode, language, initialSchemeId }) => {
   const [schemes, setSchemes] = useState([]);
   const [savedSchemes, setSavedSchemes] = useState(() => JSON.parse(localStorage.getItem('saved_schemes') || '[]'));
   const [recentlyViewed, setRecentlyViewed] = useState(() => JSON.parse(localStorage.getItem('recently_viewed') || '[]'));
@@ -106,6 +106,13 @@ export const Dashboard = ({ profile, onUpdateProfile, darkMode, language }) => {
       fetchSchemes();
     }
   }, [profile]);
+
+  // Open detail modal when deep-linked to a specific scheme
+  useEffect(() => {
+    if (!initialSchemeId || !schemes.length) return;
+    const match = schemes.find(s => s.scheme.id === initialSchemeId);
+    if (match) setDetailModal({ isOpen: true, schemeData: match });
+  }, [initialSchemeId, schemes]);
 
   const fetchSchemes = async () => {
     setLoading(true);

@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useMatch, useNavigate } from 'react-router-dom';
 import { AuthPage } from './Auth';
 import ProfileSetup from './ProfileSetup';
 import { Dashboard } from './sections';
+import SchemePublicView from './SchemePublicView';
 import { extractProfile } from './data';
 import { motion } from 'framer-motion';
 import { Search, Loader2, Mic, MicOff, Moon, Sun, Globe } from 'lucide-react';
 
 function App() {
+  const schemeMatch = useMatch('/scheme/:schemeId');
+  const navigate = useNavigate();
   const [authState, setAuthState] = useState('loading'); // 'loading', 'auth', 'setup', 'dashboard'
   const [currentUser, setCurrentUser] = useState(null);
   const [profile, setProfile] = useState({});
@@ -162,6 +166,43 @@ function App() {
     }
     localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
   };
+
+  // Deep-link: /scheme/:schemeId
+  if (schemeMatch) {
+    const { schemeId } = schemeMatch.params;
+
+    if (authState === 'loading') {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-900">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-teal-400 border-t-transparent"></div>
+        </div>
+      );
+    }
+
+    // Authenticated: render dashboard with that scheme's modal pre-opened
+    if (authState === 'dashboard') {
+      return (
+        <div className={`relative ${darkMode ? 'dark' : ''}`}>
+          <Dashboard
+            profile={profile}
+            onUpdateProfile={handleUpdateProfile}
+            darkMode={darkMode}
+            language={language}
+            initialSchemeId={schemeId}
+          />
+        </div>
+      );
+    }
+
+    // Not authenticated: read-only public view with sign-in CTA
+    return (
+      <SchemePublicView
+        darkMode={darkMode}
+        language={language}
+        onLoginClick={() => navigate('/')}
+      />
+    );
+  }
 
   // Loading state
   if (authState === 'loading') {

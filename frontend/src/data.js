@@ -1,5 +1,17 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
+export const fetchScheme = async (schemeId) => {
+  try {
+    const res = await fetch(`${API_BASE}/scheme/${encodeURIComponent(schemeId)}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.scheme || null;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+};
+
 export const analyzeProfile = async (profile) => {
   try {
     const res = await fetch(`${API_BASE}/analyze`, {
