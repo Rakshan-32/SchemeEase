@@ -1,0 +1,263 @@
+import React, { useState, useEffect } from 'react';
+import { AuthPage } from './Auth';
+import ProfileSetup from './ProfileSetup';
+import { Dashboard } from './sections';
+import { extractProfile } from './data';
+import { motion } from 'framer-motion';
+import { Search, Loader2, Mic, MicOff, Moon, Sun, Globe } from 'lucide-react';
+
+function App() {
+  const [authState, setAuthState] = useState('loading'); // 'loading', 'auth', 'setup', 'dashboard'
+  const [currentUser, setCurrentUser] = useState(null);
+  const [profile, setProfile] = useState({});
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
+  const [language, setLanguage] = useState(() => localStorage.getItem('language') || 'en');
+
+  // Natural Language Search State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+
+  // Check for existing session on mount
+  useEffect(() => {
+    const checkSession = () => {
+      const savedUser = localStorage.getItem('current_user');
+      if (savedUser) {
+        const users = JSON.parse(localStorage.getItem('schemease_users') || '{}');
+        if (users[savedUser]) {
+          setCurrentUser(savedUser);
+
+          // Load user's profile
+          const savedProfile = localStorage.getItem(`profile_${savedUser}`);
+          if (savedProfile) {
+            const parsedProfile = JSON.parse(savedProfile);
+            setProfile(parsedProfile);
+            localStorage.setItem('user_profile', savedProfile);
+
+            // If profile is completed, go to dashboard
+            if (users[savedUser].profileCompleted) {
+              setAuthState('dashboard');
+            } else {
+              setAuthState('setup');
+            }
+          } else {
+            setAuthState('setup');
+          }
+        } else {
+          setAuthState('auth');
+        }
+      } else {
+        setAuthState('auth');
+      }
+    };
+
+    checkSession();
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('darkMode', darkMode);
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  useEffect(() => {
+    localStorage.setItem('language', language);
+  }, [language]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleLogin = (email, profileCompleted) => {
+    setCurrentUser(email);
+    if (profileCompleted) {
+      // Load existing profile
+      const savedProfile = localStorage.getItem(`profile_${email}`);
+      if (savedProfile) {
+        setProfile(JSON.parse(savedProfile));
+        localStorage.setItem('user_profile', savedProfile);
+      }
+      setAuthState('dashboard');
+    } else {
+      setAuthState('setup');
+    }
+  };
+
+  const handleProfileComplete = (completedProfile) => {
+    setProfile(completedProfile);
+    setAuthState('dashboard');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('current_user');
+    setCurrentUser(null);
+    setProfile({});
+    setAuthState('auth');
+  };
+
+  const toggleDarkMode = () => setDarkMode(!darkMode);
+  const toggleLanguage = () => setLanguage(language === 'en' ? 'ta' : 'en');
+
+  const handleSearchSubmit = async (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+
+    setIsSearching(true);
+    const extracted = await extractProfile(searchQuery);
+    if (extracted && extracted.profile) {
+      const updatedProfile = { ...profile, ...extracted.profile };
+      setProfile(updatedProfile);
+
+      // Save to localStorage
+      if (currentUser) {
+        localStorage.setItem(`profile_${currentUser}`, JSON.stringify(updatedProfile));
+      }
+      localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
+    }
+    setIsSearching(false);
+    setSearchQuery('');
+  };
+
+  const handleVoiceSearch = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Voice search is not supported in your browser. Please try Chrome or Edge.');
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.lang = 'en-IN';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setSearchQuery(transcript);
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      setIsListening(false);
+    };
+
+    recognition.start();
+  };
+
+  const handleUpdateProfile = (updatedProfile) => {
+    setProfile(updatedProfile);
+    if (currentUser) {
+      localStorage.setItem(`profile_${currentUser}`, JSON.stringify(updatedProfile));
+    }
+    localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
+  };
+
+  // Loading state
+  if (authState === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-teal-400 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  // Auth screen
+  if (authState === 'auth') {
+    return <AuthPage onLogin={handleLogin} darkMode={darkMode} language={language} />;
+  }
+
+  // Profile Setup
+  if (authState === 'setup') {
+    return (
+      <ProfileSetup
+        onComplete={handleProfileComplete}
+        darkMode={darkMode}
+        language={language}
+        initialProfile={profile}
+      />
+    );
+  }
+
+  // Dashboard
+  return (
+    <div className={`relative ${darkMode ? 'dark' : ''}`}>
+      {/* Sticky Navigation */}
+      <motion.nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-6'}`}
+      >
+        <div className="container mx-auto px-6 flex items-center justify-between gap-4">
+          <div className="text-xl font-extrabold tracking-tight text-primary dark:text-teal-400">
+            SCHEMEASE
+          </div>
+
+          {/* Persistent Search Bar transforming on scroll */}
+          <form
+            onSubmit={handleSearchSubmit}
+            className={`relative flex-1 transition-all duration-500 max-w-2xl mx-auto ${isScrolled ? 'md:max-w-md ml-8' : 'md:max-w-2xl'}`}
+          >
+            <div className="relative group">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder={language === 'en' ? "E.g. I am a 30 year old SC farmer..." : "எ.கா. நான் 30 வயது SC விவசாயி..."}
+                className="w-full bg-slate-100/80 dark:bg-slate-800/80 dark:text-white backdrop-blur-sm border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-full py-3 px-6 pl-12 pr-12 shadow-inner outline-none transition-all"
+                disabled={isSearching || isListening}
+              />
+              {isSearching ? (
+                <Loader2 className="absolute left-4 top-3.5 w-5 h-5 text-primary animate-spin" />
+              ) : (
+                <Search className="absolute left-4 top-3.5 w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
+              )}
+              <button
+                type="button"
+                onClick={handleVoiceSearch}
+                className={`absolute right-4 top-3 p-1 rounded-full transition-all ${isListening ? 'bg-red-500 text-white animate-pulse' : 'hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400'}`}
+                title="Voice Search"
+              >
+                {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+              </button>
+            </div>
+          </form>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={toggleLanguage}
+              className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
+              title={language === 'en' ? 'Switch to Tamil' : 'Switch to English'}
+            >
+              <Globe className="w-5 h-5" />
+              <span className="ml-1 text-xs font-semibold">{language === 'en' ? 'தமிழ்' : 'EN'}</span>
+            </button>
+            <button
+              onClick={toggleDarkMode}
+              className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
+              title="Toggle Dark Mode"
+            >
+              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <button onClick={handleLogout} className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-teal-400 transition-colors">
+              {language === 'en' ? 'Sign Out' : 'வெளியேறு'}
+            </button>
+          </div>
+        </div>
+      </motion.nav>
+
+      {/* Main Dashboard Application */}
+      <Dashboard profile={profile} onUpdateProfile={handleUpdateProfile} darkMode={darkMode} language={language} />
+    </div>
+  );
+}
+
+export default App;
