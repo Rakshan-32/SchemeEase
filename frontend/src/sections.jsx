@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { analyzeProfile } from './data';
+import { analyzeProfile, sendContactMessage } from './data';
 import { GlassCard, GlassPanel, SchemeCard } from './components';
 import MissingInfoModal from './MissingInfoModal';
 import SchemeDetailModal from './SchemeDetailModal';
@@ -1438,18 +1438,34 @@ const FAQSection = ({ darkMode, language }) => {
 
 // Contact Section Component
 const ContactSection = ({ darkMode, language }) => {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const [submitted, setSubmitted] = useState(false);
+  const EMPTY = { name: '', email: '', subject: '', message: '' };
+  const [formData, setFormData] = useState(EMPTY);
+  const [status, setStatus] = useState('idle'); // 'idle' | 'sending' | 'success' | 'error'
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e) => {
+  const field = (key) => ({
+    value: formData[key],
+    onChange: (e) => setFormData((prev) => ({ ...prev, [key]: e.target.value }),
+    ),
+  });
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Mock submission
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData({ name: '', email: '', message: '' });
-    }, 3000);
+    setStatus('sending');
+    setErrorMsg('');
+    const result = await sendContactMessage(formData);
+    if (result.success) {
+      setStatus('success');
+      setFormData(EMPTY);
+    } else {
+      setStatus('error');
+      setErrorMsg(result.error || (language === 'en'
+        ? 'Unable to send your message. Please try again.'
+        : 'உங்கள் செய்தியை அனுப்ப முடியவில்லை. மீண்டும் முயற்சிக்கவும்.'));
+    }
   };
+
+  const inputCls = 'w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary outline-none';
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -1458,7 +1474,7 @@ const ContactSection = ({ darkMode, language }) => {
       </h2>
 
       <GlassPanel className={`${darkMode ? 'dark' : ''} space-y-6`}>
-        {submitted ? (
+        {status === 'success' ? (
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -1470,53 +1486,74 @@ const ContactSection = ({ darkMode, language }) => {
             </h3>
             <p className="text-slate-600 dark:text-slate-300">
               {language === 'en'
-                ? 'Thank you for reaching out. We will get back to you soon.'
-                : 'தொடர்பு கொண்டதற்கு நன்றி. நாங்கள் விரைவில் உங்களை தொடர்பு கொள்வோம்.'}
+                ? 'Message sent successfully. We will get back to you soon.'
+                : 'செய்தி வெற்றிகரமாக அனுப்பப்பட்டது. நாங்கள் விரைவில் தொடர்பு கொள்வோம்.'}
             </p>
+            <button
+              onClick={() => setStatus('idle')}
+              className="mt-4 text-sm text-primary dark:text-teal-400 underline"
+            >
+              {language === 'en' ? 'Send another message' : 'மீண்டும் அனுப்பு'}
+            </button>
           </motion.div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                {language === 'en' ? 'Name' : 'பெயர்'}
+                {language === 'en' ? 'Name' : 'பெயர்'} <span className="text-red-500">*</span>
+              </label>
+              <input type="text" required {...field('name')} className={inputCls} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                {language === 'en' ? 'Email' : 'மின்னஞ்சல்'} <span className="text-red-500">*</span>
+              </label>
+              <input type="email" required {...field('email')} className={inputCls} />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                {language === 'en' ? 'Subject' : 'தலைப்பு'} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 required
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary outline-none"
+                {...field('subject')}
+                placeholder={language === 'en' ? 'e.g. Question about PM Kisan' : ''}
+                className={inputCls}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                {language === 'en' ? 'Email' : 'மின்னஞ்சல்'}
-              </label>
-              <input
-                type="email"
-                required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                {language === 'en' ? 'Message' : 'செய்தி'}
+                {language === 'en' ? 'Message' : 'செய்தி'} <span className="text-red-500">*</span>
               </label>
               <textarea
                 required
                 rows={5}
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary outline-none resize-none"
-              ></textarea>
+                {...field('message')}
+                className={`${inputCls} resize-none`}
+              />
             </div>
+
+            {status === 'error' && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg text-red-700 dark:text-red-300 text-sm"
+              >
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>{errorMsg}</span>
+              </motion.div>
+            )}
+
             <button
               type="submit"
-              className="w-full py-3 px-4 bg-primary text-white rounded-lg font-bold hover:bg-teal-700 transition-colors shadow"
+              disabled={status === 'sending'}
+              className="w-full py-3 px-4 bg-primary text-white rounded-lg font-bold hover:bg-teal-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow flex items-center justify-center gap-2"
             >
-              {language === 'en' ? 'Send Message' : 'செய்தி அனுப்பு'}
+              {status === 'sending' && <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
+              {status === 'sending'
+                ? (language === 'en' ? 'Sending…' : 'அனுப்புகிறது…')
+                : (language === 'en' ? 'Send Message' : 'செய்தி அனுப்பு')}
             </button>
           </form>
         )}
@@ -1526,9 +1563,12 @@ const ContactSection = ({ darkMode, language }) => {
             {language === 'en' ? 'Other Ways to Reach Us' : 'எங்களை அணுக பிற வழிகள்'}
           </h3>
           <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
-            <p>📧 Email: support@schemease.gov.in</p>
+            <p className="italic text-slate-400 dark:text-slate-500 text-xs mb-2">
+              {language === 'en' ? '(Placeholder — update with real contact details before going live)' : '(நிஜ தொடர்பு தகவலை வரிசைப்படுத்தவும்)'}
+            </p>
+            <p>📧 Email: support@schemease.example</p>
             <p>📞 Helpline: 1800-XXX-XXXX (Toll-Free)</p>
-            <p>🕐 Hours: Mon-Fri, 9:00 AM - 6:00 PM IST</p>
+            <p>🕐 Hours: Mon-Fri, 9:00 AM – 6:00 PM IST</p>
           </div>
         </div>
       </GlassPanel>
