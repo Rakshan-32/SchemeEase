@@ -178,30 +178,6 @@
     "officialUrl": "https://pmjay.gov.in"
   },
   {
-    "id": "pmay",
-    "name": "Pradhan Mantri Awas Yojana (PMAY)",
-    "category": "Housing",
-    "department": "Ministry of Housing and Urban Affairs / Ministry of Rural Development",
-    "description": "Provides pucca houses to eligible families in urban and rural areas.",
-    "benefits": [
-      "Financial assistance for house construction or purchase"
-    ],
-    "eligibility": {
-      "required_criteria": {
-        "ownsPuccaHouse": false
-      },
-      "optional_criteria": {}
-    },
-    "documents": [
-      "Aadhaar Card",
-      "Income Certificate",
-      "Land Ownership Documents",
-      "Bank Account Details"
-    ],
-    "applicationMethod": "Online via PMAY portal or local authorities",
-    "officialUrl": "https://pmay-urban.gov.in"
-  },
-  {
     "id": "pmmy",
     "name": "Pradhan Mantri Mudra Yojana (PMMY)",
     "category": "Entrepreneurship",
@@ -1254,7 +1230,7 @@
     "officialUrl": "https://www.nhp.gov.in"
   },
   {
-    "id": "neem-coated-urea",
+    "id": "e-nam",
     "name": "National Agriculture Market (e-NAM)",
     "category": "Agriculture",
     "department": "Ministry of Agriculture and Farmers Welfare",
@@ -1352,7 +1328,7 @@
     "officialUrl": "https://pmayg.nic.in"
   },
   {
-    "id": "lic-housing-finance",
+    "id": "clss-pmay",
     "name": "Credit Linked Subsidy Scheme (CLSS) - PMAY",
     "category": "Housing",
     "department": "Ministry of Housing and Urban Affairs",
@@ -1385,7 +1361,7 @@
     "officialUrl": "https://pmaymis.gov.in"
   },
   {
-    "id": "mid-day-meal-scheme",
+    "id": "girls-secondary-education",
     "name": "National Scheme of Incentive to Girls for Secondary Education",
     "category": "Education",
     "department": "Ministry of Education",

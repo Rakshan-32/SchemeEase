@@ -8,6 +8,69 @@ import { extractProfile, fetchScheme } from './data';
 import { motion } from 'framer-motion';
 import { Search, Loader2, Mic, MicOff, Moon, Sun, Globe } from 'lucide-react';
 
+// One-time migration: rewrite stale scheme IDs in every localStorage collection
+// that stores IDs, so favourites / recently-viewed / compare / tracker remain
+// intact after the dataset clean-up.
+const SCHEME_ID_MAP = {
+  'neem-coated-urea':  'e-nam',
+  'mid-day-meal-scheme': 'girls-secondary-education',
+  'lic-housing-finance': 'clss-pmay',
+  // pmay (generic) removed; map to the richer urban entry so saved references
+  // still resolve to a valid scheme rather than silently disappearing.
+  'pmay': 'pradhan-mantri-awas-yojana-urban',
+};
+
+function migrateSchemeIds() {
+  const DONE_KEY = 'scheme_id_migration_v1';
+  if (localStorage.getItem(DONE_KEY)) return;
+
+  const migrateId = (id) => SCHEME_ID_MAP[id] ?? id;
+
+  // saved_schemes — plain array of ID strings
+  try {
+    const saved = JSON.parse(localStorage.getItem('saved_schemes') || '[]');
+    localStorage.setItem('saved_schemes', JSON.stringify(saved.map(migrateId)));
+  } catch { /* corrupted — leave as-is */ }
+
+  // recently_viewed — plain array of ID strings
+  try {
+    const rv = JSON.parse(localStorage.getItem('recently_viewed') || '[]');
+    localStorage.setItem('recently_viewed', JSON.stringify(rv.map(migrateId)));
+  } catch { /* corrupted — leave as-is */ }
+
+  // compare_list_{user} and application_tracker_{user} — keyed per user
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key) continue;
+
+    if (key.startsWith('compare_list_')) {
+      try {
+        const list = JSON.parse(localStorage.getItem(key) || '[]');
+        const migrated = list.map((item) =>
+          item && item.scheme_id ? { ...item, scheme_id: migrateId(item.scheme_id) } : item
+        );
+        localStorage.setItem(key, JSON.stringify(migrated));
+      } catch { /* corrupted — leave as-is */ }
+    }
+
+    if (key.startsWith('application_tracker_')) {
+      try {
+        const apps = JSON.parse(localStorage.getItem(key) || '[]');
+        const migrated = apps.map((app) =>
+          app && app.schemeId ? { ...app, schemeId: migrateId(app.schemeId) } : app
+        );
+        localStorage.setItem(key, JSON.stringify(migrated));
+      } catch { /* corrupted — leave as-is */ }
+    }
+  }
+
+  localStorage.setItem(DONE_KEY, '1');
+}
+
+// Run migration synchronously before first render so React state initialised
+// from localStorage (saved_schemes etc.) already sees the new IDs.
+migrateSchemeIds();
+
 function App() {
   const schemeMatch = useMatch('/schemes/:schemeId');
   const navigate = useNavigate();
