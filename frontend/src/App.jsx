@@ -32,14 +32,16 @@ function App() {
     const checkSession = () => {
       const savedUser = localStorage.getItem('current_user');
       if (savedUser) {
-        const users = JSON.parse(localStorage.getItem('schemease_users') || '{}');
+        let users = {};
+        try { users = JSON.parse(localStorage.getItem('schemease_users') || '{}'); } catch { /* corrupted — treat as no users */ }
         if (users[savedUser]) {
           setCurrentUser(savedUser);
 
           // Load user's profile
           const savedProfile = localStorage.getItem(`profile_${savedUser}`);
           if (savedProfile) {
-            const parsedProfile = JSON.parse(savedProfile);
+            let parsedProfile = {};
+            try { parsedProfile = JSON.parse(savedProfile); } catch { /* corrupted profile — start fresh */ }
             setProfile(parsedProfile);
             localStorage.setItem('user_profile', savedProfile);
 

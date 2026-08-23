@@ -76,14 +76,20 @@ export const Landing = ({ onLogin, darkMode, language }) => {
   );
 };
 
+const safeParseLS = (key, fallback) => {
+  try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+  catch { localStorage.removeItem(key); return fallback; }
+};
+
 export const Dashboard = ({ profile, onUpdateProfile, darkMode, language, initialSchemeId }) => {
   const [schemes, setSchemes] = useState([]);
-  const [savedSchemes, setSavedSchemes] = useState(() => JSON.parse(localStorage.getItem('saved_schemes') || '[]'));
-  const [recentlyViewed, setRecentlyViewed] = useState(() => JSON.parse(localStorage.getItem('recently_viewed') || '[]'));
+  const [savedSchemes, setSavedSchemes] = useState(() => safeParseLS('saved_schemes', []));
+  const [recentlyViewed, setRecentlyViewed] = useState(() => safeParseLS('recently_viewed', []));
   const compareKey = `compare_list_${(localStorage.getItem('current_user') || 'guest').toLowerCase()}`;
-  const [compareList, setCompareList] = useState(() => JSON.parse(localStorage.getItem(compareKey) || '[]').slice(0, 3));
-  const [notifications, setNotifications] = useState(() => JSON.parse(localStorage.getItem('notifications') || '[]'));
+  const [compareList, setCompareList] = useState(() => safeParseLS(compareKey, []).slice(0, 3));
+  const [notifications, setNotifications] = useState(() => safeParseLS('notifications', []));
   const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
   const [activeTab, setActiveTab] = useState('recommendations');
   const [filterCategory, setFilterCategory] = useState('all');
   const [sortBy, setSortBy] = useState('relevance');
@@ -121,13 +127,15 @@ export const Dashboard = ({ profile, onUpdateProfile, darkMode, language, initia
 
   const fetchSchemes = async () => {
     setLoading(true);
+    setFetchError(false);
     const data = await analyzeProfile(profile);
     if (data && data.results) {
       setSchemes(data.results);
-      // Add notification for new matches
       if (data.results.filter(s => s.eligibility_status === 'ELIGIBLE').length > 0) {
         addNotification(`Found ${data.results.filter(s => s.eligibility_status === 'ELIGIBLE').length} eligible schemes for you!`);
       }
+    } else {
+      setFetchError(true);
     }
     setLoading(false);
   };
@@ -531,6 +539,19 @@ export const Dashboard = ({ profile, onUpdateProfile, darkMode, language, initia
           </div>
         )}
 
+        {fetchError && (
+          <div className="mb-6 flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl text-red-700 dark:text-red-300 text-sm">
+            <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+            <span>
+              {language === 'en'
+                ? 'Unable to reach the server. Please check your connection and '
+                : 'சேவையகத்தை அணுக முடியவில்லை. '}
+              <button onClick={fetchSchemes} className="underline font-semibold">
+                {language === 'en' ? 'try again' : 'மீண்டும் முயற்சிக்கவும்'}
+              </button>.
+            </span>
+          </div>
+        )}
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 dark:border-slate-700 border-t-primary"></div>
@@ -975,15 +996,18 @@ const migrateTrackerRecord = (record) => {
 
 const loadTrackerData = () => {
   const key = getTrackerKey();
-  const raw = localStorage.getItem(key);
-  if (raw) return JSON.parse(raw).map(migrateTrackerRecord);
-  // One-time migration from the un-namespaced legacy key
-  const legacy = localStorage.getItem('application_tracker');
-  if (legacy) {
-    const migrated = JSON.parse(legacy).map(migrateTrackerRecord);
-    localStorage.setItem(key, JSON.stringify(migrated));
-    localStorage.removeItem('application_tracker');
-    return migrated;
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw) return JSON.parse(raw).map(migrateTrackerRecord);
+    const legacy = localStorage.getItem('application_tracker');
+    if (legacy) {
+      const migrated = JSON.parse(legacy).map(migrateTrackerRecord);
+      localStorage.setItem(key, JSON.stringify(migrated));
+      localStorage.removeItem('application_tracker');
+      return migrated;
+    }
+  } catch {
+    localStorage.removeItem(key);
   }
   return [];
 };

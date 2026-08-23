@@ -7,6 +7,7 @@ import { analyzeProfile } from './data';
 const AllSchemes = ({ profile, onUpdateProfile, onProvideMissingInfo, onViewDetails, savedSchemes, onSave, onCompare, onView, darkMode, language }) => {
   const [allSchemes, setAllSchemes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedDepartment, setSelectedDepartment] = useState('all');
@@ -20,13 +21,16 @@ const AllSchemes = ({ profile, onUpdateProfile, onProvideMissingInfo, onViewDeta
 
   const loadAllSchemes = async () => {
     setLoading(true);
+    setFetchError(false);
     try {
       const data = await analyzeProfile(profile);
       if (data && data.results) {
         setAllSchemes(data.results);
+      } else {
+        setFetchError(true);
       }
-    } catch (error) {
-      console.error('Error loading schemes:', error);
+    } catch {
+      setFetchError(true);
     }
     setLoading(false);
   };
@@ -252,6 +256,19 @@ const AllSchemes = ({ profile, onUpdateProfile, onProvideMissingInfo, onViewDeta
             </motion.div>
           )}
         </motion.div>
+
+        {/* Backend error banner */}
+        {fetchError && (
+          <div className="mb-4 flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl text-red-700 dark:text-red-300 text-sm">
+            <span className="font-semibold">⚠</span>
+            <span>
+              {language === 'en' ? 'Unable to reach the server. ' : 'சேவையகத்தை அணுக முடியவில்லை. '}
+              <button onClick={loadAllSchemes} className="underline font-semibold">
+                {language === 'en' ? 'Retry' : 'மீண்டும் முயற்சி'}
+              </button>
+            </span>
+          </div>
+        )}
 
         {/* Results Summary */}
         <motion.div
