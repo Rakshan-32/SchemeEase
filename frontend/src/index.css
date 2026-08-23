@@ -313,3 +313,128 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── Print styles ───────────────────────────────────────────────────────── */
+.scheme-print-target {
+  display: none;
+}
+
+@media print {
+  /* Hide entire page, then reveal only the active print target */
+  body * {
+    visibility: hidden !important;
+  }
+  .scheme-print-target.is-printing,
+  .scheme-print-target.is-printing * {
+    visibility: visible !important;
+  }
+  .scheme-print-target.is-printing {
+    display: block !important;
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 9999 !important;
+    background: #fff !important;
+    padding: 2cm !important;
+    overflow: visible !important;
+  }
+
+  /* Content typography */
+  .print-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .print-logo {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f766e;
+    letter-spacing: -0.5px;
+  }
+  .print-tagline {
+    font-size: 11px;
+    color: #64748b;
+  }
+  .print-divider {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 10px 0;
+  }
+  .print-scheme-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 12px 0 4px;
+  }
+  .print-meta {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 10px;
+  }
+  .print-description {
+    font-size: 13px;
+    color: #334155;
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .print-eligibility {
+    border-left: 4px solid #e2e8f0;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+  .print-eligibility--eligible   { border-color: #16a34a; background: #f0fdf4; }
+  .print-eligibility--needs_more_info { border-color: #d97706; background: #fffbeb; }
+  .print-eligibility--not_eligible    { border-color: #dc2626; background: #fef2f2; }
+  .print-criteria-block {
+    margin-top: 8px;
+  }
+  .print-criteria-block ul {
+    margin: 4px 0 0 16px;
+    padding: 0;
+  }
+  .print-criteria-block li {
+    margin-bottom: 2px;
+  }
+  .print-section-heading {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f766e;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 16px 0 6px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 3px;
+  }
+  .print-list {
+    margin: 0 0 0 18px;
+    padding: 0;
+    font-size: 13px;
+    color: #334155;
+  }
+  .print-list li {
+    margin-bottom: 4px;
+    line-height: 1.5;
+  }
+  .print-body {
+    font-size: 13px;
+    color: #334155;
+    line-height: 1.6;
+    margin: 0 0 12px;
+  }
+  .print-url {
+    font-size: 12px;
+    color: #475569;
+    margin: 12px 0 4px;
+  }
+  .print-url span {
+    color: #0f766e;
+    text-decoration: underline;
+  }
+  .print-footer {
+    font-size: 11px;
+    color: #94a3b8;
+    text-align: center;
+    margin-top: 8px;
+  }
+}

@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ExternalLink, FileText, CheckCircle, AlertCircle, HelpCircle, Bookmark, GitCompare, Printer, Share2 } from 'lucide-react';
+import SchemePrintView from './SchemePrintView';
 
 const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompare, onProvideMissingInfo, darkMode, language }) => {
+  const printTargetRef = useRef(null);
+
   if (!isOpen || !schemeData) return null;
 
   const { scheme, eligibility_status, relevance_score, matched_criteria, missing_information, failed_criteria } = schemeData;
@@ -34,6 +37,14 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
   const status = statusConfig[eligibility_status];
 
   const handlePrint = () => {
+    const el = printTargetRef.current;
+    if (!el) return;
+    el.classList.add('is-printing');
+    const cleanup = () => {
+      el.classList.remove('is-printing');
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
     window.print();
   };
 
@@ -289,6 +300,18 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
             </button>
           </div>
         </motion.div>
+      </div>
+
+      {/* Hidden print target */}
+      <div ref={printTargetRef} className="scheme-print-target">
+        <SchemePrintView
+          scheme={scheme}
+          eligibility_status={eligibility_status}
+          matched_criteria={matched_criteria}
+          missing_information={missing_information}
+          failed_criteria={failed_criteria}
+          relevance_score={relevance_score}
+        />
       </div>
     </AnimatePresence>
   );

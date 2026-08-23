@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, AlertCircle, HelpCircle, FileText, ChevronDown, Bookmark, ExternalLink, Printer, Share2, GitCompare, X, Plus } from 'lucide-react';
+import SchemePrintView from './SchemePrintView';
 
 export const GlassCard = ({ children, className = '', ...props }) => (
   <motion.div 
@@ -23,6 +24,7 @@ export const GlassPanel = ({ children, className = '', ...props }) => (
 
 export const SchemeCard = ({ schemeData, onSave, saved, onCompare, onView, onProvideMissingInfo, onViewDetails, darkMode, language }) => {
   const { scheme, eligibility_status, relevance_score, matched_criteria, missing_information, failed_criteria } = schemeData;
+  const printTargetRef = useRef(null);
 
   useEffect(() => {
     if (onView) onView();
@@ -41,43 +43,15 @@ export const SchemeCard = ({ schemeData, onSave, saved, onCompare, onView, onPro
   };
 
   const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Print: ${scheme.name}</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            h1 { color: #0f766e; }
-            .section { margin: 20px 0; }
-            .section-title { font-weight: bold; margin-top: 15px; }
-            ul { margin: 5px 0; padding-left: 20px; }
-          </style>
-        </head>
-        <body>
-          <h1>${scheme.name}</h1>
-          <div class="section"><strong>Category:</strong> ${scheme.category}</div>
-          <div class="section"><strong>Department:</strong> ${scheme.department}</div>
-          <div class="section"><strong>Description:</strong> ${scheme.description}</div>
-          <div class="section">
-            <div class="section-title">Benefits:</div>
-            <ul>${scheme.benefits.map(b => `<li>${b}</li>`).join('')}</ul>
-          </div>
-          <div class="section">
-            <div class="section-title">Eligibility Status:</div>
-            ${eligibility_status.replace(/_/g, ' ')} (${relevance_score}% match)
-          </div>
-          <div class="section">
-            <div class="section-title">Required Documents:</div>
-            <ul>${scheme.documents.map(d => `<li>${d}</li>`).join('')}</ul>
-          </div>
-          <div class="section"><strong>Application Method:</strong> ${scheme.applicationMethod}</div>
-          <div class="section"><strong>Official URL:</strong> ${scheme.officialUrl}</div>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.print();
+    const el = printTargetRef.current;
+    if (!el) return;
+    el.classList.add('is-printing');
+    const cleanup = () => {
+      el.classList.remove('is-printing');
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
+    window.print();
   };
 
   const handleShare = async () => {
@@ -224,6 +198,18 @@ export const SchemeCard = ({ schemeData, onSave, saved, onCompare, onView, onPro
         >
           <Share2 className="w-4 h-4" />
         </button>
+      </div>
+
+      {/* Hidden print target — made visible only during window.print() */}
+      <div ref={printTargetRef} className="scheme-print-target">
+        <SchemePrintView
+          scheme={scheme}
+          eligibility_status={eligibility_status}
+          matched_criteria={matched_criteria}
+          missing_information={missing_information}
+          failed_criteria={failed_criteria}
+          relevance_score={relevance_score}
+        />
       </div>
     </GlassCard>
   );
