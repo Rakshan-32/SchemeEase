@@ -1,5 +1,7 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
 import json
@@ -138,3 +140,18 @@ def get_scheme(scheme_id: str):
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+# ── Production SPA fallback ────────────────────────────────────────────────────
+# Serve the React build from ../frontend/dist when it exists.
+# Any request that doesn't match an API route gets index.html so that
+# client-side routes like /schemes/:id work after a hard refresh.
+_DIST = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
+if os.path.isdir(_DIST):
+    app.mount("/assets", StaticFiles(directory=os.path.join(_DIST, "assets")), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def spa_fallback(full_path: str):
+        index = os.path.join(_DIST, "index.html")
+        if os.path.isfile(index):
+            return FileResponse(index)
+        raise HTTPException(status_code=404, detail="Frontend build not found")

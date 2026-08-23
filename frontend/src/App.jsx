@@ -313,9 +313,10 @@ function App() {
       );
     }
 
-    // Not authenticated: read-only public view with sign-in CTA
+    // Not authenticated (or setup-pending): read-only public view with sign-in CTA
     return (
       <SchemePublicView
+        schemeId={schemeId}
         darkMode={darkMode}
         language={language}
         onLoginClick={() => navigate('/')}

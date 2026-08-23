@@ -55,8 +55,11 @@ function CriteriaList({ criteria }) {
   );
 }
 
-const SchemePublicView = ({ darkMode, language, onLoginClick }) => {
-  const { schemeId } = useParams();
+const SchemePublicView = ({ schemeId: schemeIdProp, darkMode, language, onLoginClick }) => {
+  // schemeIdProp is passed by App.jsx (no <Route> context there).
+  // useParams() handles the case where SchemePublicView is rendered inside a <Route>.
+  const params = useParams();
+  const schemeId = schemeIdProp || params.schemeId;
   const navigate = useNavigate();
   const [scheme, setScheme] = useState(null);
   const [loading, setLoading] = useState(true);
