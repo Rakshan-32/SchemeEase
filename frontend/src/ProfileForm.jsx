@@ -10,7 +10,7 @@ const OCCUPATION_ICONS = {
   GraduationCap, Sprout, Briefcase, HardHat, Store, TrendingUp,
   Building2, Search, Home, Clock, Heart, ShoppingCart, User,
 };
-import { SECTIONS, SECTION_BY_STEP } from './profileSchema';
+import { SECTIONS, SECTION_BY_STEP, clearFieldsFor } from './profileSchema';
 
 const HINT_COLORS = {
   teal: {
@@ -177,6 +177,9 @@ function BasicSection({ section, profile, errors, onChange, t }) {
 }
 
 function OccupationSection({ section, profile, errors, onChange, t }) {
+  const si = section.secondaryIdentities;
+  const showSecondary = si && (si.showWhen ? si.showWhen(profile) : true);
+
   return (
     <div className="space-y-4">
       {section.fields.map((field) => {
@@ -221,6 +224,38 @@ function OccupationSection({ section, profile, errors, onChange, t }) {
           </motion.div>
         );
       })}
+
+      <AnimatePresence>
+        {showSecondary && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-4 mt-2">
+              <p className="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-3">
+                {t(si.titleEn, si.titleTa)}
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {si.fields.map((field) => {
+                  const visible = field.showWhen ? field.showWhen(profile) : true;
+                  if (!visible) return null;
+                  return (
+                    <CheckboxField
+                      key={field.key}
+                      field={field}
+                      value={profile[field.key]}
+                      onChange={onChange}
+                      t={t}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -299,6 +334,16 @@ const ProfileForm = ({ section, profile, onChange, language, onValidChange }) =>
 
   const handleChange = (key, value, fieldDef) => {
     onChange(key, value);
+
+    // When primaryOccupation changes, null out the old occupation's specific fields
+    // so stale values don't silently affect eligibility. null → engine UNKNOWN → NEEDS_MORE_INFO.
+    if (key === 'primaryOccupation') {
+      const oldOccupation = sectionsToRender
+        .find((s) => s.key === 'occupation')
+        ?.fields.find((f) => f.key === 'primaryOccupation') && profile['primaryOccupation'];
+      const cleared = clearFieldsFor(oldOccupation);
+      Object.entries(cleared).forEach(([k, v]) => onChange(k, v));
+    }
 
     const fn = language === 'en' ? fieldDef?.validationEn : fieldDef?.validationTa;
     const error = fn ? fn(value) : null;

@@ -168,40 +168,43 @@ export const SECTIONS = [
         indent: true,
       },
 
-      // Cross-cutting attributes (any occupation) — Stage 2 will move these to a dedicated Secondary Identities section
-      {
-        key: 'disability',
-        type: 'checkbox',
-        labelEn: 'Person with Disability',
-        labelTa: 'மாற்றுத்திறனாளி',
-        size: 'lg',
-        showWhen: (p) => p.primaryOccupation && p.primaryOccupation !== 'PersonWithDisability',
-      },
-      {
-        key: 'minorityCommunity',
-        type: 'checkbox',
-        labelEn: 'Minority Community (Muslim / Christian / Sikh / Buddhist / Parsi / Jain)',
-        labelTa: 'சிறுபான்மை சமூகம் (முஸ்லிம் / கிறிஸ்தவர் / சீக்கியர் / பௌத்தர் / பார்சி / ஜைனர்)',
-        size: 'lg',
-        showWhen: (p) => !!p.primaryOccupation,
-      },
-      {
-        key: 'poorHousehold',
-        type: 'checkbox',
-        labelEn: 'BPL / Below Poverty Line Household',
-        labelTa: 'BPL குடும்பம்',
-        size: 'lg',
-        showWhen: (p) => !!p.primaryOccupation,
-      },
-      {
-        key: 'incomeTaxPayer',
-        type: 'checkbox',
-        labelEn: 'Income Tax Payer',
-        labelTa: 'வருமான வரி செலுத்துபவர்',
-        size: 'lg',
-        showWhen: (p) => !!p.primaryOccupation,
-      },
     ],
+
+    // Shown after occupation is chosen — cross-cutting identities that coexist with any primary role.
+    // Rendered as a distinct "Anything else?" block by OccupationSection.
+    secondaryIdentities: {
+      titleEn: 'Anything else that applies to you?',
+      titleTa: 'வேறு ஏதாவது உங்களுக்கு பொருந்துமா?',
+      showWhen: (p) => !!p.primaryOccupation,
+      fields: [
+        {
+          key: 'disability',
+          type: 'checkbox',
+          labelEn: 'Person with Disability',
+          labelTa: 'மாற்றுத்திறனாளி',
+          // Hidden when user already picked PersonWithDisability as primary (already derived)
+          showWhen: (p) => p.primaryOccupation !== 'PersonWithDisability',
+        },
+        {
+          key: 'minorityCommunity',
+          type: 'checkbox',
+          labelEn: 'Minority Community',
+          labelTa: 'சிறுபான்மை சமூகம்',
+        },
+        {
+          key: 'poorHousehold',
+          type: 'checkbox',
+          labelEn: 'BPL / Below Poverty Line Household',
+          labelTa: 'BPL குடும்பம்',
+        },
+        {
+          key: 'incomeTaxPayer',
+          type: 'checkbox',
+          labelEn: 'Income Tax Payer',
+          labelTa: 'வருமான வரி செலுத்துபவர்',
+        },
+      ],
+    },
   },
 
   {
@@ -296,3 +299,18 @@ export const SECTIONS = [
 export const SECTION_BY_STEP = Object.fromEntries(
   SECTIONS.map((s) => [s.step, s])
 );
+
+// Fields that are specific to each primaryOccupation value.
+// When primaryOccupation changes, these are nulled out so stale values
+// from the previous role don't silently affect eligibility matching.
+// null = "not yet answered" → engine treats as UNKNOWN → NEEDS_MORE_INFO.
+const OCCUPATION_SPECIFIC_FIELDS = {
+  Farmer:    ['landholding', 'insurableInterest'],
+  Student:   ['studentStatus', 'governmentSchoolStudent'],
+  DailyWage: ['epfoMember', 'esicMember'],
+};
+
+export function clearFieldsFor(occupation) {
+  const fields = OCCUPATION_SPECIFIC_FIELDS[occupation] || [];
+  return Object.fromEntries(fields.map((k) => [k, null]));
+}
