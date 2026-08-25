@@ -1,6 +1,6 @@
 # SchemeEase 2.0
 
-**AI-Powered Government Scheme Discovery & Eligibility Platform**
+**Government Scheme Discovery & Eligibility Platform**
 
 A full-stack web application that helps citizens discover government welfare schemes based on their personal profile. Built with React, FastAPI, and a deterministic eligibility matching engine.
 
@@ -23,7 +23,7 @@ A full-stack web application that helps citizens discover government welfare sch
 
 ## ✨ What It Does
 
-SchemeEase evaluates user profiles against **52 government schemes** across 13+ categories and provides:
+SchemeEase evaluates user profiles against **52 government schemes** across 16 categories and provides:
 
 - ✅ **Personalized Recommendations** - Cross-category matching (agriculture + disability + social welfare schemes for a farmer with disability)
 - ✅ **Transparent Eligibility** - Shows exactly why schemes matched and what information is missing
@@ -58,7 +58,7 @@ SchemeEase evaluates user profiles against **52 government schemes** across 13+ 
 
 ## 📊 Scheme Database
 
-**52 Government Schemes** across 13 categories:
+**52 Government Schemes** across 16 categories:
 
 | Category | Count | Example Schemes |
 |----------|-------|-----------------|
@@ -416,7 +416,7 @@ gunicorn -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:8000 main:app
 
 ## 📊 Project Statistics
 
-- **52 government schemes** across 13+ categories
+- **52 government schemes** across 16 categories
 - **152 automated tests** (all passing)
 - **100% Tamil localization** (schemes + UI)
 - **29 source files** organized into 8 logical modules
