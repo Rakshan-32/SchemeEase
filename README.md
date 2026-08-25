@@ -6,6 +6,21 @@ A full-stack web application that helps citizens discover government welfare sch
 
 ---
 
+## 🌐 Live Deployment
+
+**Production Site**: https://scheme-ease.vercel.app
+
+**Backend API**: https://schemease-backend.onrender.com
+
+**Repository**: https://github.com/Rakshan-32/SchemeEase
+
+**Hosting**:
+- Frontend: Vercel (SPA with deep-link routing)
+- Backend: Render (FastAPI on Free tier)
+- Contact Form: Resend HTTP API (SMTP ports blocked on Render Free)
+
+---
+
 ## ✨ What It Does
 
 SchemeEase evaluates user profiles against **52 government schemes** across 13+ categories and provides:
@@ -275,7 +290,7 @@ pip install -r requirements.txt
 
 # Configure environment variables
 copy .env.example .env
-# Edit .env with your SMTP credentials (for contact form)
+# Edit .env with your Resend API key (for contact form)
 
 # Run server
 uvicorn main:app --reload
@@ -287,18 +302,16 @@ API Documentation: `http://localhost:8000/docs`
 
 ### Environment Variables
 
-Backend requires SMTP configuration for the contact form. See `backend/.env.example` for required variables:
+Backend requires Resend API configuration for the contact form. See `backend/.env.example` for required variables:
 
 ```env
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USERNAME=your_email@gmail.com
-SMTP_PASSWORD=your_app_password
-CONTACT_ADMIN_EMAIL=admin@example.com
-CONTACT_FROM_EMAIL=noreply@example.com
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxx
+CONTACT_ADMIN_EMAIL=your_email@example.com
+CONTACT_FROM_EMAIL=onboarding@resend.dev
+FRONTEND_URL=http://localhost:5173
 ```
 
-**Important**: Use a Gmail App Password (not your regular password). See [Google App Passwords](https://support.google.com/accounts/answer/185833) for setup instructions.
+**Important**: Sign up at [Resend](https://resend.com) for a free API key (100 emails/day). Render Free tier blocks SMTP ports, so HTTP-based email APIs like Resend are required for production.
 
 ---
 
@@ -343,8 +356,8 @@ gunicorn -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:8000 main:app
 
 - **Never commit `.env` files** - use `.env.example` as template
 - **Password hashing** - bcrypt with salt rounds (client-side in demo)
-- **SMTP credentials** - store in environment variables only
-- **CORS** - configure allowed origins for production deployment (currently allows all)
+- **API keys** - store Resend API key in environment variables only
+- **CORS** - production configured with FRONTEND_URL environment variable
 - **LocalStorage** - Sensitive data stays client-side only
 
 ---
@@ -360,15 +373,31 @@ gunicorn -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:8000 main:app
 
 ## 🌐 Deployment
 
-**Recommended Hosting**:
-- **Frontend**: Vercel, Netlify (static hosting with SPA routing)
-- **Backend**: Railway, Render, Heroku (Python ASGI hosting)
+**Current Production Stack**:
+- **Frontend**: Vercel (https://scheme-ease.vercel.app)
+- **Backend**: Render Free tier (https://schemease-backend.onrender.com)
+- **Email**: Resend HTTP API (SMTP ports blocked on Render Free)
+
+**Deployment Configuration**:
+
+**Frontend (Vercel)**:
+- Root Directory: `frontend`
+- Framework: Vite
+- Build Command: `npm run build`
+- Output Directory: `dist`
+- Environment Variable: `VITE_API_BASE_URL=https://schemease-backend.onrender.com`
+
+**Backend (Render)**:
+- Root Directory: `backend`
+- Build Command: `pip install -r requirements.txt`
+- Start Command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+- Environment Variables: `RESEND_API_KEY`, `CONTACT_ADMIN_EMAIL`, `FRONTEND_URL`
 
 **Critical Configuration**:
-1. Configure `_redirects` or equivalent for SPA routing (handles `/schemes/:id` deep links)
-2. Set environment variables on hosting platform
-3. Update CORS origins to production domain
-4. Test deep links after deployment
+1. SPA routing via `vercel.json` (handles `/schemes/:id` deep links)
+2. CORS configured via `FRONTEND_URL` environment variable
+3. Contact form requires Resend API key
+4. Test deep links and contact form after deployment
 
 ---
 
