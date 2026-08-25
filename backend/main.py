@@ -6,10 +6,8 @@ from pydantic import BaseModel
 from typing import Dict, Any, List, Optional
 import json
 import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
+import resend
 
 from engine import analyze_profile
 
@@ -60,30 +58,29 @@ def analyze(request: ProfileRequest):
 
 @app.post("/contact")
 def contact(request: ContactRequest):
-    # Gmail SMTP configuration via environment variables
-    smtp_host = os.getenv("SMTP_HOST", "")
-    smtp_port = int(os.getenv("SMTP_PORT", "587"))
-    smtp_username = os.getenv("SMTP_USERNAME", "")
-    smtp_password = os.getenv("SMTP_PASSWORD", "")
-    admin_email = os.getenv("CONTACT_ADMIN_EMAIL", smtp_username)
-    from_email = os.getenv("CONTACT_FROM_EMAIL", smtp_username)
+    # Resend API configuration via environment variables
+    resend_api_key = os.getenv("RESEND_API_KEY", "")
+    admin_email = os.getenv("CONTACT_ADMIN_EMAIL", "")
+    from_email = os.getenv("CONTACT_FROM_EMAIL", "noreply@resend.dev")
 
-    if not smtp_host or not smtp_username or not smtp_password:
+    if not resend_api_key:
         raise HTTPException(
             status_code=503,
             detail="Email service is not configured. Please contact the administrator."
         )
 
-    try:
-        # Send email to administrator with citizen's message
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"[SchemEase Contact] {request.subject}"
-        msg["From"] = from_email
-        msg["To"] = admin_email
-        # CRITICAL: Set Reply-To so admin can reply directly to citizen
-        msg["Reply-To"] = request.email
+    if not admin_email:
+        raise HTTPException(
+            status_code=503,
+            detail="Admin email is not configured. Please contact the administrator."
+        )
 
-        body = (
+    try:
+        # Initialize Resend with API key
+        resend.api_key = resend_api_key
+
+        # Send email to administrator with citizen's message
+        body_text = (
             f"You have received a new enquiry via SchemEase:\n\n"
             f"Name: {request.name}\n"
             f"Email: {request.email}\n"
@@ -92,21 +89,19 @@ def contact(request: ContactRequest):
             f"---\n"
             f"To reply, simply click Reply in your email client."
         )
-        msg.attach(MIMEText(body, "plain"))
 
-        with smtplib.SMTP(smtp_host, smtp_port) as server:
-            server.starttls()
-            server.login(smtp_username, smtp_password)
-            server.sendmail(from_email, admin_email, msg.as_string())
+        params = {
+            "from": from_email,
+            "to": [admin_email],
+            "subject": f"[SchemEase Contact] {request.subject}",
+            "text": body_text,
+            "reply_to": request.email,  # CRITICAL: Set Reply-To so admin can reply directly
+        }
+
+        email = resend.Emails.send(params)
 
         # Optionally send acknowledgment to citizen
         try:
-            ack_msg = MIMEMultipart("alternative")
-            ack_msg["Subject"] = "We received your SchemeEase enquiry"
-            ack_msg["From"] = from_email
-            ack_msg["To"] = request.email
-            ack_msg["Reply-To"] = admin_email
-
             ack_body = (
                 f"Dear {request.name},\n\n"
                 f"Thank you for contacting SchemeEase. We have received your enquiry regarding: {request.subject}\n\n"
@@ -114,22 +109,25 @@ def contact(request: ContactRequest):
                 f"Best regards,\n"
                 f"SchemeEase Team"
             )
-            ack_msg.attach(MIMEText(ack_body, "plain"))
 
-            with smtplib.SMTP(smtp_host, smtp_port) as server:
-                server.starttls()
-                server.login(smtp_username, smtp_password)
-                server.sendmail(from_email, request.email, ack_msg.as_string())
+            ack_params = {
+                "from": from_email,
+                "to": [request.email],
+                "subject": "We received your SchemeEase enquiry",
+                "text": ack_body,
+                "reply_to": admin_email,
+            }
+
+            resend.Emails.send(ack_params)
         except Exception:
             # Acknowledgment is optional - don't fail if it doesn't send
             pass
 
         return {"status": "success", "message": "Message sent successfully."}
-    except smtplib.SMTPAuthenticationError:
-        raise HTTPException(status_code=503, detail="Email authentication failed. Please check SMTP credentials.")
-    except smtplib.SMTPException as e:
-        raise HTTPException(status_code=503, detail=f"Failed to send email: {str(e)}")
     except Exception as e:
+        error_msg = str(e)
+        if "API" in error_msg or "api_key" in error_msg.lower():
+            raise HTTPException(status_code=503, detail="Email service configuration error.")
         raise HTTPException(status_code=500, detail="Unable to send your message. Please try again.")
 
 @app.get("/schemes/{scheme_id}")
