@@ -1,19 +1,31 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, SlidersHorizontal, ChevronDown, X } from 'lucide-react';
 import { SchemeCard } from './components';
 import { analyzeProfile } from './data';
+import { searchSchemes } from './schemeSearch';
 
-const AllSchemes = ({ profile, onUpdateProfile, onProvideMissingInfo, onViewDetails, savedSchemes, onSave, onCompare, onView, darkMode, language }) => {
+const AllSchemes = ({ profile, onUpdateProfile, onProvideMissingInfo, onViewDetails, savedSchemes, onSave, onCompare, onView, darkMode, language, searchQuery: externalSearchQuery, onClearSearch }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [allSchemes, setAllSchemes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+
+  // Use URL query parameter as source of truth for search
+  const searchQuery = searchParams.get('q') || externalSearchQuery || '';
+  const [searchInput, setSearchInput] = useState(searchQuery);
+
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedDepartment, setSelectedDepartment] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [sortBy, setSortBy] = useState('relevance');
   const [showFilters, setShowFilters] = useState(false);
+
+  // Sync search input with URL parameter
+  useEffect(() => {
+    setSearchInput(searchQuery);
+  }, [searchQuery]);
 
   useEffect(() => {
     loadAllSchemes();
@@ -39,14 +51,16 @@ const AllSchemes = ({ profile, onUpdateProfile, onProvideMissingInfo, onViewDeta
   const categories = ['all', ...new Set(allSchemes.map(s => s.scheme.category))];
   const departments = ['all', ...new Set(allSchemes.map(s => s.scheme.department))];
 
-  // Filter schemes
-  const filteredSchemes = allSchemes.filter(s => {
-    // Search filter
-    if (searchQuery && !s.scheme.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !s.scheme.description.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
+  // Filter schemes using centralized search
+  let filteredSchemes = allSchemes;
 
+  // Apply smart search if query exists
+  if (searchQuery && searchQuery.trim()) {
+    filteredSchemes = searchSchemes(filteredSchemes, searchQuery, language, { includeEligibility: true });
+  }
+
+  // Apply additional filters
+  filteredSchemes = filteredSchemes.filter(s => {
     // Category filter
     if (selectedCategory !== 'all' && s.scheme.category !== selectedCategory) {
       return false;
@@ -83,8 +97,26 @@ const AllSchemes = ({ profile, onUpdateProfile, onProvideMissingInfo, onViewDeta
     return 0;
   });
 
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    const trimmedQuery = searchInput.trim();
+    if (trimmedQuery) {
+      setSearchParams({ q: trimmedQuery });
+    } else {
+      setSearchParams({});
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput('');
+    setSearchParams({});
+    if (onClearSearch) {
+      onClearSearch();
+    }
+  };
+
   const clearFilters = () => {
-    setSearchQuery('');
+    handleClearSearch();
     setSelectedCategory('all');
     setSelectedDepartment('all');
     setSelectedStatus('all');
@@ -92,7 +124,7 @@ const AllSchemes = ({ profile, onUpdateProfile, onProvideMissingInfo, onViewDeta
   };
 
   const activeFilterCount = [
-    searchQuery ? 1 : 0,
+    searchQuery.trim() ? 1 : 0,
     selectedCategory !== 'all' ? 1 : 0,
     selectedDepartment !== 'all' ? 1 : 0,
     selectedStatus !== 'all' ? 1 : 0
@@ -134,18 +166,30 @@ const AllSchemes = ({ profile, onUpdateProfile, onProvideMissingInfo, onViewDeta
           className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 mb-8"
         >
           {/* Search Bar */}
-          <div className="flex gap-4 mb-4">
+          <form onSubmit={handleSearchSubmit} className="flex gap-4 mb-4">
             <div className="flex-1 relative">
               <Search className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
               <input
                 type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={language === 'en' ? 'Search schemes by name or description...' : 'திட்டங்களைத் தேடுங்கள்...'}
-                className="w-full pl-12 pr-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary outline-none"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder={language === 'en' ? 'Search schemes: MSME, student, farmer, scholarship...' : 'திட்டங்களைத் தேடுங்கள்: MSME, மாணவர், விவசாயி...'}
+                className="w-full pl-12 pr-12 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary outline-none"
               />
+              {searchInput && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute right-4 top-3.5 p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                  aria-label="Clear search"
+                  title="Clear search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
             <button
+              type="button"
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
                 showFilters || activeFilterCount > 0
@@ -161,7 +205,7 @@ const AllSchemes = ({ profile, onUpdateProfile, onProvideMissingInfo, onViewDeta
                 </span>
               )}
             </button>
-          </div>
+          </form>
 
           {/* Filter Panel */}
           {showFilters && (

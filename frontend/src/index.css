@@ -2,11 +2,60 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-background text-foreground antialiased;
+@layer utilities {
+  .text-shadow-lg {
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
   }
 
+  /* Hide government emblem watermark on mobile to prevent crowding */
+  @media (max-width: 767px) {
+    .tn-emblem-watermark {
+      display: none;
+    }
+  }
+}
+
+@layer base {
+  /* Base application background and text */
+  body {
+    @apply antialiased;
+    background-color: #f5f7fb;
+    color: #172033;
+  }
+
+  .dark body {
+    background: linear-gradient(to bottom, #0b1426 0%, #081220 100%);
+    color: #f1f5f9;
+  }
+
+  /* Simple CSS variables for theming */
+  :root {
+    --card-bg: #ffffff;
+    --input-bg: #ffffff;
+    --border: #dde4ee;
+    --text-muted: #64748b;
+    --text-primary: #172033;
+    --text-secondary: #526078;
+    --page-bg: #f5f7fb;
+    --elevated-surface: #10233b;
+    --secondary-surface: #0f1f35;
+    --soft-teal: #5eead4;
+  }
+
+  .dark {
+    --card-bg: #10233b;
+    --input-bg: #0f1f35;
+    --border: rgba(148, 163, 184, 0.14);
+    --text-muted: #94a3b8;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --page-bg: #0b1426;
+    --elevated-surface: #10233b;
+    --secondary-surface: #0f1f35;
+    --soft-teal: #5eead4;
+  }
+
+  /* Auth page specific input styles */
   input::placeholder,
   textarea::placeholder {
     color: rgba(255, 255, 255, 0.6);
@@ -96,9 +145,31 @@
   @apply bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg rounded-xl hover:bg-white/80 transition-all duration-300;
 }
 
-/* Dark Mode Styles */
-.dark {
-  @apply bg-slate-900 text-slate-100;
+/* ===== REFINED SURFACE SYSTEM ===== */
+
+/* Base application background with subtle depth */
+.app-background {
+  position: relative;
+  background-color: #f5f7fb;
+  min-height: 100vh;
+}
+
+.dark .app-background {
+  background: linear-gradient(to bottom, #0b1426 0%, #081220 100%);
+  min-height: 100vh;
+}
+
+/* Very subtle teal accent near top in dark mode */
+.dark .app-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 280px;
+  background: radial-gradient(ellipse at top, rgba(15, 118, 110, 0.05) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .dark .glass-panel-true {
@@ -117,166 +188,18 @@
   @apply bg-slate-800/60 border-slate-700/30 hover:bg-slate-800/80;
 }
 
-/* ===== ANIMATED BACKGROUND EFFECTS ===== */
+/* ===== SIMPLIFIED BACKGROUND SYSTEM ===== */
 
-/* Gradient Mesh Animation */
-@keyframes gradientShift {
-  0%, 100% {
-    background-position: 0% 50%;
-    transform: scale(1);
-  }
-  50% {
-    background-position: 100% 50%;
-    transform: scale(1.1);
-  }
-}
-
-.animated-gradient-bg {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(
-    135deg,
-    rgba(15, 118, 110, 0.08) 0%,
-    rgba(6, 182, 212, 0.05) 25%,
-    rgba(14, 116, 144, 0.08) 50%,
-    rgba(13, 148, 136, 0.06) 75%,
-    rgba(15, 118, 110, 0.08) 100%
-  );
-  background-size: 400% 400%;
-  animation: gradientShift 20s ease infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animated-gradient-bg {
-    animation: none;
-  }
-}
-
-/* Glowing Orbs */
-@keyframes float {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-    opacity: 0.3;
-  }
-  50% {
-    transform: translate(30px, -30px) scale(1.1);
-    opacity: 0.5;
-  }
-}
-
-@keyframes float-reverse {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-    opacity: 0.3;
-  }
-  50% {
-    transform: translate(-30px, 30px) scale(1.1);
-    opacity: 0.5;
-  }
-}
-
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.3;
-  pointer-events: none;
-}
-
-.orb-1 {
-  width: 500px;
-  height: 500px;
-  top: -100px;
-  right: -100px;
-  background: radial-gradient(circle, rgba(15, 118, 110, 0.4) 0%, rgba(15, 118, 110, 0) 70%);
-  animation: float 25s ease-in-out infinite;
-}
-
-.orb-2 {
-  width: 400px;
-  height: 400px;
-  bottom: -100px;
-  left: -100px;
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, rgba(6, 182, 212, 0) 70%);
-  animation: float-reverse 20s ease-in-out infinite 5s;
-}
-
-.orb-3 {
-  width: 350px;
-  height: 350px;
-  top: 50%;
-  left: 50%;
-  background: radial-gradient(circle, rgba(14, 116, 144, 0.25) 0%, rgba(14, 116, 144, 0) 70%);
-  animation: float 30s ease-in-out infinite 10s;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .orb {
-    animation: none;
-  }
-}
-
-/* Floating Particles */
-@keyframes particle-float {
-  0%, 100% {
-    transform: translateY(0) translateX(0);
-    opacity: 0.2;
-  }
-  50% {
-    transform: translateY(-100px) translateX(50px);
-    opacity: 0.4;
-  }
-}
-
-.particles {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.particle {
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  background: rgba(15, 118, 110, 0.4);
-  border-radius: 50%;
-  animation: particle-float 15s ease-in-out infinite;
-}
-
-.particle:nth-child(1) { top: 20%; left: 20%; animation-delay: 0s; animation-duration: 12s; }
-.particle:nth-child(2) { top: 40%; left: 60%; animation-delay: 2s; animation-duration: 15s; }
-.particle:nth-child(3) { top: 60%; left: 30%; animation-delay: 4s; animation-duration: 18s; }
-.particle:nth-child(4) { top: 80%; left: 70%; animation-delay: 6s; animation-duration: 14s; }
-.particle:nth-child(5) { top: 30%; left: 80%; animation-delay: 8s; animation-duration: 16s; }
-.particle:nth-child(6) { top: 70%; left: 10%; animation-delay: 3s; animation-duration: 13s; }
-
-@media (prefers-reduced-motion: reduce) {
-  .particle {
-    animation: none;
-    opacity: 0.2;
-  }
-}
-
-/* Grid Pattern Overlay */
+/* Remove complex animated backgrounds - rely on app-background gradient instead */
+.animated-gradient-bg,
+.orb,
+.orb-1,
+.orb-2,
+.orb-3,
+.particles,
+.particle,
 .grid-pattern {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background-image:
-    linear-gradient(rgba(15, 118, 110, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(15, 118, 110, 0.03) 1px, transparent 1px);
-  background-size: 50px 50px;
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.dark .grid-pattern {
-  background-image:
-    linear-gradient(rgba(15, 118, 110, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(15, 118, 110, 0.05) 1px, transparent 1px);
+  display: none;
 }
 
 /* Card Entrance Animation */
@@ -315,126 +238,292 @@
 }
 
 /* ── Print styles ───────────────────────────────────────────────────────── */
-.scheme-print-target {
-  display: none;
+
+/* Hide print root off-screen during normal viewing */
+#print-root {
+  position: fixed;
+  left: -99999px;
+  top: 0;
+  width: 210mm;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: -9999;
+}
+
+/* Only show print-portal-content when actively printing */
+.print-portal-content {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.print-portal-content.is-printing {
+  opacity: 1;
+  visibility: visible;
 }
 
 @media print {
-  /* Hide entire page, then reveal only the active print target */
-  body * {
-    visibility: hidden !important;
-  }
-  .scheme-print-target.is-printing,
-  .scheme-print-target.is-printing * {
-    visibility: visible !important;
-  }
-  .scheme-print-target.is-printing {
-    display: block !important;
-    position: fixed !important;
-    inset: 0 !important;
-    z-index: 9999 !important;
-    background: #fff !important;
-    padding: 2cm !important;
-    overflow: visible !important;
+  /* A4 page setup with sensible margins */
+  @page {
+    size: A4;
+    margin: 12mm 14mm;
   }
 
-  /* Content typography */
-  .print-header {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    margin-bottom: 4px;
+  /* Force white background for print */
+  html, body {
+    background: #ffffff !important;
+    min-height: 0 !important;
   }
+
+  /* Hide the main app completely */
+  #root {
+    display: none !important;
+  }
+
+  /* Show and position print root for printing */
+  #print-root {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    width: auto !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    z-index: auto !important;
+    display: block !important;
+  }
+
+  /* Ensure print content is visible */
+  .print-portal-content,
+  .print-portal-content.is-printing {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    background: #ffffff !important;
+  }
+
+  /* Force colors to print (browser-dependent) */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Remove all page breaks from the content */
+  .scheme-print-content {
+    page-break-before: auto;
+    page-break-after: auto;
+    page-break-inside: auto;
+    background: #ffffff !important;
+  }
+
+  /* ── Header ── */
+  .print-header {
+    margin-bottom: 6pt;
+    break-after: avoid;
+  }
+
   .print-logo {
-    font-size: 20px;
+    font-size: 18pt;
     font-weight: 800;
     color: #0f766e;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3pt;
+    display: block;
+    margin-bottom: 2pt;
   }
+
   .print-tagline {
-    font-size: 11px;
+    font-size: 9pt;
     color: #64748b;
+    display: block;
   }
+
   .print-divider {
     border: none;
-    border-top: 1px solid #e2e8f0;
-    margin: 10px 0;
+    border-top: 1px solid #cbd5e1;
+    margin: 8pt 0;
+    height: 0;
   }
+
+  .print-divider-thick {
+    border-top: 1px solid #94a3b8;
+    margin: 12pt 0 8pt 0;
+  }
+
+  /* ── Scheme Identity ── */
   .print-scheme-name {
-    font-size: 22px;
+    font-size: 20pt;
     font-weight: 700;
     color: #0f172a;
-    margin: 12px 0 4px;
+    margin: 10pt 0 4pt;
+    line-height: 1.2;
+    break-after: avoid;
   }
+
   .print-meta {
-    font-size: 12px;
+    font-size: 10pt;
     color: #64748b;
-    margin-bottom: 10px;
+    margin-bottom: 8pt;
   }
+
   .print-description {
-    font-size: 13px;
+    font-size: 10pt;
     color: #334155;
-    line-height: 1.6;
-    margin-bottom: 14px;
+    line-height: 1.5;
+    margin-bottom: 12pt;
   }
+
+  /* ── Eligibility Box ── */
   .print-eligibility {
-    border-left: 4px solid #e2e8f0;
-    padding: 10px 14px;
-    margin-bottom: 16px;
-    font-size: 13px;
+    border-left: 3pt solid #e2e8f0;
+    padding: 8pt 10pt;
+    margin: 12pt 0;
+    font-size: 10pt;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    color: #334155 !important;
+    height: auto;
+    min-height: 0;
   }
-  .print-eligibility--eligible   { border-color: #16a34a; background: #f0fdf4; }
-  .print-eligibility--needs_more_info { border-color: #d97706; background: #fffbeb; }
-  .print-eligibility--not_eligible    { border-color: #dc2626; background: #fef2f2; }
+
+  .print-eligibility--eligible {
+    border-color: #16a34a;
+    background: #ecfdf5 !important;
+  }
+
+  .print-eligibility--needs_more_info {
+    border-color: #d97706;
+    background: #fef3c7 !important;
+  }
+
+  .print-eligibility--not_eligible {
+    border-color: #dc2626;
+    background: #fee2e2 !important;
+  }
+
+  .print-eligibility-status {
+    margin-bottom: 6pt;
+    color: #0f172a !important;
+  }
+
+  .print-eligibility-status strong {
+    color: #0f172a !important;
+    font-weight: 700;
+  }
+
   .print-criteria-block {
-    margin-top: 8px;
+    margin-top: 6pt;
+    color: #334155 !important;
   }
+
+  .print-criteria-block strong {
+    display: block;
+    margin-bottom: 3pt;
+    color: #166534 !important;
+    font-weight: 700;
+  }
+
   .print-criteria-block ul {
-    margin: 4px 0 0 16px;
+    margin: 0 0 0 14pt;
     padding: 0;
+    list-style: none;
   }
+
   .print-criteria-block li {
-    margin-bottom: 2px;
+    margin-bottom: 2pt;
+    line-height: 1.4;
+    color: #334155 !important;
   }
+
+  .print-eligibility * {
+    color: inherit !important;
+  }
+
+  /* ── Section Headings ── */
   .print-section-heading {
-    font-size: 14px;
+    font-size: 11pt;
     font-weight: 700;
     color: #0f766e;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin: 16px 0 6px;
-    border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 3px;
+    margin: 14pt 0 6pt;
+    border-bottom: 1pt solid #cbd5e1;
+    padding-bottom: 2pt;
+    break-after: avoid;
+    page-break-after: avoid;
   }
+
+  /* ── Lists ── */
   .print-list {
-    margin: 0 0 0 18px;
+    margin: 0 0 12pt 16pt;
     padding: 0;
-    font-size: 13px;
+    font-size: 10pt;
     color: #334155;
+    list-style-type: disc;
   }
+
   .print-list li {
-    margin-bottom: 4px;
+    margin-bottom: 3pt;
     line-height: 1.5;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
+
+  /* ── Body Text ── */
   .print-body {
-    font-size: 13px;
+    font-size: 10pt;
     color: #334155;
-    line-height: 1.6;
-    margin: 0 0 12px;
+    line-height: 1.5;
+    margin: 0 0 10pt;
   }
+
+  /* ── URL ── */
   .print-url {
-    font-size: 12px;
+    font-size: 10pt;
     color: #475569;
-    margin: 12px 0 4px;
+    margin: 10pt 0;
   }
-  .print-url span {
+
+  .print-url strong {
+    font-weight: 600;
+  }
+
+  .print-link {
     color: #0f766e;
     text-decoration: underline;
+    word-break: break-all;
   }
+
+  /* ── Disclaimer ── */
+  .print-disclaimer {
+    display: flex;
+    gap: 6pt;
+    align-items: flex-start;
+    padding: 8pt 10pt;
+    background: #f8fafc;
+    border: 1pt solid #e2e8f0;
+    border-radius: 4pt;
+    margin: 12pt 0 10pt;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-disclaimer-icon {
+    font-size: 12pt;
+    color: #64748b;
+    flex-shrink: 0;
+  }
+
+  .print-disclaimer-text {
+    font-size: 9pt;
+    color: #475569;
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  /* ── Footer ── */
   .print-footer {
-    font-size: 11px;
+    font-size: 9pt;
     color: #94a3b8;
     text-align: center;
-    margin-top: 8px;
+    margin-top: 10pt;
+    font-style: italic;
   }
 }

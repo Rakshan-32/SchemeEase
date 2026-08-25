@@ -8,20 +8,28 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#f8fafc',
-        foreground: '#0f172a',
+        // Primary brand color (teal)
         primary: {
           DEFAULT: '#0f766e',
-          foreground: '#ffffff'
+          hover: '#0d6962',
         },
-        card: {
-          DEFAULT: 'rgba(255, 255, 255, 0.7)',
-          foreground: '#0f172a'
-        }
       },
       backgroundImage: {
         'hero-pattern': "url('/ribbon-building.jpg')",
-      }
+      },
+      boxShadow: {
+        'card-light': '0 1px 3px 0 rgba(100, 116, 139, 0.08), 0 1px 2px 0 rgba(100, 116, 139, 0.04)',
+        'card-light-hover': '0 4px 16px -4px rgba(100, 116, 139, 0.18), 0 2px 8px -2px rgba(100, 116, 139, 0.12)',
+        'card-dark': '0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2)',
+        'card-dark-hover': '0 4px 12px -2px rgba(0, 0, 0, 0.4), 0 2px 6px -1px rgba(0, 0, 0, 0.3)',
+        'nav-light': '0 1px 3px 0 rgba(100, 116, 139, 0.06)',
+        'stat-light': '0 1px 2px 0 rgba(100, 116, 139, 0.06)',
+      },
+      borderRadius: {
+        'card': '16px',
+        'stat': '14px',
+        'modal': '20px',
+      },
     },
   },
   plugins: [],

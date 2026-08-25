@@ -6,8 +6,8 @@
     "department": "Ministry of Agriculture and Farmers Welfare",
     "description": "An initiative by the government to provide minimum income support to all landholding farmers.",
     "benefits": [
-      "â‚¹6,000 per year",
-      "Payable in three equal installments of â‚¹2,000 each"
+      "₹6,000 per year",
+      "Payable in three equal installments of ₹2,000 each"
     ],
     "eligibility": {
       "required_criteria": {
@@ -27,7 +27,13 @@
       "Mobile Number"
     ],
     "applicationMethod": "Online via PM-KISAN portal or CSCs",
-    "officialUrl": "https://pmkisan.gov.in"
+    "officialUrl": "https://pmkisan.gov.in",
+    "description_ta": "நில உடைமை கொண்ட அனைத்து விவசாயிகளுக்கும் குறைந்தபட்ச வருமான ஆதரவை வழங்கும் அரசின் முயற்சி.",
+    "benefits_ta": [
+      "ஆண்டுக்கு ₹6,000",
+      "மூன்று சம தவணைகளில் ஒவ்வொன்றும் ₹2,000 செலுத்தப்படும்"
+    ],
+    "applicationMethod_ta": "PM-KISAN போர்ட்டல் அல்லது CSC மூலம் ஆன்லைனில்"
   },
   {
     "id": "standup-india",
@@ -36,7 +42,7 @@
     "department": "Department of Financial Services",
     "description": "Facilitates bank loans between 10 lakh and 1 Crore to at least one SC or ST borrower and at least one woman borrower per bank branch for setting up a greenfield enterprise.",
     "benefits": [
-      "Bank loan between â‚¹10 lakh and â‚¹1 Crore",
+      "Bank loan between ₹10 lakh and ₹1 Crore",
       "Supports manufacturing, services, agri-allied, or trading sector"
     ],
     "eligibility": {
@@ -74,7 +80,13 @@
       "Bank Account Details"
     ],
     "applicationMethod": "Online via Stand-Up Mitra Portal or Bank Branch",
-    "officialUrl": "https://www.standupmitra.in"
+    "officialUrl": "https://www.standupmitra.in",
+    "description_ta": "ஒரு புதிய தொழில் நிறுவனத்தை தொடங்க குறைந்தபட்சம் ஒரு SC அல்லது ST கடன் வாங்குபவர் மற்றும் குறைந்தபட்சம் ஒரு பெண் கடன் வாங்குபவருக்கு ஒரு வங்கி கிளைக்கு 10 லட்சம் மற்றும் 1 கோடிக்கு இடையில் வங்கி கடனை எளிதாக்குகிறது.",
+    "benefits_ta": [
+      "₹10 லட்சம் மற்றும் ₹1 கோடிக்கு இடையில் வங்கி கடன்",
+      "உற்பத்தி, சேவைகள், வேளாண் தொடர்புடைய அல்லது வர்த்தக துறையை ஆதரிக்கிறது"
+    ],
+    "applicationMethod_ta": "Stand-Up Mitra போர்ட்டல் அல்லது வங்கி கிளை மூலம் ஆன்லைனில்"
   },
   {
     "id": "adip",
@@ -98,11 +110,17 @@
     "documents": [
       "UDID Card or Medical Disability Certificate (40% or more)",
       "Aadhaar Card",
-      "Income Certificate (under â‚¹22,500/month)",
+      "Income Certificate (under ₹22,500/month)",
       "Passport Photograph"
     ],
     "applicationMethod": "Assessment Camps or ARJUN Portal",
-    "officialUrl": "https://depwd.gov.in"
+    "officialUrl": "https://depwd.gov.in",
+    "description_ta": "மாற்றுத்திறனாளிகள் அறிவியல் ரீதியாக தயாரிக்கப்பட்ட, நவீன, தரமான உதவி கருவிகள் மற்றும் சாதனங்களை பெறுவதற்கு உதவிக்கு முகமைகளுக்கு மானியம் வழங்குகிறது.",
+    "benefits_ta": [
+      "இலவச அல்லது மானிய உதவி கருவிகள் மற்றும் சாதனங்கள்",
+      "சரிசெய்யும் அறுவை சிகிச்சைகள் (தேவைப்பட்டால்)"
+    ],
+    "applicationMethod_ta": "மதிப்பீட்டு முகாம்கள் அல்லது ARJUN போர்ட்டல்"
   },
   {
     "id": "post-matric-sc",
@@ -117,13 +135,15 @@
     ],
     "eligibility": {
       "required_criteria": {
+        "student": true,
         "socialCategory": [
           "SC"
         ],
-        "studentStatus": [
-          "Yes",
-          "Post Matric",
-          "College"
+        "educationLevel": [
+          "iti",
+          "diploma",
+          "undergraduate",
+          "postgraduate"
         ],
         "income": {
           "max": 250000
@@ -142,16 +162,23 @@
       "Passport Photograph"
     ],
     "applicationMethod": "National Scholarship Portal or State DBT Portal",
-    "officialUrl": "https://scholarships.gov.in"
+    "officialUrl": "https://scholarships.gov.in",
+    "description_ta": "மெட்ரிக்குக்கு பிந்தைய அல்லது இரண்டாம் நிலைக்கு பிந்தைய கட்டத்தில் படிக்கும் பட்டியல் சாதி மாணவர்களுக்கு நிதி உதவி.",
+    "benefits_ta": [
+      "பராமரிப்பு கொடுப்பனவு",
+      "கட்டாய திருப்பி செலுத்த முடியாத கட்டணங்களின் திருப்பிச் செலுத்துதல்",
+      "கல்வி சுற்றுலா கட்டணங்கள், ஆய்வறிக்கை தட்டச்சு/அச்சிடுதல் கட்டணங்கள்"
+    ],
+    "applicationMethod_ta": "தேசிய உதவித்தொகை போர்ட்டல் அல்லது மாநில DBT போர்ட்டல்"
   },
   {
     "id": "pm-jay",
     "name": "Ayushman Bharat Pradhan Mantri Jan Arogya Yojana (AB PM-JAY)",
     "category": "Health",
     "department": "National Health Authority",
-    "description": "Health coverage of up to â‚¹5 lakh per year for poor and vulnerable families, and all senior citizens aged 70+.",
+    "description": "Health coverage of up to ₹5 lakh per year for poor and vulnerable families, and all senior citizens aged 70+.",
     "benefits": [
-      "Health coverage up to â‚¹5 lakh per year"
+      "Health coverage up to ₹5 lakh per year"
     ],
     "eligibility": {
       "required_criteria": {
@@ -175,16 +202,21 @@
       "Ration Card (if applicable)"
     ],
     "applicationMethod": "Online via beneficiary portal or at empanelled hospitals",
-    "officialUrl": "https://pmjay.gov.in"
+    "officialUrl": "https://pmjay.gov.in",
+    "description_ta": "ஏழை மற்றும் பாதிக்கப்படக்கூடிய குடும்பங்கள் மற்றும் 70+ வயதான அனைத்து மூத்த குடிமக்களுக்கும் ஆண்டுக்கு ₹5 லட்சம் வரை சுகாதார கவரேஜ்.",
+    "benefits_ta": [
+      "ஆண்டுக்கு ₹5 லட்சம் வரை சுகாதார கவரேஜ்"
+    ],
+    "applicationMethod_ta": "பயனாளர் போர்ட்டல் அல்லது பட்டியலிடப்பட்ட மருத்துவமனைகளில் ஆன்லைனில்"
   },
   {
     "id": "pmmy",
     "name": "Pradhan Mantri Mudra Yojana (PMMY)",
     "category": "Entrepreneurship",
     "department": "Department of Financial Services",
-    "description": "Provides collateral-free loans up to â‚¹10 Lakh to micro and small enterprises.",
+    "description": "Provides collateral-free loans up to ₹10 Lakh to micro and small enterprises.",
     "benefits": [
-      "Collateral-free loans up to â‚¹10 Lakh"
+      "Collateral-free loans up to ₹10 Lakh"
     ],
     "eligibility": {
       "required_criteria": {
@@ -200,7 +232,12 @@
       "Identity Proof"
     ],
     "applicationMethod": "Online via Jan Samarth or Bank Branch",
-    "officialUrl": "https://www.mudra.org.in"
+    "officialUrl": "https://www.mudra.org.in",
+    "description_ta": "நுண் மற்றும் சிறு தொழில்களுக்கு ₹10 லட்சம் வரை பிணையமில்லா கடன்களை வழங்குகிறது.",
+    "benefits_ta": [
+      "₹10 லட்சம் வரை பிணையமில்லா கடன்கள்"
+    ],
+    "applicationMethod_ta": "Jan Samarth அல்லது வங்கி கிளை மூலம் ஆன்லைனில்"
   },
   {
     "id": "ssy",
@@ -230,7 +267,13 @@
       "Guardian PAN Card"
     ],
     "applicationMethod": "Post Office or Authorized Bank Branch",
-    "officialUrl": "https://www.nsiindia.gov.in"
+    "officialUrl": "https://www.nsiindia.gov.in",
+    "description_ta": "பெண் குழந்தையின் எதிர்கால கல்வி மற்றும் திருமண செலவுகளைப் பாதுகாக்க சேமிப்பு திட்டம்.",
+    "benefits_ta": [
+      "சேமிப்பில் உயர் வட்டி விகிதம்",
+      "பிரிவு 80C இன் கீழ் வரி நன்மைகள்"
+    ],
+    "applicationMethod_ta": "தபால் அலுவலகம் அல்லது அங்கீகரிக்கப்பட்ட வங்கி கிளை"
   },
   {
     "id": "apy",
@@ -239,7 +282,7 @@
     "department": "Pension Fund Regulatory and Development Authority",
     "description": "A pension scheme focused on the unorganised sector workers.",
     "benefits": [
-      "Guaranteed minimum pension of â‚¹1,000 to â‚¹5,000 per month after age 60"
+      "Guaranteed minimum pension of ₹1,000 to ₹5,000 per month after age 60"
     ],
     "eligibility": {
       "required_criteria": {
@@ -261,7 +304,12 @@
       "Passport Photograph"
     ],
     "applicationMethod": "Bank Branch or Post Office",
-    "officialUrl": "https://www.pfrda.org.in"
+    "officialUrl": "https://www.pfrda.org.in",
+    "description_ta": "அமைப்புசாரா துறை தொழிலாளர்களை மையமாகக் கொண்ட ஓய்வூதிய திட்டம்.",
+    "benefits_ta": [
+      "60 வயதுக்குப் பிறகு மாதம் ₹1,000 முதல் ₹5,000 வரை உத்தரவாதம் அளிக்கப்பட்ட குறைந்தபட்ச ஓய்வூதியம்"
+    ],
+    "applicationMethod_ta": "வங்கி கிளை அல்லது தபால் அலுவலகம்"
   },
   {
     "id": "jjm",
@@ -290,7 +338,12 @@
       "Consent Letter from Property Owner (if rented)"
     ],
     "applicationMethod": "Through Gram Panchayat or Village Water and Sanitation Committee",
-    "officialUrl": "https://jaljeevanmission.gov.in"
+    "officialUrl": "https://jaljeevanmission.gov.in",
+    "description_ta": "ஒவ்வொரு கிராமப்புற குடும்பத்திற்கும் செயல்படும் வீட்டு குழாய் இணைப்புகளை வழங்குவதை நோக்கமாகக் கொண்டுள்ளது.",
+    "benefits_ta": [
+      "வீட்டில் செயல்படும் குழாய் நீர் இணைப்பு"
+    ],
+    "applicationMethod_ta": "கிராம பஞ்சாயத்து அல்லது கிராம நீர் மற்றும் சுகாதார குழு மூலம்"
   },
   {
     "id": "mgnrega",
@@ -320,7 +373,13 @@
       "Bank Account Details"
     ],
     "applicationMethod": "Local Gram Panchayat Office",
-    "officialUrl": "https://nrega.nic.in"
+    "officialUrl": "https://nrega.nic.in",
+    "description_ta": "ஒரு நிதியாண்டில் ஒரு கிராமப்புற குடும்பத்தின் வயதுவந்த உறுப்பினர்களுக்கு குறைந்தபட்சம் 100 நாட்கள் ஊதிய வேலைவாய்ப்புக்கான சட்டப்பூர்வ உத்தரவாதத்தை வழங்குகிறது.",
+    "benefits_ta": [
+      "ஆண்டுக்கு 100 நாட்கள் வரை உத்தரவாத ஊதிய வேலைவாய்ப்பு",
+      "மாநில குறைந்தபட்ச ஊதியங்களின்படி ஊதியம்"
+    ],
+    "applicationMethod_ta": "கிராம பஞ்சாயத்து மூலம் பதிவு"
   },
   {
     "id": "pmfby",
@@ -345,7 +404,13 @@
       "Bank Account Details"
     ],
     "applicationMethod": "Online via PMFBY portal, CSCs, or Bank Branch",
-    "officialUrl": "https://pmfby.gov.in"
+    "officialUrl": "https://pmfby.gov.in",
+    "description_ta": "விவசாயிகளுக்கு பயிர் தோல்விக்கு எதிரான விரிவான காப்பீட்டு கவரேஜ்.",
+    "benefits_ta": [
+      "விதைப்பு முன் முதல் அறுவடைக்குப் பிந்தைய இழப்புகள் வரை கவரேஜ்",
+      "குறைந்த பிரீமியம் விகிதம்"
+    ],
+    "applicationMethod_ta": "வங்கிகள், CSC அல்லது காப்பீட்டு நிறுவனம் மூலம்"
   },
   {
     "id": "eshram",
@@ -377,7 +442,14 @@
       "Aadhaar-linked Mobile Number"
     ],
     "applicationMethod": "Online via e-Shram portal or CSCs",
-    "officialUrl": "https://eshram.gov.in"
+    "officialUrl": "https://eshram.gov.in",
+    "description_ta": "இலக்கு சமூக பாதுகாப்பு திட்டங்களை வழங்குவதற்கான அமைப்புசாரா தொழிலாளர்களின் தேசிய தரவுத்தளம்.",
+    "benefits_ta": [
+      "e-Shram அட்டை",
+      "விபத்து காப்பீடு கவரேஜ்",
+      "சமூக பாதுகாப்பு திட்டங்களுக்கான அணுகல்"
+    ],
+    "applicationMethod_ta": "e-Shram போர்ட்டல் மூலம் ஆன்லைனில்"
   },
   {
     "id": "ddu-gky",
@@ -408,7 +480,14 @@
       "Birth Certificate"
     ],
     "applicationMethod": "Online via Kaushal Panjee app or local Gram Panchayat",
-    "officialUrl": "https://ddugky.gov.in"
+    "officialUrl": "https://ddugky.gov.in",
+    "description_ta": "கிராமப்புற இளைஞர்களின் வாழ்வாதாரத்தை மேம்படுத்த திறன் பயிற்சி திட்டம்.",
+    "benefits_ta": [
+      "இலவச திறன் பயிற்சி",
+      "வேலை வாய்ப்பு உதவி",
+      "பயிற்சியின் போது உதவித்தொகை"
+    ],
+    "applicationMethod_ta": "DDU-GKY திட்ட செயல்படுத்தும் முகமை (PIA) மூலம்"
   },
   {
     "id": "pm-sym",
@@ -417,7 +496,7 @@
     "department": "Ministry of Labour and Employment",
     "description": "A voluntary and contributory pension scheme for unorganised workers for old age protection.",
     "benefits": [
-      "Minimum assured pension of â‚¹3,000 per month after 60 years of age"
+      "Minimum assured pension of ₹3,000 per month after 60 years of age"
     ],
     "eligibility": {
       "required_criteria": {
@@ -440,7 +519,12 @@
       "Mobile Number"
     ],
     "applicationMethod": "Online at CSCs or maandhan.in",
-    "officialUrl": "https://maandhan.in/"
+    "officialUrl": "https://maandhan.in/",
+    "description_ta": "முதியோர் பாதுகாப்புக்காக அமைப்புசாரா தொழிலாளர்களுக்கான தன்னார்வ மற்றும் பங்களிப்பு ஓய்வூதிய திட்டம்.",
+    "benefits_ta": [
+      "60 வயதுக்குப் பிறகு மாதம் குறைந்தபட்சம் ₹3,000 உத்தரவாதம் அளிக்கப்பட்ட ஓய்வூதியம்"
+    ],
+    "applicationMethod_ta": "CSC அல்லது ஆன்லைன் போர்ட்டல் மூலம்"
   },
   {
     "id": "startup-india-seed-fund",
@@ -449,8 +533,8 @@
     "department": "Department for Promotion of Industry and Internal Trade",
     "description": "Provides financial assistance to startups for proof of concept, prototype development, product trials, market entry, and commercialization.",
     "benefits": [
-      "Up to â‚¹20 Lakhs as grant for proof of concept",
-      "Up to â‚¹50 Lakhs for commercialization"
+      "Up to ₹20 Lakhs as grant for proof of concept",
+      "Up to ₹50 Lakhs for commercialization"
     ],
     "eligibility": {
       "required_criteria": {
@@ -468,7 +552,13 @@
       "PAN Card"
     ],
     "applicationMethod": "Online via Startup India portal",
-    "officialUrl": "https://seedfund.startupindia.gov.in"
+    "officialUrl": "https://seedfund.startupindia.gov.in",
+    "description_ta": "கருத்து நிரூபணம், முன்மாதிரி மேம்பாடு, தயாரிப்பு சோதனை, சந்தை நுழைவு மற்றும் வணிக மேம்பாட்டிற்கு ஸ்டார்ட்அப்களுக்கு நிதி உதவி வழங்குகிறது.",
+    "benefits_ta": [
+      "கருத்து நிரூபணத்திற்காக ₹20 லட்சம் வரை மானியம்",
+      "சந்தை சோதனை மற்றும் அளவீடுக்கு ₹50 லட்சம் வரை கடன்"
+    ],
+    "applicationMethod_ta": "Startup India போர்ட்டல் மூலம் ஆன்லைனில்"
   },
   {
     "id": "smile",
@@ -501,7 +591,15 @@
       "Identity Proof"
     ],
     "applicationMethod": "Online via National Portal for Transgender Persons / e-Anudaan",
-    "officialUrl": "https://socialjustice.gov.in/"
+    "officialUrl": "https://socialjustice.gov.in/",
+    "description_ta": "திருநங்கைகள் மற்றும் பிச்சை எடுப்பதில் ஈடுபட்டுள்ள நபர்களின் மறுவாழ்வு மற்றும் நலனுக்கான குடை திட்டம்.",
+    "benefits_ta": [
+      "உதவித்தொகை",
+      "திறன் பயிற்சி",
+      "மறுவாழ்வு ஆதரவு",
+      "அடைக்கல வசதி"
+    ],
+    "applicationMethod_ta": "மாநில அரசு அல்லது NGO மூலம்"
   },
   {
     "id": "pm-devine",
@@ -530,7 +628,14 @@
       "Environmental Clearance (if required)"
     ],
     "applicationMethod": "Through State Governments / North Eastern Council",
-    "officialUrl": "https://mdoner.gov.in"
+    "officialUrl": "https://mdoner.gov.in",
+    "description_ta": "வளர்ச்சி இடைவெளிகளை நிரப்ப வடகிழக்கு பிராந்தியத்தில் உள்கட்டமைப்பு மற்றும் சமூக மேம்பாட்டு திட்டங்களுக்கு நிதியளிக்கிறது.",
+    "benefits_ta": [
+      "உள்கட்டமைப்பு உருவாக்கம்",
+      "சமூக மேம்பாட்டு திட்டங்கள்",
+      "பிராந்திய இணைப்பு"
+    ],
+    "applicationMethod_ta": "வடகிழக்கு மந்திரி பிரதிநிதி மூலம்"
   },
   {
     "id": "nmms",
@@ -539,13 +644,14 @@
     "department": "Ministry of Education",
     "description": "Awards scholarships to meritorious students of economically weaker sections to arrest their drop out at class VIII.",
     "benefits": [
-      "â‚¹12,000 per annum (â‚¹1,000 per month)"
+      "₹12,000 per annum (₹1,000 per month)"
     ],
     "eligibility": {
       "required_criteria": {
-        "studentStatus": [
-          "Yes",
-          "Class 9 to 12"
+        "student": true,
+        "educationLevel": [
+          "class_9_10",
+          "class_11_12"
         ],
         "income": {
           "max": 350000
@@ -561,7 +667,13 @@
       "Bank Passbook"
     ],
     "applicationMethod": "Online via National Scholarship Portal",
-    "officialUrl": "https://scholarships.gov.in"
+    "officialUrl": "https://scholarships.gov.in",
+    "description_ta": "பொருளாதார ரீதியாக பலவீனமான பிரிவுகளைச் சேர்ந்த மாணவர்களுக்கான தகுதி அடிப்படையிலான உதவித்தொகை.",
+    "benefits_ta": [
+      "வருடாந்திர உதவித்தொகை",
+      "கல்விக் கட்டணங்களுக்கு ஆதரவு"
+    ],
+    "applicationMethod_ta": "தேசிய உதவித்தொகை போர்ட்டல்"
   },
   {
     "id": "post-matric-minorities",
@@ -575,10 +687,13 @@
     ],
     "eligibility": {
       "required_criteria": {
+        "student": true,
         "minorityCommunity": true,
-        "studentStatus": [
-          "Yes",
-          "Post Matric"
+        "educationLevel": [
+          "iti",
+          "diploma",
+          "undergraduate",
+          "postgraduate"
         ],
         "income": {
           "max": 200000
@@ -595,7 +710,13 @@
       "Bank Details"
     ],
     "applicationMethod": "Online via National Scholarship Portal",
-    "officialUrl": "https://scholarships.gov.in"
+    "officialUrl": "https://scholarships.gov.in",
+    "description_ta": "சிறுபான்மை சமூகங்களைச் சேர்ந்த மாணவர்களுக்கு மெட்ரிக்குக்கு பிந்தைய கல்விக்கான உதவித்தொகை.",
+    "benefits_ta": [
+      "கல்விக் கட்டணங்கள் திருப்பிச் செலுத்துதல்",
+      "பராமரிப்பு கொடுப்பனவு"
+    ],
+    "applicationMethod_ta": "தேசிய உதவித்தொகை போர்ட்டல்"
   },
   {
     "id": "pm-aasha",
@@ -620,7 +741,14 @@
       "Bank Account Details"
     ],
     "applicationMethod": "Through State Agricultural Departments during procurement periods",
-    "officialUrl": "https://agriwelfare.gov.in"
+    "officialUrl": "https://agriwelfare.gov.in",
+    "description_ta": "விவசாயிகளுக்கு நியாயமான விலை உத்தரவாதம் மற்றும் பயிர் கொள்முதல் ஆதரவு.",
+    "benefits_ta": [
+      "குறைந்தபட்ச ஆதரவு விலை (MSP)",
+      "விலை குறைபாடு பணம் செலுத்துதல்",
+      "தனியார் கொள்முதல் ஊக்குவிப்பு"
+    ],
+    "applicationMethod_ta": "விவசாய துறை மூலம்"
   },
   {
     "id": "pmuy",
@@ -651,7 +779,13 @@
       "Bank Account Details"
     ],
     "applicationMethod": "Online via PMUY portal or nearest LPG distributor",
-    "officialUrl": "https://www.pmuy.gov.in/"
+    "officialUrl": "https://www.pmuy.gov.in/",
+    "description_ta": "BPL குடும்பங்களைச் சேர்ந்த பெண்களுக்கு LPG இணைப்புகளை வழங்குகிறது.",
+    "benefits_ta": [
+      "இலவச LPG இணைப்பு",
+      "சமையல் கருவிகளுக்கான மானியம்"
+    ],
+    "applicationMethod_ta": "LPG விநியோகஸ்தர் அல்லது CSC மூலம்"
   },
   {
     "id": "pmmsy",
@@ -676,7 +810,14 @@
       "Bank Account Details"
     ],
     "applicationMethod": "Offline through District Fisheries Officer or State portals",
-    "officialUrl": "https://dof.gov.in"
+    "officialUrl": "https://dof.gov.in",
+    "description_ta": "மீன்வளம் மற்றும் அக்வாகல்ச்சர் துறையின் நிலையான மேம்பாட்டிற்கான முக்கிய திட்டம்.",
+    "benefits_ta": [
+      "மீன்வள உள்கட்டமைப்பு மேம்பாடு",
+      "மீனவர்களுக்கு நிதி உதவி",
+      "சந்தை ஆதரவு"
+    ],
+    "applicationMethod_ta": "மீன்வள துறை மூலம்"
   },
   {
     "id": "pm-svanidhi",
@@ -685,7 +826,7 @@
     "department": "Ministry of Housing and Urban Affairs",
     "description": "Provides affordable working capital loan to street vendors to resume their livelihoods that have been adversely affected.",
     "benefits": [
-      "Working capital loan up to â‚¹10,000",
+      "Working capital loan up to ₹10,000",
       "Interest subsidy",
       "Incentives for digital transactions"
     ],
@@ -705,7 +846,14 @@
       "Bank Account Details"
     ],
     "applicationMethod": "Online via PM SVANidhi portal or municipal bodies",
-    "officialUrl": "https://pmsvanidhi.mohua.gov.in"
+    "officialUrl": "https://pmsvanidhi.mohua.gov.in",
+    "description_ta": "தெரு விற்பனையாளர்களுக்கு தங்கள் வாழ்வாதாரத்தை மீட்டெடுக்க கடன் வசதிகளை வழங்குகிறது.",
+    "benefits_ta": [
+      "₹10,000 வரை மைக்ரோ கிரெடிட்",
+      "முதல் தவணை: ₹10,000; இரண்டாவது: ₹20,000; மூன்றாவது: ₹50,000",
+      "சரியான திருப்பிச் செலுத்துதலுக்கு மாதம் ₹50 வரை cashback"
+    ],
+    "applicationMethod_ta": "PM SVANidhi போர்ட்டல் அல்லது CSC மூலம் ஆன்லைனில்"
   },
   {
     "id": "abdm",
@@ -731,7 +879,14 @@
       "Passport Photograph"
     ],
     "applicationMethod": "Online via ABHA portal",
-    "officialUrl": "https://abdm.gov.in"
+    "officialUrl": "https://abdm.gov.in",
+    "description_ta": "டிஜிட்டல் சுகாதார உள்கட்டமைப்பை உருவாக்கும் தேசிய டிஜிட்டல் சுகாதார பணி.",
+    "benefits_ta": [
+      "டிஜிட்டல் சுகாதார அடையாள அட்டை",
+      "சுகாதார பதிவுகளுக்கு பாதுகாப்பான அணுகல்",
+      "ஆன்லைன் மருத்துவர் ஆலோசனை"
+    ],
+    "applicationMethod_ta": "ABHA போர்ட்டல் அல்லது மருத்துவமனை மூலம் ஆன்லைனில்"
   },
   {
     "id": "jsy",
@@ -769,7 +924,14 @@
       "Bank Account Details"
     ],
     "applicationMethod": "Through ASHA worker or local government health center",
-    "officialUrl": "https://nhm.gov.in"
+    "officialUrl": "https://nhm.gov.in",
+    "description_ta": "நிறுவன வசதி பிரசவங்களை ஊக்குவிக்கும் தாய் மற்றும் சிசு நலன் திட்டம்.",
+    "benefits_ta": [
+      "பிரசவ உதவி கொடுப்பனவு",
+      "பராமரிப்பு ஆதரவு",
+      "பிரசவத்திற்கு முன் மற்றும் பின் சுகாதாரம்"
+    ],
+    "applicationMethod_ta": "PHC/CHC அல்லது Anganwadi மூலம்"
   },
   {
     "id": "pm-poshan",
@@ -782,11 +944,13 @@
     ],
     "eligibility": {
       "required_criteria": {
-        "studentStatus": [
-          "Yes",
-          "Class 1 to 8"
+        "student": true,
+        "educationLevel": [
+          "class_1_8"
         ],
-        "governmentSchoolStudent": true
+        "institutionType": [
+          "Government"
+        ]
       },
       "optional_criteria": {}
     },
@@ -798,7 +962,14 @@
       "Address Proof / Residence Certificate"
     ],
     "applicationMethod": "Automatic upon enrollment in eligible schools",
-    "officialUrl": "https://pmposhan.education.gov.in"
+    "officialUrl": "https://pmposhan.education.gov.in",
+    "description_ta": "பள்ளி மாணவர்களுக்கு மதிய உணவு வழங்கும் ஊட்டச்சத்து திட்டம்.",
+    "benefits_ta": [
+      "இலவச மதிய உணவு",
+      "ஊட்டச்சத்து ஆதரவு",
+      "உணவு பாதுகாப்பு"
+    ],
+    "applicationMethod_ta": "பள்ளி பதிவு மூலம்"
   },
   {
     "id": "pmegp",
@@ -807,7 +978,7 @@
     "department": "Ministry of Micro, Small and Medium Enterprises",
     "description": "A credit-linked subsidy program aimed at generating self-employment opportunities through establishment of micro-enterprises in the non-farm sector.",
     "benefits": [
-      "Bank loan up to â‚¹50 Lakhs for manufacturing and â‚¹20 Lakhs for service sector",
+      "Bank loan up to ₹50 Lakhs for manufacturing and ₹20 Lakhs for service sector",
       "Margin money subsidy (15% to 35%)"
     ],
     "eligibility": {
@@ -827,7 +998,14 @@
       "Bank Account Details"
     ],
     "applicationMethod": "Online via PMEGP e-Portal",
-    "officialUrl": "https://www.kviconline.gov.in/pmegpeportal"
+    "officialUrl": "https://www.kviconline.gov.in/pmegpeportal",
+    "description_ta": "நகர்ப்புற மற்றும் கிராமப்புற பகுதிகளில் மைக்ரோ தொழில்களை நிறுவுவதற்கு நிதி உதவி.",
+    "benefits_ta": [
+      "திட்ட செலவில் 15-35% மானியம்",
+      "₹50 லட்சம் வரை கடன்",
+      "திறன் பயிற்சி"
+    ],
+    "applicationMethod_ta": "KVIC அல்லது வங்கி மூலம்"
   },
   {
     "id": "pm-kusum",
@@ -852,7 +1030,13 @@
       "Passport Size Photograph"
     ],
     "applicationMethod": "Through State Implementation Agencies portals",
-    "officialUrl": "https://pmkusum.mnre.gov.in"
+    "officialUrl": "https://pmkusum.mnre.gov.in",
+    "description_ta": "விவசாயிகளுக்கு சூரிய பம்புகள் மற்றும் சூரிய ஆற்றல் திட்டங்களுக்கு ஆதரவு.",
+    "benefits_ta": [
+      "சூரிய பம்புகளுக்கு 60-90% மானியம்",
+      "சூரிய மின் உற்பத்திக்கு வருமானம்"
+    ],
+    "applicationMethod_ta": "மாநில புதுப்பிக்கத்தக்க எரிசக்தி முகமை மூலம்"
   },
   {
     "id": "amrut",
@@ -886,7 +1070,14 @@
       "Property Tax Receipt"
     ],
     "applicationMethod": "Through local Municipal Corporation",
-    "officialUrl": "https://amrut.gov.in"
+    "officialUrl": "https://amrut.gov.in",
+    "description_ta": "நகர்ப்புற பகுதிகளில் நீர் வழங்கல், சாக்கடை மற்றும் நகர்ப்புற போக்குவரத்தை உறுதிப்படுத்துகிறது.",
+    "benefits_ta": [
+      "நீர் வழங்கல் மேம்பாடு",
+      "சாக்கடை இணைப்பு",
+      "பொது போக்குவரத்து மேம்பாடு"
+    ],
+    "applicationMethod_ta": "நகர்ப்புற உள்ளாட்சி அமைப்புகள் மூலம்"
   },
   {
     "id": "nfbs",
@@ -895,7 +1086,7 @@
     "department": "Ministry of Rural Development",
     "description": "Provides a lump sum family benefit to bereaved households in case of death of the primary breadwinner.",
     "benefits": [
-      "Lump sum assistance of â‚¹20,000"
+      "Lump sum assistance of ₹20,000"
     ],
     "eligibility": {
       "required_criteria": {
@@ -911,7 +1102,12 @@
       "Bank Account Details"
     ],
     "applicationMethod": "Through local Panchayat/Municipality",
-    "officialUrl": "https://nsap.nic.in"
+    "officialUrl": "https://nsap.nic.in",
+    "description_ta": "தலைமை சம்பாதிப்பவர் இறப்பின் போது குடும்பங்களுக்கு நிதி உதவி.",
+    "benefits_ta": [
+      "ஒரு முறை ₹20,000 உதவி"
+    ],
+    "applicationMethod_ta": "மாவட்ட நிர்வாகம் மூலம்"
   },
   {
     "id": "pmmvy",
@@ -920,7 +1116,7 @@
     "department": "Ministry of Women and Child Development",
     "description": "A maternity benefit programme providing partial compensation for the wage loss in terms of cash incentives so that the woman can take adequate rest before and after delivery.",
     "benefits": [
-      "Cash incentive of â‚¹5,000 in three installments"
+      "Cash incentive of ₹5,000 in three installments"
     ],
     "eligibility": {
       "required_criteria": {
@@ -936,7 +1132,13 @@
       "LMP and ANC Date Proof"
     ],
     "applicationMethod": "Through Anganwadi Centre or approved Health facility",
-    "officialUrl": "https://pmmvy.wcd.gov.in"
+    "officialUrl": "https://pmmvy.wcd.gov.in",
+    "description_ta": "கர்ப்பிணி மற்றும் பாலூட்டும் தாய்மார்களுக்கு பணம் ஊக்குவிப்பு வழங்குகிறது.",
+    "benefits_ta": [
+      "மூன்று தவணைகளில் ₹5,000",
+      "ஊட்டச்சத்து மற்றும் சுகாதார ஆதரவு"
+    ],
+    "applicationMethod_ta": "Anganwadi மையம் அல்லது சுகாதார வசதி மூலம்"
   },
   {
     "id": "deendayal-disabled-rehab",
@@ -965,7 +1167,14 @@
       "Passport Photograph"
     ],
     "applicationMethod": "Through registered NGOs / Implementing Agencies",
-    "officialUrl": "https://disabilityaffairs.gov.in"
+    "officialUrl": "https://disabilityaffairs.gov.in",
+    "description_ta": "மாற்றுத்திறனாளிகளுக்கு மறுவாழ்வு சேவைகளை வழங்கும் NGOகளுக்கு ஆதரவு.",
+    "benefits_ta": [
+      "மறுவாழ்வு சேவைகள்",
+      "திறன் பயிற்சி",
+      "வாழ்வாதார ஆதரவு"
+    ],
+    "applicationMethod_ta": "பதிவுசெய்யப்பட்ட NGO மூலம்"
   },
   {
     "id": "niramaya-health-insurance",
@@ -996,7 +1205,13 @@
       "Passport Photograph"
     ],
     "applicationMethod": "Through State Disability Commissions",
-    "officialUrl": "https://disabilityaffairs.gov.in"
+    "officialUrl": "https://disabilityaffairs.gov.in",
+    "description_ta": "மாற்றுத்திறனாளிகளுக்கான சுகாதார காப்பீட்டு திட்டம்.",
+    "benefits_ta": [
+      "ஆண்டுக்கு ₹1 லட்சம் வரை காப்பீட்டு கவரேஜ்",
+      "குறைந்த பிரீமியம்"
+    ],
+    "applicationMethod_ta": "பங்கேற்கும் காப்பீட்டு நிறுவனங்கள் மூலம்"
   },
   {
     "id": "nari-shakti-puraskar",
@@ -1037,7 +1252,13 @@
       "Passport Photograph"
     ],
     "applicationMethod": "Online nomination through WCD Ministry portal",
-    "officialUrl": "https://wcd.nic.in"
+    "officialUrl": "https://wcd.nic.in",
+    "description_ta": "பெண்களின் சாதனைகளை அங்கீகரிக்கும் தேசிய விருது.",
+    "benefits_ta": [
+      "ரொக்க விருது",
+      "சான்றிதழ் மற்றும் அங்கீகாரம்"
+    ],
+    "applicationMethod_ta": "மாநில அரசுகள் அல்லது UT நிர்வாகம் மூலம் நியமனம்"
   },
   {
     "id": "mahila-shakti-kendra",
@@ -1069,7 +1290,14 @@
       "Passport Photograph"
     ],
     "applicationMethod": "Through District Programme Officer or MSK Centers",
-    "officialUrl": "https://wcd.nic.in"
+    "officialUrl": "https://wcd.nic.in",
+    "description_ta": "கிராம மட்டத்தில் பெண்களுக்கான சமூக அதிகாரம் மற்றும் ஆதரவு மையங்கள்.",
+    "benefits_ta": [
+      "திறன் பயிற்சி",
+      "வாழ்வாதார ஆதரவு",
+      "விழிப்புணர்வு திட்டங்கள்"
+    ],
+    "applicationMethod_ta": "கிராம பஞ்சாயத்து மூலம்"
   },
   {
     "id": "indira-gandhi-old-age-pension",
@@ -1101,7 +1329,13 @@
       "Passport Photograph"
     ],
     "applicationMethod": "Through Gram Panchayat / Municipality",
-    "officialUrl": "https://nsap.nic.in"
+    "officialUrl": "https://nsap.nic.in",
+    "description_ta": "BPL குடும்பங்களைச் சேர்ந்த மூத்த குடிமக்களுக்கான ஓய்வூதிய திட்டம்.",
+    "benefits_ta": [
+      "மாதாந்திர ஓய்வூதியம்",
+      "நிதி பாதுகாப்பு"
+    ],
+    "applicationMethod_ta": "மாவட்ட சமூக நலத்துறை மூலம்"
   },
   {
     "id": "senior-citizen-savings-scheme",
@@ -1132,7 +1366,13 @@
       "Account Opening Form"
     ],
     "applicationMethod": "Post Office or Authorized Bank Branch",
-    "officialUrl": "https://www.nsiindia.gov.in"
+    "officialUrl": "https://www.nsiindia.gov.in",
+    "description_ta": "மூத்த குடிமக்களுக்கான சேமிப்பு திட்டம் உயர் வட்டி விகிதத்துடன்.",
+    "benefits_ta": [
+      "உயர் வட்டி விகிதம்",
+      "வரி நன்மைகள்"
+    ],
+    "applicationMethod_ta": "தபால் அலுவலகம் அல்லது வங்கி கிளை"
   },
   {
     "id": "vayoshreshtha-samman",
@@ -1163,7 +1403,13 @@
       "Passport Photograph"
     ],
     "applicationMethod": "Online nomination through DOPT portal",
-    "officialUrl": "https://socialjustice.gov.in"
+    "officialUrl": "https://socialjustice.gov.in",
+    "description_ta": "மூத்த குடிமக்களின் நலனுக்கான சேவைகளுக்கான தேசிய விருது.",
+    "benefits_ta": [
+      "அங்கீகாரம் மற்றும் விருது",
+      "சான்றிதழ்"
+    ],
+    "applicationMethod_ta": "மாநில அரசுகள் மூலம் நியமனம்"
   },
   {
     "id": "rashtriya-swasthya-bima",
@@ -1191,7 +1437,13 @@
       "Address Proof"
     ],
     "applicationMethod": "Through designated enrollment centers",
-    "officialUrl": "https://www.rsby.gov.in"
+    "officialUrl": "https://www.rsby.gov.in",
+    "description_ta": "BPL குடும்பங்களுக்கான சுகாதார காப்பீட்டு திட்டம்.",
+    "benefits_ta": [
+      "ஆண்டுக்கு ₹30,000 வரை காப்பீட்டு கவரேஜ்",
+      "cashless சிகிச்சை"
+    ],
+    "applicationMethod_ta": "பட்டியலிடப்பட்ட மருத்துவமனைகளில்"
   },
   {
     "id": "mission-indradhanush",
@@ -1227,7 +1479,13 @@
       "Previous immunization records (if any)"
     ],
     "applicationMethod": "Through Anganwadi Centers / Primary Health Centers",
-    "officialUrl": "https://www.nhp.gov.in"
+    "officialUrl": "https://www.nhp.gov.in",
+    "description_ta": "குழந்தைகள் மற்றும் கர்ப்பிணி பெண்களுக்கு தடுப்பூசி கவரேஜை மேம்படுத்துகிறது.",
+    "benefits_ta": [
+      "இலவச தடுப்பூசிகள்",
+      "தாய் மற்றும் சிசு ஆரோக்கியம்"
+    ],
+    "applicationMethod_ta": "PHC/CHC அல்லது Anganwadi மூலம்"
   },
   {
     "id": "e-nam",
@@ -1256,7 +1514,14 @@
       "Passport Photograph"
     ],
     "applicationMethod": "Online registration on e-NAM portal",
-    "officialUrl": "https://www.enam.gov.in"
+    "officialUrl": "https://www.enam.gov.in",
+    "description_ta": "விவசாயிகளுக்கான ஆன்லைன் விவசாய சந்தை தளம்.",
+    "benefits_ta": [
+      "ஆன்லைன் வர்த்தகம்",
+      "சிறந்த விலை கண்டுபிடிப்பு",
+      "வெளிப்படையான பரிவர்த்தனைகள்"
+    ],
+    "applicationMethod_ta": "e-NAM போர்ட்டல் மூலம் பதிவு"
   },
   {
     "id": "pradhan-mantri-awas-yojana-urban",
@@ -1291,7 +1556,13 @@
       "Caste Certificate (if applicable)"
     ],
     "applicationMethod": "Online through PMAY portal or through Common Service Centers",
-    "officialUrl": "https://pmaymis.gov.in"
+    "officialUrl": "https://pmaymis.gov.in",
+    "description_ta": "நகர்ப்புற ஏழைகளுக்கு மலிவு வீடுகளை வழங்குகிறது.",
+    "benefits_ta": [
+      "வீடு கொள்முதலுக்கு மானியம்",
+      "கடன் வட்டி மானியம்"
+    ],
+    "applicationMethod_ta": "PMAY-U போர்ட்டல் மூலம் ஆன்லைனில்"
   },
   {
     "id": "pradhan-mantri-awas-yojana-gramin",
@@ -1325,7 +1596,12 @@
       "Caste Certificate (if applicable)"
     ],
     "applicationMethod": "Through Gram Panchayat / Block Development Officer",
-    "officialUrl": "https://pmayg.nic.in"
+    "officialUrl": "https://pmayg.nic.in",
+    "description_ta": "கிராமப்புற வீடற்றவர்களுக்கு பக்கா வீடுகளை வழங்குகிறது.",
+    "benefits_ta": [
+      "சமவெளி பகுதிகளில் ₹1.2 லட்சம், மலைப்பகுதிகளில் ₹1.3 லட்சம்"
+    ],
+    "applicationMethod_ta": "கிராம பஞ்சாயத்து மூலம்"
   },
   {
     "id": "clss-pmay",
@@ -1358,7 +1634,13 @@
       "Passport Photograph"
     ],
     "applicationMethod": "Through lending institutions (Banks/HFCs)",
-    "officialUrl": "https://pmaymis.gov.in"
+    "officialUrl": "https://pmaymis.gov.in",
+    "description_ta": "EWS, LIG மற்றும் MIG குழுக்களுக்கு வீட்டு கடனில் வட்டி மானியம்.",
+    "benefits_ta": [
+      "கடன் வட்டியில் மானியம்",
+      "மலிவு வீடு கொள்முதல் ஆதரவு"
+    ],
+    "applicationMethod_ta": "வங்கி அல்லது HFC மூலம்"
   },
   {
     "id": "girls-secondary-education",
@@ -1373,6 +1655,7 @@
     ],
     "eligibility": {
       "required_criteria": {
+        "student": true,
         "gender": [
           "Female"
         ],
@@ -1380,8 +1663,8 @@
           "SC",
           "ST"
         ],
-        "studentStatus": [
-          "Post Matric"
+        "educationLevel": [
+          "class_9_10"
         ]
       },
       "optional_criteria": {}
@@ -1395,7 +1678,13 @@
       "Passport Photograph"
     ],
     "applicationMethod": "Through School / District Education Officer",
-    "officialUrl": "https://www.education.gov.in"
+    "officialUrl": "https://www.education.gov.in",
+    "description_ta": "பெண் குழந்தைகள் இடைநிலைப் பள்ளியை முடிக்க ஊக்குவிக்கும் திட்டம்.",
+    "benefits_ta": [
+      "ரொக்க ஊக்குவிப்பு",
+      "கல்வி ஆதரவு"
+    ],
+    "applicationMethod_ta": "பள்ளி நிர்வாகம் மூலம்"
   },
   {
     "id": "national-scholarship-obc",
@@ -1411,11 +1700,15 @@
     ],
     "eligibility": {
       "required_criteria": {
+        "student": true,
         "socialCategory": [
           "OBC"
         ],
-        "studentStatus": [
-          "Post Matric"
+        "educationLevel": [
+          "iti",
+          "diploma",
+          "undergraduate",
+          "postgraduate"
         ],
         "income": {
           "max": 100000
@@ -1433,7 +1726,13 @@
       "Passport Photograph"
     ],
     "applicationMethod": "Online through National Scholarship Portal (NSP)",
-    "officialUrl": "https://scholarships.gov.in"
+    "officialUrl": "https://scholarships.gov.in",
+    "description_ta": "OBC மாணவர்களுக்கு மெட்ரிக்குக்கு பிந்தைய கல்விக்கான உதவித்தொகை.",
+    "benefits_ta": [
+      "கல்விக் கட்டணங்கள் திருப்பிச் செலுத்துதல்",
+      "பராமரிப்பு கொடுப்பனவு"
+    ],
+    "applicationMethod_ta": "தேசிய உதவித்தொகை போர்ட்டல்"
   },
   {
     "id": "pre-matric-scholarship-minorities",
@@ -1448,14 +1747,15 @@
     ],
     "eligibility": {
       "required_criteria": {
-        "studentStatus": [
-          "School",
-          "Government School"
+        "student": true,
+        "minorityCommunity": true,
+        "educationLevel": [
+          "class_1_8",
+          "class_9_10"
         ],
         "income": {
           "max": 100000
-        },
-        "minorityCommunity": true
+        }
       },
       "optional_criteria": {}
     },
@@ -1469,7 +1769,13 @@
       "Passport Photograph"
     ],
     "applicationMethod": "Online through National Scholarship Portal",
-    "officialUrl": "https://scholarships.gov.in"
+    "officialUrl": "https://scholarships.gov.in",
+    "description_ta": "சிறுபான்மை சமூகங்களைச் சேர்ந்த மாணவர்களுக்கு மெட்ரிக்குக்கு முந்தைய உதவித்தொகை.",
+    "benefits_ta": [
+      "கல்விக் கட்டணங்கள்",
+      "பராமரிப்பு கொடுப்பனவு"
+    ],
+    "applicationMethod_ta": "தேசிய உதவித்தொகை போர்ட்டல்"
   },
   {
     "id": "kisan-credit-card",
@@ -1499,7 +1805,14 @@
       "Application Form"
     ],
     "applicationMethod": "Through nearest bank branch or Common Service Centers",
-    "officialUrl": "https://pmkisan.gov.in"
+    "officialUrl": "https://pmkisan.gov.in",
+    "description_ta": "விவசாயிகளுக்கு பயிர் கடன் மற்றும் பணப்பயிர் தேவைகளுக்கான கடன் அட்டை.",
+    "benefits_ta": [
+      "எளிய கடன் அணுகல்",
+      "குறைந்த வட்டி விகிதம்",
+      "நெகிழ்வான திருப்பிச் செலுத்துதல்"
+    ],
+    "applicationMethod_ta": "வங்கி கிளை மூலம்"
   },
   {
     "id": "swachh-bharat-toilet",
@@ -1527,6 +1840,141 @@
       "Passport Photograph"
     ],
     "applicationMethod": "Through Gram Panchayat or Urban Local Body",
-    "officialUrl": "https://swachhbharatmission.gov.in"
+    "officialUrl": "https://swachhbharatmission.gov.in",
+    "description_ta": "கிராமப்புற பகுதிகளில் திறந்தவெளி கழிவறை நடைமுறையை ஒழிப்பதை நோக்கமாகக் கொண்ட சுகாதார திட்டம்.",
+    "benefits_ta": [
+      "கழிவறை கட்டுமானத்திற்கு ₹12,000 உதவி"
+    ],
+    "applicationMethod_ta": "கிராம பஞ்சாயத்து மூலம்"
+  },
+  {
+    "id": "tn-needs",
+    "name": "New Entrepreneur-cum-Enterprise Development Scheme (NEEDS)",
+    "category": "Entrepreneurship",
+    "department": "Micro, Small and Medium Enterprises Department, Government of Tamil Nadu",
+    "description": "Tamil Nadu state scheme to promote first generation educated youth entrepreneurs by providing support for project cost ranging from ₹10 lakh to ₹5 crore for manufacturing and service enterprises.",
+    "benefits": [
+      "Entrepreneur development training",
+      "Business plan assistance",
+      "Financial institution linkage support",
+      "Capital subsidy and interest subvention (refer to official guidelines for current rates)"
+    ],
+    "eligibility": {
+      "required_criteria": {
+        "firstTimeEntrepreneur": true,
+        "educatedYouth": true,
+        "indianCitizen": true
+      },
+      "optional_criteria": {
+        "projectCost": {
+          "min": 1000000,
+          "max": 50000000
+        }
+      }
+    },
+    "documents": [
+      "Aadhaar Card",
+      "Educational Certificates",
+      "Project Report",
+      "Land/Building Documents",
+      "Bank Account Details",
+      "Passport Photograph"
+    ],
+    "applicationMethod": "Online through Tamil Nadu MSME Department portal",
+    "officialUrl": "https://msmeonline.tn.gov.in/",
+    "description_ta": "உற்பத்தி மற்றும் சேவைத் தொழில்களுக்கு ₹10 லட்சம் முதல் ₹5 கோடி வரை திட்டச் செலவுக்கு ஆதரவு வழங்குவதன் மூலம் முதல் தலைமுறை படித்த இளைஞர் தொழில்முனைவோர்களை ஊக்குவிக்கும் தமிழ்நாடு மாநில திட்டம்.",
+    "benefits_ta": [
+      "தொழில்முனைவோர் மேம்பாட்டு பயிற்சி",
+      "வணிகத் திட்ட உதவி",
+      "நிதி நிறுவன இணைப்பு ஆதரவு",
+      "மூலதன மானியம் மற்றும் வட்டி குறைப்பு (தற்போதைய விகிதங்களுக்கு அதிகாரப்பூர்வ வழிகாட்டுதல்களைப் பார்க்கவும்)"
+    ],
+    "applicationMethod_ta": "தமிழ்நாடு MSME துறை போர்ட்டல் மூலம் ஆன்லைனில்"
+  },
+  {
+    "id": "tn-uyegp",
+    "name": "Unemployed Youth Employment Generation Programme (UYEGP)",
+    "category": "Entrepreneurship",
+    "department": "Micro, Small and Medium Enterprises Department, Government of Tamil Nadu",
+    "description": "Tamil Nadu scheme to enable self-employment for educated unemployed youth from socially and economically weaker sections through business venture establishment with loan up to ₹15 lakh and 25% subsidy.",
+    "benefits": [
+      "Loan up to ₹15 lakh",
+      "State government subsidy up to 25% of project cost (maximum ₹3.75 lakh)",
+      "Business establishment support"
+    ],
+    "eligibility": {
+      "required_criteria": {
+        "educatedUnemployed": true,
+        "economicallyWeakerSection": true,
+        "indianCitizen": true
+      },
+      "optional_criteria": {
+        "loanAmount": {
+          "max": 1500000
+        }
+      }
+    },
+    "documents": [
+      "Aadhaar Card",
+      "Educational Certificates",
+      "Income Certificate (economically weaker section proof)",
+      "Unemployment Certificate",
+      "Project Report",
+      "Bank Account Details",
+      "Passport Photograph"
+    ],
+    "applicationMethod": "Online through Tamil Nadu MSME Department portal",
+    "officialUrl": "https://msmeonline.tn.gov.in/",
+    "description_ta": "சமூக மற்றும் பொருளாதார ரீதியாக பலவீனமான பிரிவுகளைச் சேர்ந்த படித்த வேலையில்லா இளைஞர்களுக்கு ₹15 லட்சம் வரை கடன் மற்றும் 25% மானியத்துடன் வணிக நிறுவனம் தொடங்க உதவும் தமிழ்நாடு திட்டம்.",
+    "benefits_ta": [
+      "₹15 லட்சம் வரை கடன்",
+      "திட்டச் செலவில் 25% வரை மாநில அரசு மானியம் (அதிகபட்சம் ₹3.75 லட்சம்)",
+      "வணிக நிறுவன ஆதரவு"
+    ],
+    "applicationMethod_ta": "தமிழ்நாடு MSME துறை போர்ட்டல் மூலம் ஆன்லைனில்"
+  },
+  {
+    "id": "tn-twees",
+    "name": "Tamil Nadu Women Entrepreneurs Empowerment Scheme (TWEES)",
+    "category": "Entrepreneurship",
+    "department": "Micro, Small and Medium Enterprises Department, Government of Tamil Nadu",
+    "description": "Tamil Nadu state scheme specifically designed to empower and support women entrepreneurs in establishing and growing their businesses with financial assistance and entrepreneurship development support.",
+    "benefits": [
+      "Financial assistance for women-led enterprises",
+      "Entrepreneurship development training",
+      "Subsidy support (refer to official portal for current rates)",
+      "Business mentorship and guidance"
+    ],
+    "eligibility": {
+      "required_criteria": {
+        "gender": [
+          "Female"
+        ],
+        "womenEntrepreneur": true,
+        "indianCitizen": true,
+        "age": {
+          "min": 18
+        }
+      },
+      "optional_criteria": {}
+    },
+    "documents": [
+      "Aadhaar Card",
+      "Gender Certificate / Identity Proof",
+      "Educational Certificates",
+      "Project Report",
+      "Bank Account Details",
+      "Passport Photograph"
+    ],
+    "applicationMethod": "Online through Tamil Nadu MSME Department TWEES portal",
+    "officialUrl": "https://msmeonline.tn.gov.in/twees/",
+    "description_ta": "தமிழ்நாடு மாநில திட்டம், பெண் தொழில்முனைவோர்களுக்கு அவர்களின் வணிகங்களை நிறுவுவதற்கும் வளர்ப்பதற்கும் நிதி உதவி மற்றும் தொழில்முனைவு மேம்பாட்டு ஆதரவுடன் அதிகாரமளிக்கவும் ஆதரிக்கவும் குறிப்பாக வடிவமைக்கப்பட்டது.",
+    "benefits_ta": [
+      "பெண்கள் தலைமையிலான நிறுவனங்களுக்கு நிதி உதவி",
+      "தொழில்முனைவு மேம்பாட்டு பயிற்சி",
+      "மானிய ஆதரவு (தற்போதைய விகிதங்களுக்கு அதிகாரப்பூர்வ போர்ட்டலைப் பார்க்கவும்)",
+      "வணிக வழிகாட்டுதல் மற்றும் ஆலோசனை"
+    ],
+    "applicationMethod_ta": "தமிழ்நாடு MSME துறை TWEES போர்ட்டல் மூலம் ஆன்லைனில்"
   }
 ]

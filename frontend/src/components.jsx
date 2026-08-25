@@ -1,7 +1,16 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, AlertCircle, HelpCircle, FileText, ChevronDown, Bookmark, ExternalLink, Printer, Share2, GitCompare, X, Plus } from 'lucide-react';
-import SchemePrintView from './SchemePrintView';
+import { CheckCircle2, AlertCircle, HelpCircle, FileText, ChevronDown, Bookmark, ExternalLink, Printer, Share2, GitCompare, X, Plus, Coins, ArrowRight } from 'lucide-react';
+import { usePrint } from './PrintContext';
+import { getEligibilityLabel } from './eligibilityLabels';
+import {
+  getLocalizedScheme,
+  getLocalizedDepartment,
+  getLocalizedDocuments,
+  getLocalizedDescription,
+  getLocalizedBenefits,
+  getLocalizedApplicationMethod
+} from './schemeLocalization';
 
 // ── Shared share utility ─────────────────────────────────────────────────────
 // Generates the SchemEase deep link, tries Web Share API first, then falls
@@ -42,12 +51,12 @@ export async function shareScheme(scheme, language, onResult) {
 }
 
 export const GlassCard = ({ children, className = '', ...props }) => (
-  <motion.div 
-    className={`glass-card p-6 ${className}`}
+  <motion.div
+    className={`card-surface p-6 ${className}`}
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
-    transition={{ duration: 0.5 }}
+    transition={{ duration: 0.3 }}
     {...props}
   >
     {children}
@@ -62,7 +71,8 @@ export const GlassPanel = ({ children, className = '', ...props }) => (
 
 export const SchemeCard = ({ schemeData, onSave, saved, onCompare, onView, onProvideMissingInfo, onViewDetails, darkMode, language }) => {
   const { scheme, eligibility_status, relevance_score, matched_criteria, missing_information, failed_criteria } = schemeData;
-  const printTargetRef = useRef(null);
+  const localizedScheme = getLocalizedScheme(scheme, language);
+  const { printScheme } = usePrint();
   const [shareState, setShareState] = useState(null); // null | 'copied' | 'error'
 
   useEffect(() => {
@@ -75,187 +85,212 @@ export const SchemeCard = ({ schemeData, onSave, saved, onCompare, onView, onPro
     NOT_ELIGIBLE: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400 border-red-200 dark:border-red-700'
   };
 
-  const statusIcons = {
-    ELIGIBLE: <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />,
-    NEEDS_MORE_INFO: <HelpCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />,
-    NOT_ELIGIBLE: <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
-  };
-
-  const handlePrint = () => {
-    const el = printTargetRef.current;
-    if (!el) return;
-    el.classList.add('is-printing');
-    const cleanup = () => {
-      el.classList.remove('is-printing');
-      window.removeEventListener('afterprint', cleanup);
-    };
-    window.addEventListener('afterprint', cleanup);
-    window.print();
-  };
-
   const handleShare = () => {
-    shareScheme(scheme, language, (result) => {
+    shareScheme(localizedScheme, language, (result) => {
       setShareState(result);
       setTimeout(() => setShareState(null), 2500);
     });
   };
 
+  // Calculate how many benefits/documents to show
+  const benefitsToShow = localizedScheme.benefits.slice(0, 2);
+  const benefitsRemaining = localizedScheme.benefits.length - benefitsToShow.length;
+  const documentsToShow = localizedScheme.documents.slice(0, 2);
+  const documentsRemaining = localizedScheme.documents.length - documentsToShow.length;
+
+  // Relevance is already 0-100 from backend, no multiplication needed
+  const relevancePercent = relevance_score || null;
+
   return (
-    <GlassCard className={`flex flex-col gap-4 relative overflow-hidden group ${darkMode ? 'dark' : ''}`}>
-      <div className="flex justify-between items-start gap-2">
-        <div className="flex-1">
-          <span className="text-xs font-semibold tracking-wider text-primary dark:text-teal-400 uppercase mb-1 block">
-            {scheme.department}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.3 }}
+      className={`bg-white dark:bg-[var(--elevated-surface)] border border-[#dde4ee] dark:border-[rgba(148,163,184,0.14)] rounded-xl p-5 shadow-sm dark:shadow-none transition-all duration-200 hover:shadow-md dark:hover:border-[rgba(148,163,184,0.22)] flex flex-col gap-4 ${darkMode ? 'dark' : ''}`}
+    >
+      {/* Header: Department + Eligibility Badge */}
+      <div className="flex justify-between items-start gap-3">
+        <div className="flex-1 min-w-0">
+          <span className="text-xs font-bold tracking-wide text-[#0f766e] dark:text-[#5eead4] uppercase block mb-1.5">
+            {localizedScheme.department}
           </span>
-          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">{scheme.name}</h3>
+          <h3 className="text-base font-bold text-[#172033] dark:text-white leading-snug mb-1">
+            {localizedScheme.name}
+          </h3>
         </div>
-        <div className={`px-2 py-1 rounded-full text-xs font-bold border flex items-center gap-1.5 whitespace-nowrap ${statusColors[eligibility_status]}`}>
-          {statusIcons[eligibility_status]}
-          {eligibility_status.replace(/_/g, ' ')}
+        <div className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase whitespace-nowrap flex-shrink-0 ${statusColors[eligibility_status]}`}>
+          {eligibility_status === 'ELIGIBLE'
+            ? (language === 'en' ? 'ELIGIBLE' : 'தகுதி')
+            : eligibility_status === 'NEEDS_MORE_INFO'
+            ? (language === 'en' ? 'NEEDS INFO' : 'தகவல்')
+            : (language === 'en' ? 'NOT ELIGIBLE' : 'தகுதியற்ற')}
         </div>
       </div>
 
-      <p className="text-sm text-slate-600 dark:text-slate-300">{scheme.description}</p>
+      {/* Description */}
+      <p className="text-sm text-[#526078] dark:text-[#94a3b8] leading-relaxed line-clamp-2">
+        {localizedScheme.description}
+      </p>
 
-      <div className="grid grid-cols-2 gap-4 text-sm mt-2">
-        <div>
-          <strong className="block text-slate-700 dark:text-slate-200 mb-1">
-            {language === 'en' ? 'Benefits' : 'நன்மைகள்'}
-          </strong>
-          <ul className="list-disc pl-4 text-slate-600 dark:text-slate-400 space-y-1 text-xs">
-            {scheme.benefits.slice(0, 3).map((b, i) => <li key={i}>{b}</li>)}
-            {scheme.benefits.length > 3 && <li className="text-primary dark:text-teal-400 font-semibold">+{scheme.benefits.length - 3} more</li>}
-          </ul>
-        </div>
-        <div>
-          <strong className="block text-slate-700 dark:text-slate-200 mb-1">
-            {language === 'en' ? 'Documents' : 'ஆவணங்கள்'}
-          </strong>
-          <ul className="space-y-1 text-slate-600 dark:text-slate-400 text-xs">
-            {scheme.documents.slice(0, 3).map((d, i) => (
-              <li key={i} className="flex items-start gap-1.5">
-                <FileText className="w-3 h-3 mt-0.5 text-slate-400 dark:text-slate-500 shrink-0" />
-                <span className="line-clamp-2">{d}</span>
-              </li>
-            ))}
-            {scheme.documents.length > 3 && (
-              <li className="text-primary dark:text-teal-400 font-semibold ml-4.5">
-                +{scheme.documents.length - 3} {language === 'en' ? 'more' : 'மேலும்'}
-              </li>
+      {/* Benefits + Documents Side-by-Side */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Benefits Column */}
+        {localizedScheme.benefits.length > 0 && (
+          <div className="space-y-1.5">
+            <h4 className="text-xs font-bold text-[#172033] dark:text-white uppercase tracking-wide">
+              {language === 'en' ? 'Benefits' : 'நன்மைகள்'}
+            </h4>
+            <ul className="space-y-1">
+              {benefitsToShow.map((benefit, idx) => (
+                <li key={idx} className="text-sm text-[#526078] dark:text-[#94a3b8] flex items-start gap-2">
+                  <span className="text-[#0f766e] dark:text-[#5eead4] mt-0.5">•</span>
+                  <span className="flex-1 line-clamp-1">{benefit}</span>
+                </li>
+              ))}
+            </ul>
+            {benefitsRemaining > 0 && (
+              <p className="text-xs font-medium text-[#0f766e] dark:text-[#5eead4]">
+                +{benefitsRemaining} {language === 'en' ? 'more' : 'மேலும்'}
+              </p>
             )}
-          </ul>
-        </div>
+          </div>
+        )}
+
+        {/* Documents Column */}
+        {localizedScheme.documents.length > 0 && (
+          <div className="space-y-1.5">
+            <h4 className="text-xs font-bold text-[#172033] dark:text-white uppercase tracking-wide">
+              {language === 'en' ? 'Documents' : 'ஆவணங்கள்'}
+            </h4>
+            <ul className="space-y-1">
+              {documentsToShow.map((doc, idx) => (
+                <li key={idx} className="text-sm text-[#526078] dark:text-[#94a3b8] flex items-start gap-2">
+                  <FileText className="w-3.5 h-3.5 text-[#0f766e] dark:text-[#5eead4] mt-0.5 flex-shrink-0" />
+                  <span className="flex-1 line-clamp-1">{doc}</span>
+                </li>
+              ))}
+            </ul>
+            {documentsRemaining > 0 && (
+              <p className="text-xs font-medium text-[#0f766e] dark:text-[#5eead4]">
+                +{documentsRemaining} {language === 'en' ? 'more' : 'மேலும்'}
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
-      <div className="bg-slate-50/50 dark:bg-slate-700/50 rounded-lg p-3 mt-2 text-xs">
-        <strong className="block text-slate-700 dark:text-slate-200 mb-2">
-          {eligibility_status === 'NEEDS_MORE_INFO'
-            ? (language === 'en' ? `Missing Information (${missing_information.length}):` : `தவறிய தகவல் (${missing_information.length}):`)
-            : (language === 'en' ? `Why this matched (${relevance_score}% Relevance):` : `ஏன் பொருத்தம் (${relevance_score}%):`)}
-        </strong>
-        <div className="flex flex-wrap gap-1.5">
-          {matched_criteria.map(c => (
-            <span key={c} className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded border border-green-200 dark:border-green-700 text-xs">
-              ✓ {c}
-            </span>
-          ))}
-          {missing_information.map(c => (
-            <span key={c} className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-2 py-0.5 rounded border border-yellow-200 dark:border-yellow-700 text-xs">
-              ? {c}
-            </span>
-          ))}
-          {failed_criteria.map(c => (
-            <span key={c} className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-2 py-0.5 rounded border border-red-200 dark:border-red-700 text-xs">
-              ✕ {c}
-            </span>
-          ))}
+      {/* Why This Matched Panel */}
+      {(matched_criteria.length > 0 || missing_information.length > 0) && (
+        <div className="bg-[#f8fafc] dark:bg-[rgba(148,163,184,0.05)] border border-[#e2e8f0] dark:border-[rgba(148,163,184,0.1)] rounded-lg p-3">
+          <h4 className="text-xs font-bold text-[#172033] dark:text-white mb-2 flex items-center gap-2">
+            {eligibility_status === 'ELIGIBLE' ? (
+              <>
+                {language === 'en' ? 'Why this matched' : 'ஏன் பொருத்தம்'}
+                {relevancePercent !== null && (
+                  <span className="text-[#0f766e] dark:text-[#5eead4]">
+                    ({relevancePercent}% {language === 'en' ? 'Relevance' : 'பொருத்தம்'})
+                  </span>
+                )}
+              </>
+            ) : (
+              <>{language === 'en' ? 'Why this may match' : 'ஏன் பொருத்தமாக இருக்கலாம்'}</>
+            )}
+          </h4>
+          <div className="flex flex-wrap gap-1.5">
+            {matched_criteria.slice(0, 4).map(c => (
+              <span key={c} className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-2 py-0.5 rounded text-xs border border-green-200 dark:border-green-700/30 font-medium">
+                ✓ {getEligibilityLabel(c, language)}
+              </span>
+            ))}
+            {missing_information.length > 0 && (
+              <span className="bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded text-xs border border-amber-200 dark:border-amber-700/30 font-medium">
+                ? {language === 'en' ? 'Missing info' : 'தகவல் இல்லை'}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Bottom Action Bar - All in One Row */}
+      <div className="mt-auto pt-4 border-t border-[#dde4ee] dark:border-[rgba(148,163,184,0.14)] space-y-3">
+        {/* Single Row with All Actions */}
+        <div className="flex items-center gap-2">
+          {/* View Details - flex:1 */}
+          <button
+            onClick={() => onViewDetails && onViewDetails(schemeData)}
+            className="flex-1 py-2 px-4 bg-[#0f766e] hover:bg-[#0d655f] dark:bg-[#0f766e] dark:hover:bg-[#0d655f] text-white rounded-lg font-bold transition-all text-sm"
+            aria-label={language === 'en' ? 'View scheme details' : 'திட்ட விவரங்களைக் காண்க'}
+          >
+            {language === 'en' ? 'View Details' : 'விவரங்கள்'}
+          </button>
+
+          {/* Icon Actions */}
+          <button
+            onClick={() => onSave(scheme.id)}
+            className={`p-2 rounded-lg transition-all ${
+              saved
+                ? 'bg-[#0f766e] text-white'
+                : 'bg-white dark:bg-[var(--secondary-surface)] text-[#526078] dark:text-[#94a3b8] border border-[#dde4ee] dark:border-[rgba(148,163,184,0.14)] hover:border-[#0f766e] dark:hover:border-[#5eead4] hover:text-[#0f766e] dark:hover:text-[#5eead4]'
+            }`}
+            title={language === 'en' ? 'Save scheme' : 'திட்டத்தை சேமிக்கவும்'}
+            aria-label={language === 'en' ? 'Save scheme' : 'திட்டத்தை சேமிக்கவும்'}
+          >
+            <Bookmark className="w-4 h-4" fill={saved ? 'currentColor' : 'none'} />
+          </button>
+
+          {onCompare && (
+            <button
+              onClick={() => onCompare(schemeData)}
+              className="p-2 rounded-lg bg-white dark:bg-[var(--secondary-surface)] text-[#526078] dark:text-[#94a3b8] border border-[#dde4ee] dark:border-[rgba(148,163,184,0.14)] hover:border-[#0f766e] dark:hover:border-[#5eead4] hover:text-[#0f766e] dark:hover:text-[#5eead4] transition-all"
+              title={language === 'en' ? 'Add to compare' : 'ஒப்பிடவும்'}
+              aria-label={language === 'en' ? 'Add to compare' : 'ஒப்பிடவும்'}
+            >
+              <GitCompare className="w-4 h-4" />
+            </button>
+          )}
+
+          <button
+            onClick={() => printScheme({
+              scheme: localizedScheme,
+              eligibility_status,
+              matched_criteria,
+              missing_information,
+              failed_criteria
+            }, language)}
+            className="p-2 rounded-lg bg-white dark:bg-[var(--secondary-surface)] text-[#526078] dark:text-[#94a3b8] border border-[#dde4ee] dark:border-[rgba(148,163,184,0.14)] hover:border-[#0f766e] dark:hover:border-[#5eead4] hover:text-[#0f766e] dark:hover:text-[#5eead4] transition-all"
+            title={language === 'en' ? 'Print scheme' : 'திட்டத்தை அச்சிடவும்'}
+            aria-label={language === 'en' ? 'Print scheme' : 'திட்டத்தை அச்சிடவும்'}
+          >
+            <Printer className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={handleShare}
+            className="p-2 rounded-lg bg-white dark:bg-[var(--secondary-surface)] text-[#526078] dark:text-[#94a3b8] border border-[#dde4ee] dark:border-[rgba(148,163,184,0.14)] hover:border-[#0f766e] dark:hover:border-[#5eead4] hover:text-[#0f766e] dark:hover:text-[#5eead4] transition-all relative"
+            title={language === 'en' ? 'Share scheme' : 'திட்டத்தை பகிரவும்'}
+            aria-label={language === 'en' ? 'Share scheme' : 'திட்டத்தை பகிரவும்'}
+          >
+            <Share2 className="w-4 h-4" />
+            {shareState === 'copied' && (
+              <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#0f766e] text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
+                {language === 'en' ? 'Link copied!' : 'இணைப்பு நகலெடுக்கப்பட்டது!'}
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Provide Missing Information Button */}
         {eligibility_status === 'NEEDS_MORE_INFO' && missing_information.length > 0 && onProvideMissingInfo && (
           <button
             onClick={() => onProvideMissingInfo(schemeData)}
-            className="mt-3 w-full py-2 px-4 bg-yellow-100 dark:bg-yellow-900/30 hover:bg-yellow-200 dark:hover:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 border border-yellow-300 dark:border-yellow-700"
+            className="w-full py-2 px-4 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30 text-amber-800 dark:text-amber-300 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 border border-amber-200 dark:border-amber-700/30 text-sm"
           >
             <Plus className="w-4 h-4" />
             {language === 'en' ? 'Provide Missing Information' : 'தவறிய தகவலை வழங்கவும்'}
           </button>
         )}
       </div>
-
-      <div className="flex flex-wrap items-center gap-2 mt-auto pt-4 border-t border-slate-100 dark:border-slate-700">
-        <button
-          onClick={() => onViewDetails && onViewDetails(schemeData)}
-          className="flex-1 bg-primary text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors flex justify-center items-center gap-1.5"
-        >
-          {language === 'en' ? 'View Details' : 'விவரங்களைக் காண்க'}
-        </button>
-        <button
-          onClick={() => onSave(scheme.id)}
-          className={`p-2 rounded-lg border transition-colors ${
-            saved
-              ? 'bg-primary text-white border-primary'
-              : 'bg-white dark:bg-slate-700 text-slate-400 dark:text-slate-300 hover:text-primary hover:border-primary border-slate-200 dark:border-slate-600'
-          }`}
-          title={language === 'en' ? 'Save Scheme' : 'சேமி'}
-        >
-          <Bookmark className="w-4 h-4" fill={saved ? 'currentColor' : 'none'} />
-        </button>
-        {onCompare && (
-          <button
-            onClick={() => onCompare(schemeData)}
-            className="p-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-primary hover:border-primary transition-colors"
-            title={language === 'en' ? 'Add to Compare' : 'ஒப்பிடு'}
-          >
-            <GitCompare className="w-4 h-4" />
-          </button>
-        )}
-        <button
-          onClick={handlePrint}
-          className="p-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-primary hover:border-primary transition-colors"
-          title={language === 'en' ? 'Print' : 'அச்சிடு'}
-        >
-          <Printer className="w-4 h-4" />
-        </button>
-        <div className="relative">
-          <button
-            onClick={handleShare}
-            className={`p-2 rounded-lg border transition-colors ${
-              shareState === 'copied'
-                ? 'bg-teal-50 dark:bg-teal-900/30 border-teal-400 text-teal-600 dark:text-teal-400'
-                : shareState === 'error'
-                ? 'bg-red-50 dark:bg-red-900/20 border-red-300 text-red-500'
-                : 'border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-primary hover:border-primary'
-            }`}
-            title={language === 'en' ? 'Share' : 'பகிர்'}
-          >
-            <Share2 className="w-4 h-4" />
-          </button>
-          {shareState && (
-            <motion.span
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="absolute bottom-full mb-1.5 right-0 text-xs font-medium bg-slate-800 dark:bg-slate-700 text-white px-2 py-1 rounded whitespace-nowrap pointer-events-none"
-            >
-              {shareState === 'copied'
-                ? (language === 'en' ? 'Link copied!' : 'இணைப்பு நகலெடுக்கப்பட்டது!')
-                : (language === 'en' ? 'Copy failed' : 'நகலெடுக்க முடியவில்லை')}
-            </motion.span>
-          )}
-        </div>
-      </div>
-
-      {/* Hidden print target — made visible only during window.print() */}
-      <div ref={printTargetRef} className="scheme-print-target">
-        <SchemePrintView
-          scheme={scheme}
-          eligibility_status={eligibility_status}
-          matched_criteria={matched_criteria}
-          missing_information={missing_information}
-          failed_criteria={failed_criteria}
-          relevance_score={relevance_score}
-        />
-      </div>
-    </GlassCard>
+    </motion.div>
   );
 };

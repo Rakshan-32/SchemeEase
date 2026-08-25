@@ -41,6 +41,23 @@ function HintBanner({ color = 'teal', text }) {
 }
 
 function NumberField({ field, value, error, onChange, t }) {
+  const handleNumberChange = (e) => {
+    const rawValue = e.target.value;
+    // Blank input → null (UNKNOWN), not 0
+    if (rawValue === '' || rawValue == null) {
+      onChange(field.key, null, field);
+      return;
+    }
+    const num = Number(rawValue);
+    // Invalid number → null
+    if (isNaN(num)) {
+      onChange(field.key, null, field);
+      return;
+    }
+    // Valid number → use it (can be 0 if explicitly entered)
+    onChange(field.key, num, field);
+  };
+
   return (
     <div>
       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -53,7 +70,7 @@ function NumberField({ field, value, error, onChange, t }) {
         min={field.min}
         max={field.max}
         placeholder={t(field.placeholderEn, field.placeholderTa)}
-        onChange={(e) => onChange(field.key, parseInt(e.target.value) || 0, field)}
+        onChange={handleNumberChange}
         className={`${inputBase} ${error ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'}`}
       />
       {error && (
@@ -126,21 +143,29 @@ function CheckboxField({ field, value, onChange, t }) {
   const padding = isLg ? 'p-4' : 'p-3';
   const checkSize = isLg ? 'w-5 h-5' : 'w-4 h-4';
   const labelSize = isLg ? 'font-medium' : 'text-sm font-medium';
+  const hasHint = field.hintEn || field.hintTa;
 
   return (
-    <label
-      className={`flex items-center gap-3 ${padding} border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors`}
-    >
-      <input
-        type="checkbox"
-        checked={!!value}
-        onChange={(e) => onChange(field.key, e.target.checked, field)}
-        className={`${checkSize} text-primary rounded focus:ring-primary`}
-      />
-      <span className={`${labelSize} text-slate-700 dark:text-slate-200`}>
-        {t(field.labelEn, field.labelTa)}
-      </span>
-    </label>
+    <div>
+      <label
+        className={`flex items-center gap-3 ${padding} border border-slate-300 dark:border-slate-600 rounded-lg cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors`}
+      >
+        <input
+          type="checkbox"
+          checked={!!value}
+          onChange={(e) => onChange(field.key, e.target.checked, field)}
+          className={`${checkSize} text-primary rounded focus:ring-primary flex-shrink-0`}
+        />
+        <span className={`${labelSize} text-slate-700 dark:text-slate-200`}>
+          {t(field.labelEn, field.labelTa)}
+        </span>
+      </label>
+      {hasHint && (
+        <p className="mt-1 ml-3 text-xs text-slate-500 dark:text-slate-400">
+          {t(field.hintEn, field.hintTa)}
+        </p>
+      )}
+    </div>
   );
 }
 

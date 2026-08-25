@@ -12,7 +12,6 @@ from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 
 from engine import analyze_profile
-from ai_layer import generate_explanation, extract_profile_from_text
 
 # Load environment variables
 load_dotenv()
@@ -20,9 +19,15 @@ load_dotenv()
 app = FastAPI(title="SchemEase 2.0 API")
 
 # Setup CORS
+allowed_origins = os.getenv("FRONTEND_URL", "").split(",") if os.getenv("FRONTEND_URL") else [
+    "http://localhost:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:4173",
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -30,17 +35,6 @@ app.add_middleware(
 
 class ProfileRequest(BaseModel):
     profile: Dict[str, Any]
-    
-class ExplainRequest(BaseModel):
-    profile: Dict[str, Any]
-    scheme_name: str
-    match_status: str
-    matched: List[str]
-    missing: List[str]
-    failed: List[str]
-
-class ExtractRequest(BaseModel):
-    text: str
 
 class ContactRequest(BaseModel):
     name: str
@@ -64,62 +58,71 @@ def analyze(request: ProfileRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/explain")
-def explain(request: ExplainRequest):
-    try:
-        explanation = generate_explanation(
-            request.profile, 
-            request.scheme_name, 
-            request.match_status, 
-            request.matched, 
-            request.missing, 
-            request.failed
-        )
-        return {"status": "success", "explanation": explanation}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/extract-profile")
-def extract_profile(request: ExtractRequest):
-    try:
-        extracted = extract_profile_from_text(request.text)
-        return {"status": "success", "profile": extracted}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
 @app.post("/contact")
 def contact(request: ContactRequest):
+    # Gmail SMTP configuration via environment variables
     smtp_host = os.getenv("SMTP_HOST", "")
     smtp_port = int(os.getenv("SMTP_PORT", "587"))
-    smtp_user = os.getenv("SMTP_USER", "")
-    smtp_pass = os.getenv("SMTP_PASS", "")
-    contact_to = os.getenv("CONTACT_TO_EMAIL", smtp_user)
+    smtp_username = os.getenv("SMTP_USERNAME", "")
+    smtp_password = os.getenv("SMTP_PASSWORD", "")
+    admin_email = os.getenv("CONTACT_ADMIN_EMAIL", smtp_username)
+    from_email = os.getenv("CONTACT_FROM_EMAIL", smtp_username)
 
-    if not smtp_host or not smtp_user or not smtp_pass:
+    if not smtp_host or not smtp_username or not smtp_password:
         raise HTTPException(
             status_code=503,
             detail="Email service is not configured. Please contact the administrator."
         )
 
     try:
+        # Send email to administrator with citizen's message
         msg = MIMEMultipart("alternative")
         msg["Subject"] = f"[SchemEase Contact] {request.subject}"
-        msg["From"] = smtp_user
-        msg["To"] = contact_to
+        msg["From"] = from_email
+        msg["To"] = admin_email
+        # CRITICAL: Set Reply-To so admin can reply directly to citizen
         msg["Reply-To"] = request.email
 
         body = (
+            f"You have received a new enquiry via SchemEase:\n\n"
             f"Name: {request.name}\n"
             f"Email: {request.email}\n"
             f"Subject: {request.subject}\n\n"
-            f"Message:\n{request.message}"
+            f"Message:\n{request.message}\n\n"
+            f"---\n"
+            f"To reply, simply click Reply in your email client."
         )
         msg.attach(MIMEText(body, "plain"))
 
         with smtplib.SMTP(smtp_host, smtp_port) as server:
             server.starttls()
-            server.login(smtp_user, smtp_pass)
-            server.sendmail(smtp_user, contact_to, msg.as_string())
+            server.login(smtp_username, smtp_password)
+            server.sendmail(from_email, admin_email, msg.as_string())
+
+        # Optionally send acknowledgment to citizen
+        try:
+            ack_msg = MIMEMultipart("alternative")
+            ack_msg["Subject"] = "We received your SchemeEase enquiry"
+            ack_msg["From"] = from_email
+            ack_msg["To"] = request.email
+            ack_msg["Reply-To"] = admin_email
+
+            ack_body = (
+                f"Dear {request.name},\n\n"
+                f"Thank you for contacting SchemeEase. We have received your enquiry regarding: {request.subject}\n\n"
+                f"Our team will review your message and respond as soon as possible.\n\n"
+                f"Best regards,\n"
+                f"SchemeEase Team"
+            )
+            ack_msg.attach(MIMEText(ack_body, "plain"))
+
+            with smtplib.SMTP(smtp_host, smtp_port) as server:
+                server.starttls()
+                server.login(smtp_username, smtp_password)
+                server.sendmail(from_email, request.email, ack_msg.as_string())
+        except Exception:
+            # Acknowledgment is optional - don't fail if it doesn't send
+            pass
 
         return {"status": "success", "message": "Message sent successfully."}
     except smtplib.SMTPAuthenticationError:

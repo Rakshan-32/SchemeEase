@@ -1,541 +1,481 @@
-# SchemEase 2.0
-**AI-Powered Government Scheme Discovery, Eligibility & Recommendation Platform**
+# SchemeEase 2.0
 
-A college project demonstrating deterministic cross-category scheme matching with AI enhancement.
+**AI-Powered Government Scheme Discovery & Eligibility Platform**
 
----
-
-## ✨ Key Features
-
-### Core Functionality
-- ✅ **Cross-Category Recommendations**: A 30-year-old SC farmer with disability receives BOTH agriculture AND disability schemes (not just occupation-based)
-- ✅ **Generic Deterministic Eligibility Engine**: Data-driven matching system - add schemes without modifying code
-- ✅ **Relevance Scoring**: Ranks schemes based on multiple matching profile attributes
-- ✅ **AI Enhancement with Gemini**: Natural language search, profile extraction, explanations (with graceful fallback)
-- ✅ **Complete Document Checklists**: Every scheme includes verified, comprehensive document requirements
-
-### User Experience
-- 🎨 **Premium Glassmorphism UI** with government architecture imagery
-- 🌓 **Dark Mode** with smooth transitions
-- 🌐 **Bilingual Support** (English / தமிழ்)
-- 🎤 **Voice Search** using Web Speech API
-- 💾 **Saved Schemes** with localStorage persistence
-- 🔔 **Notifications** for new matches and updates
-- 📊 **Scheme Comparison** (up to 3 schemes side-by-side)
-- 📋 **Application Tracker** with status management
-- 🕒 **Recently Viewed** tracking
-- 🖨️ **Print Summary** for any scheme
-- 📤 **Share Functionality** via Web Share API
-- ❓ **FAQ & Support** sections
-
-### Filtering & Discovery
-- 🔍 **Natural Language Search**: "I'm a 30-year-old SC farmer earning ₹2 lakh per year"
-- 🗂️ **Category Filtering**: Agriculture, Education, Health, Disability, Women, Housing, etc.
-- ⚡ **Sort Options**: Relevance, Category, Department
-- 🔎 **Advanced Profile Matching**: Age, income, social category, disability, occupation, location, etc.
+A full-stack web application that helps citizens discover government welfare schemes based on their personal profile. Built with React, FastAPI, and a deterministic eligibility matching engine.
 
 ---
 
-## 📊 Dataset
+## ✨ What It Does
 
-**58 Government Schemes** across **16 categories**:
+SchemeEase evaluates user profiles against **52 government schemes** across 13+ categories and provides:
 
-| Category | Count | Examples |
-|----------|-------|----------|
-| Agriculture | 7 | PM-KISAN, PM KUSUM, e-NAM, Kisan Credit Card |
-| Education | 7 | Post Matric Scholarships, NSP, Pre-Matric Minorities |
-| Social Security | 7 | IGNOAPS, Senior Citizen Savings, APY |
-| Health | 6 | Ayushman Bharat, JSY, RSBY, Mission Indradhanush |
-| Housing | 4 | PMAY-U, PMAY-G, CLSS |
-| Women & Child | 4 | Sukanya Samriddhi, Nari Shakti Puraskar, MSK |
-| Entrepreneurship | 4 | Stand-Up India, MUDRA, Startup India |
+- ✅ **Personalized Recommendations** - Cross-category matching (agriculture + disability + social welfare schemes for a farmer with disability)
+- ✅ **Transparent Eligibility** - Shows exactly why schemes matched and what information is missing
+- ✅ **Bilingual Support** - Complete English/Tamil localization (UI + scheme content)
+- ✅ **Smart Search** - Keyword search with English/Tamil aliases, URL persistence
+- ✅ **Application Tracking** - Track scheme applications with branching status model
+- ✅ **Save & Compare** - Save favorites, compare up to 3 schemes side-by-side
+- ✅ **Print & Share** - Print-optimized summaries, deep-link sharing
+
+---
+
+## 🎯 Key Features
+
+### For Citizens
+- **Profile-Based Matching**: Enter age, income, occupation, social category, location, disability status → get ranked scheme recommendations
+- **Eligibility Clarity**: Each scheme shows "Eligible", "Needs More Info", or "Not Eligible" with detailed reasoning
+- **Document Checklists**: Complete list of required documents for each scheme
+- **Application Tracker**: Track application status from "Preparing Documents" to "Approved/Rejected"
+- **Favorites & History**: Save schemes, view recently viewed schemes
+- **Dark Mode**: Full light/dark theme support with glassmorphic UI
+- **Mobile Responsive**: Works on desktop, tablet, and mobile devices
+
+### Technical Features
+- **Deterministic Engine**: Data-driven eligibility evaluation - add schemes without code changes
+- **Profile Normalization**: Handles schema evolution gracefully - users never lose data across updates
+- **URL-Based Search**: Shareable search results, refresh-persistent queries
+- **LocalStorage Persistence**: Client-side data storage (no backend database required)
+- **Error Boundary**: Graceful error handling with user-friendly messages
+- **Cross-Browser**: Works on Chrome, Edge, Firefox, Safari
+
+---
+
+## 📊 Scheme Database
+
+**52 Government Schemes** across 13 categories:
+
+| Category | Count | Example Schemes |
+|----------|-------|-----------------|
+| Entrepreneurship | 7 | Stand-Up India, PMMY, NEEDS, UYEGP, TWEES |
+| Education | 7 | SC/ST Scholarships, NMMS, Girls Secondary Education |
+| Agriculture | 6 | PM-KISAN, PMFBY, PM KUSUM, e-NAM, KCC |
+| Social Security | 6 | APY, PM-SYM, IGNOAPS, SCSS |
+| Health | 5 | PM-JAY, JSY, RSBY, Mission Indradhanush |
+| Housing | 3 | PMAY-Urban, PMAY-Gramin, CLSS |
 | Disability | 3 | ADIP, DDRS, Niramaya |
-| Employment | 3 | PMEGP, Rozgar Mela |
-| Others | 13 | Infrastructure, Sanitation, Skill Development, etc. |
+| Women & Child | 3 | PMMVY, Nari Shakti, Mahila Shakti |
+| Employment | 2 | MGNREGA, e-Shram |
+| + 5 more categories | 10 | Infrastructure, Food Security, Livelihood, etc. |
 
-**All schemes include**:
-- ✅ Complete structured eligibility criteria
-- ✅ Full document checklists (4-7 documents each)
-- ✅ Official government source URLs (.gov.in domains)
-- ✅ Detailed benefits description
-- ✅ Application methods
+All schemes include structured eligibility criteria, document checklists, benefits, application methods, and official source URLs.
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Core Architecture
 
-```
-SchemEase_2.0/
-├── frontend/                # React + Vite + Tailwind
-│   ├── src/
-│   │   ├── App.jsx         # Main app with auth, search, dark mode
-│   │   ├── sections.jsx    # Dashboard, Landing, Profile, FAQ, Contact, etc.
-│   │   ├── components.jsx  # SchemeCard, GlassCard, GlassPanel
-│   │   ├── data.js         # API client functions
-│   │   └── index.css       # Glassmorphism, dark mode styles
-│   ├── public/
-│   │   └── ribbon-building.jpg
-│   └── package.json
-│
-├── backend/                # Python FastAPI
-│   ├── main.py            # API endpoints: /analyze, /explain, /extract-profile
-│   ├── engine.py          # Generic eligibility evaluation engine
-│   ├── ai_layer.py        # Gemini AI integration with fallbacks
-│   ├── schemes.json       # 58 structured government schemes
-│   ├── requirements.txt   # Python dependencies
-│   └── test_comprehensive.py  # Profile testing suite
-│
-├── .env.example           # Environment variables template
-└── README.md              # This file
-```
+### Tech Stack
 
-**File Count**: 24 files (within 25 limit, target ~18)
+**Frontend**:
+- React 18.2
+- React Router 6.18
+- Vite 5.0 (build tool)
+- Tailwind CSS 3.3
+- Framer Motion (animations)
+- Lucide React (icons)
+- Vitest (testing - 152 tests)
+
+**Backend**:
+- Python 3.9+
+- FastAPI 0.115+
+- Uvicorn (ASGI server)
+- Pydantic (validation)
+- python-dotenv (environment variables)
+
+**Data**:
+- JSON file database (schemes.json - 52 schemes)
+- LocalStorage (user data, favorites, tracker)
+
+### Logical Module Organization
+
+While the source code is organized into 29 files for maintainability, they logically group into 8 conceptual modules:
+
+#### 1. Application Shell
+**Files**: `App.jsx`, `main.jsx`
+
+**Purpose**: Application entry point, routing, authentication state, theme/language state, global search coordination, URL state management.
+
+**Key Responsibilities**:
+- React Router configuration
+- Authentication flow (login → profile setup → dashboard)
+- Dark mode / Tamil-English toggle
+- Page-aware navbar search with `?q=` URL persistence
+- Deep link handling (`/schemes/:id`)
+
+#### 2. Pages & Sections
+**Files**: `sections.jsx`, `AllSchemes.jsx`, `Auth.jsx`, `SchemePublicView.jsx`
+
+**Purpose**: Full-page components and major application sections.
+
+**Key Components**:
+- `Dashboard` - Main hub with scheme results, favorites, tracker, compare, notifications
+- `AllSchemes` - Browse all 52 schemes with search/filter/sort
+- `Auth` - Login/signup forms with Ripon Building background
+- `SchemePublicView` - Unauthenticated scheme detail view for sharing
+- FAQ, Contact, Profile sections
+
+#### 3. Profile System
+**Files**: `ProfileForm.jsx`, `ProfilePage.jsx`, `ProfileSetup.jsx`, `profileSchema.js`, `profileNormalization.js`, `profileCompletion.js`
+
+**Purpose**: User profile management and eligibility data collection.
+
+**Flow**:
+1. **ProfileSetup.jsx** - 4-step wizard for initial profile creation
+2. **profileSchema.js** - Field definitions, validation rules, occupation-specific fields
+3. **ProfileForm.jsx** - Dynamic form rendering based on schema
+4. **profileNormalization.js** - Schema migration, data cleaning, field clearing on occupation change
+5. **profileCompletion.js** - Occupation-aware completion scoring
+6. **ProfilePage.jsx** - Read-only profile display with edit capability
+
+**Critical Logic**:
+- Student vs Farmer get different required fields
+- Old schema migrations preserve user data across updates
+- Null values distinguish "unknown" from "explicitly false"
+
+#### 4. Scheme Discovery & Search
+**Files**: `schemeSearch.js`, `schemeLocalization.js`, `eligibilityLabels.js`, `data.js`
+
+**Purpose**: Search, localization, and scheme presentation logic.
+
+**Key Features**:
+- **schemeSearch.js**: Deterministic search with Tamil aliases (மாணவர் → student), acronyms (PM-KISAN), profile-independent ranking
+- **schemeLocalization.js**: Ministry translations, document translations, Tamil fallback logic
+- **eligibilityLabels.js**: Human-readable criterion labels ("Farmer / Agriculture profile" instead of "farmer=true")
+- **data.js**: API client functions, localStorage helpers, deep link utilities
+
+**Search Algorithm**:
+1. Normalize query (remove spaces, lowercase)
+2. Match against name, keywords, Tamil aliases
+3. Rank by: exact match > word start > substring
+4. Return deterministic ordered results
+
+#### 5. Shared UI Components
+**Files**: `components.jsx`, `SchemeDetailModal.jsx`, `MissingInfoModal.jsx`, `ErrorBoundary.jsx`
+
+**Purpose**: Reusable UI building blocks.
+
+**Key Components**:
+- **SchemeCard** - Displays scheme with benefits/documents preview, favorites, compare
+- **SchemeDetailModal** - Full scheme details with "Why This Matched" explanation
+- **MissingInfoModal** - Shows which profile fields are needed and why
+- **GlassCard, GlassPanel** - Glassmorphic container components
+- **ErrorBoundary** - Catches React errors, shows user-friendly message
+
+#### 6. Print & Share
+**Files**: `PrintContext.jsx`, `SchemePrintView.jsx`
+
+**Purpose**: Print-optimized scheme summaries with government watermark.
+
+**Features**:
+- Single-scheme printing with light theme
+- Benefits and document checklist
+- TN emblem watermark
+- Clean print styling (no navigation/buttons)
+
+#### 7. Backend Engine
+**Files**: `main.py`, `engine.py`, `schemes.json`
+
+**Purpose**: Eligibility evaluation and API endpoints.
+
+**API Endpoints**:
+- `POST /analyze` - Evaluate profile against all schemes
+- `GET /schemes/:id` - Fetch single scheme
+- `POST /contact` - Send contact form email
+- `GET /health` - Health check
+
+**Engine Logic** (`engine.py`):
+1. Load schemes.json (52 schemes with structured criteria)
+2. For each scheme, evaluate every eligibility rule against profile
+3. Categorize as: ELIGIBLE / NEEDS_MORE_INFO / INELIGIBLE
+4. Return matched/missing/failed criteria for transparency
+
+**Key Engines**:
+- **NEEDS** (New Entrepreneur Development Scheme) - checks entrepreneur criteria
+- **UYEGP** (MSME subsidy) - checks MSME-specific criteria
+- **TWEES** (Women entrepreneurship) - checks gender + entrepreneur criteria
+
+#### 8. Testing
+**Files**: `*.test.js` (5 test files, 152 tests)
+
+**Coverage**:
+- `eligibilityLabels.test.js` - Label translations
+- `profileCompletion.test.js` - Completion scoring logic
+- `profileNormalization.test.js` - Schema migrations
+- `schemeLocalization.test.js` - Tamil translations
+- `searchNavigation.test.js` - Search state management
+- `app.test.js` - Integration tests
 
 ---
 
-## 🚀 Quick Start
+## 📖 Files You Should Study (15 Essential Files)
+
+To understand the complete system, study these files in order:
+
+### Backend (3 files)
+1. **`backend/schemes.json`** - The scheme database structure
+2. **`backend/engine.py`** - Eligibility evaluation logic
+3. **`backend/main.py`** - API endpoints
+
+### Frontend Core (5 files)
+4. **`frontend/src/App.jsx`** - Application shell and routing
+5. **`frontend/src/main.jsx`** - React entry point
+6. **`frontend/src/sections.jsx`** - Dashboard and major sections
+7. **`frontend/src/components.jsx`** - Reusable UI components
+8. **`frontend/src/data.js`** - API client and utilities
+
+### Profile System (3 files)
+9. **`frontend/src/profileSchema.js`** - Profile field definitions
+10. **`frontend/src/profileNormalization.js`** - Schema migration logic
+11. **`frontend/src/ProfileForm.jsx`** - Dynamic form rendering
+
+### Scheme System (3 files)
+12. **`frontend/src/schemeSearch.js`** - Search algorithm
+13. **`frontend/src/schemeLocalization.js`** - Tamil localization
+14. **`frontend/src/SchemeDetailModal.jsx`** - Scheme display
+
+### Critical UX (1 file)
+15. **`frontend/src/MissingInfoModal.jsx`** - Missing information UI
+
+**Optional Deep Dives**:
+- `AllSchemes.jsx` - Browse interface
+- `ProfileSetup.jsx` - Wizard flow
+- `SchemePrintView.jsx` - Print implementation
+- Test files - Expected behavior examples
+
+---
+
+## 🚀 Local Setup
 
 ### Prerequisites
-- **Node.js** 18+ (for frontend)
+- **Node.js** 18+ and npm (for frontend)
 - **Python** 3.9+ (for backend)
-- **Gemini API Key** (optional, for AI features)
+
+### Frontend Setup
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend will run at `http://localhost:5173`
 
 ### Backend Setup
 
 ```bash
 cd backend
 
+# Create virtual environment (optional but recommended)
+python -m venv venv
+venv\Scripts\activate  # On Windows
+# source venv/bin/activate  # On Linux/Mac
+
 # Install dependencies
 pip install -r requirements.txt
 
-# Set up environment (optional - AI features)
-cp ../.env.example ../.env
-# Edit .env and add your GEMINI_API_KEY from https://aistudio.google.com/
+# Configure environment variables
+copy .env.example .env
+# Edit .env with your SMTP credentials (for contact form)
 
-# Run FastAPI server
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# Run server
+uvicorn main:app --reload
 ```
 
-Backend will run on: **http://localhost:8000**
+Backend will run at `http://localhost:8000`
 
-### Frontend Setup
+API Documentation: `http://localhost:8000/docs`
+
+### Environment Variables
+
+Backend requires SMTP configuration for the contact form. See `backend/.env.example` for required variables:
+
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your_email@gmail.com
+SMTP_PASSWORD=your_app_password
+CONTACT_ADMIN_EMAIL=admin@example.com
+CONTACT_FROM_EMAIL=noreply@example.com
+```
+
+**Important**: Use a Gmail App Password (not your regular password). See [Google App Passwords](https://support.google.com/accounts/answer/185833) for setup instructions.
+
+---
+
+## 🧪 Testing
 
 ```bash
 cd frontend
-
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
+npm test              # Run tests in watch mode
+npm test -- --run     # Run tests once
 ```
 
-Frontend will run on: **http://localhost:5173**
+**Test Coverage**:
+- 6 test files
+- 152 total tests
+- Covers: eligibility labels, profile completion, profile normalization, scheme localization, search navigation, integration tests
 
-### Testing
+---
+
+## 📦 Production Build
+
+### Frontend Build
 
 ```bash
-cd backend
+cd frontend
+npm run build
+```
 
-# Run comprehensive profile tests
-python test_comprehensive.py
+Generates optimized production build in `frontend/dist/` directory (~450KB gzipped).
 
-# Test specific profiles
-python test_profiles.py
+### Backend Deployment
+
+For production deployment, use Gunicorn with Uvicorn worker:
+
+```bash
+pip install gunicorn
+gunicorn -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:8000 main:app
 ```
 
 ---
 
-## 🧪 Testing Results
+## 🔐 Security Notes
 
-### Cross-Category Verification ✅
-
-**Profile A**: 30-year-old SC farmer with disability
-- ✅ Receives **5 Agriculture schemes** (PM-KISAN, PM KUSUM, etc.)
-- ✅ Receives **3 Disability schemes** (ADIP, DDRS, Niramaya)
-- ✅ Receives **2 Housing schemes** (PMAY-G, CLSS)
-- ✅ Total: 11 eligible schemes across 4 categories
-
-**RESULT: PASS** - Cross-category recommendations working correctly!
-
-### Additional Test Profiles ✅
-
-| Profile | Eligible Schemes | Top Categories |
-|---------|------------------|----------------|
-| 19-year-old student | 2 schemes | Employment, Housing |
-| 45-year-old woman entrepreneur | 2 schemes | Employment, Women & Child |
-| 65-year-old senior citizen | 6 schemes | Social Security, Health, Employment |
-| 28-year-old unemployed | 2 schemes | Employment, Housing |
-
-All profiles demonstrate appropriate multi-category matching.
+- **Never commit `.env` files** - use `.env.example` as template
+- **Password hashing** - bcrypt with salt rounds (client-side in demo)
+- **SMTP credentials** - store in environment variables only
+- **CORS** - configure allowed origins for production deployment (currently allows all)
+- **LocalStorage** - Sensitive data stays client-side only
 
 ---
 
-## 🔧 Technical Stack
+## 📱 Browser Support
 
-### Frontend
-- **React 18** - UI framework
-- **Vite** - Build tool & dev server
-- **Tailwind CSS** - Utility-first styling
-- **Framer Motion** - Smooth animations
-- **Lucide React** - Icon library
-- **React Router DOM** - Client-side routing
-
-### Backend
-- **FastAPI** - Modern Python web framework
-- **Pydantic** - Data validation
-- **Google Generative AI** (Gemini) - AI enhancement
-- **Python-dotenv** - Environment management
-
-### Data
-- **JSON-based** scheme storage (easily expandable)
-- **Structured criteria** for deterministic evaluation
-- **localStorage** for client-side persistence
+- ✅ Chrome/Edge (full feature support)
+- ✅ Firefox (all features)
+- ✅ Safari (all features)
+- ✅ Mobile browsers (responsive design)
 
 ---
 
-## 🎯 How the Eligibility Engine Works
+## 🌐 Deployment
 
-### 1. Structured Criteria
-Each scheme defines eligibility as structured data:
+**Recommended Hosting**:
+- **Frontend**: Vercel, Netlify (static hosting with SPA routing)
+- **Backend**: Railway, Render, Heroku (Python ASGI hosting)
 
-```json
-{
-  "eligibility": {
-    "required_criteria": {
-      "farmer": true,
-      "landholding": true,
-      "age": { "min": 18 }
-    },
-    "optional_criteria": {
-      "ruralUrban": ["Rural"],
-      "income": { "max": 500000 }
-    }
-  }
-}
+**Critical Configuration**:
+1. Configure `_redirects` or equivalent for SPA routing (handles `/schemes/:id` deep links)
+2. Set environment variables on hosting platform
+3. Update CORS origins to production domain
+4. Test deep links after deployment
+
+---
+
+## 🎓 Project Highlights for Review/Viva
+
+1. **Cross-Category Matching**: Unlike most finders that match by occupation alone, evaluates all dimensions simultaneously (a disabled farmer qualifies for agriculture + disability + social schemes)
+2. **Deterministic Engine**: All eligibility decisions traceable to specific criteria in schemes.json - no black-box AI
+3. **Profile Normalization**: Handles schema evolution without user data loss (Student model changed from binary to multi-level education)
+4. **Bilingual by Design**: Tamil integrated from database to UI, not a bolt-on translation layer
+5. **Search Persistence**: URL-based state (`?q=`) enables shareable, refresh-persistent search results
+6. **Application Tracking**: Realistic branching model (Approved OR Rejected, not sequential states)
+7. **Test Coverage**: 152 tests covering core business logic, migrations, and integrations
+8. **No Database Required**: Entire user state in LocalStorage - zero backend persistence complexity
+
+---
+
+## 📊 Project Statistics
+
+- **52 government schemes** across 13+ categories
+- **152 automated tests** (all passing)
+- **100% Tamil localization** (schemes + UI)
+- **29 source files** organized into 8 logical modules
+- **~450KB production build** (gzipped)
+- **Zero backend database** (LocalStorage + stateless API)
+- **3 eligibility engines**: General matching, NEEDS, UYEGP/TWEES
+
+---
+
+## 📂 Repository Structure
+
+```
+SchemEase_2.0/
+├── frontend/
+│   ├── src/
+│   │   ├── App.jsx                  # Application shell
+│   │   ├── main.jsx                 # React entry
+│   │   ├── index.css                # Global styles
+│   │   ├── sections.jsx             # Dashboard & sections
+│   │   ├── AllSchemes.jsx           # Browse all schemes
+│   │   ├── Auth.jsx                 # Login/signup
+│   │   ├── ProfileSetup.jsx         # Profile wizard
+│   │   ├── ProfilePage.jsx          # Profile view
+│   │   ├── ProfileForm.jsx          # Dynamic form
+│   │   ├── profileSchema.js         # Field definitions
+│   │   ├── profileNormalization.js  # Schema migration
+│   │   ├── profileCompletion.js     # Completion scoring
+│   │   ├── SchemeDetailModal.jsx    # Scheme details
+│   │   ├── SchemePublicView.jsx     # Public view
+│   │   ├── SchemePrintView.jsx      # Print view
+│   │   ├── MissingInfoModal.jsx     # Missing info UI
+│   │   ├── ErrorBoundary.jsx        # Error handling
+│   │   ├── PrintContext.jsx         # Print theme
+│   │   ├── components.jsx           # Reusable UI
+│   │   ├── data.js                  # API client
+│   │   ├── schemeSearch.js          # Search algorithm
+│   │   ├── schemeLocalization.js    # Tamil translations
+│   │   ├── eligibilityLabels.js     # Criteria labels
+│   │   └── *.test.js                # 6 test files (152 tests)
+│   ├── public/
+│   │   ├── ribbon-building.jpg      # Hero image
+│   │   ├── tn-emblem-watermark.png  # Watermark
+│   │   └── _redirects               # SPA routing
+│   ├── package.json
+│   ├── vite.config.js               # Vite + Vitest config
+│   ├── tailwind.config.js
+│   └── postcss.config.js
+│
+├── backend/
+│   ├── main.py                      # FastAPI app
+│   ├── engine.py                    # Eligibility engine
+│   ├── schemes.json                 # 52 schemes database
+│   ├── requirements.txt
+│   └── .env.example                 # Environment template
+│
+├── README.md                        # This file
+└── .gitignore
 ```
 
-### 2. Generic Evaluation
-The engine (`engine.py`) evaluates ANY scheme without modification:
+---
 
-```python
-def evaluate_scheme(profile, scheme):
-    - Check required criteria → PASS / FAIL / UNKNOWN
-    - Check optional criteria → increases relevance
-    - Calculate relevance score based on matches
-    - Return structured result with explanation
-```
+## 🤝 Contributing
 
-### 3. Three-State Logic
-- **ELIGIBLE**: All required criteria pass
-- **NEEDS_MORE_INFO**: Required information missing
-- **NOT_ELIGIBLE**: Required criteria fail
+This is a college project built for demonstration purposes. If you'd like to extend it:
 
-### 4. Relevance Scoring
-```
-Score = (matched_criteria / total_criteria) * 100 + eligibility_boost
-
-- Multiple attribute matches = higher ranking
-- Age + Income + Social Category + Occupation > Single attribute match
-```
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new features
+4. Submit a pull request
 
 ---
 
-## 📱 Features by Section
+## 📄 License
 
-### 🏠 Landing Page
-- Premium glassmorphism design
-- Greater Chennai Corporation Ribbon Building imagery
-- Smooth authentication transition
-- Demo disclaimer (localStorage-based auth)
-
-### 📊 Dashboard
-- **Recommendations Tab**: Filtered and sorted eligible schemes
-- **Saved Schemes Tab**: Bookmarked schemes with persistence
-- **Recently Viewed Tab**: Last 10 viewed schemes
-- **Compare Tab**: Side-by-side comparison (up to 3)
-- **Tracker Tab**: Application status management
-- **Notifications Tab**: Match alerts and updates
-- **FAQ Tab**: Animated accordion questions
-- **Contact Tab**: Mock support form with contact details
-- **Profile Tab**: Comprehensive profile editor
-
-### 🔍 Search
-- **Persistent transforming search bar** (large → compact on scroll)
-- **Natural language input**: "I'm a 30-year-old farmer..."
-- **AI-powered extraction** (Gemini) with deterministic fallback
-- **Voice search** with Web Speech API
-- **Visual feedback** for listening/searching states
-
-### 🎴 Scheme Cards
-- **Eligibility status** with color-coded badges
-- **Relevance percentage** with matched/missing criteria
-- **Benefits summary** (truncated with "show more")
-- **Document checklist** (top 3 + count)
-- **Official source link** (opens in new tab)
-- **Action buttons**: Save, Compare, Print, Share
-- **Dark mode** responsive styling
+Educational project - free to use for learning and reference.
 
 ---
 
-## 🌐 API Endpoints
+## 👤 Author
 
-### POST `/analyze`
-Analyzes user profile against all schemes.
-
-**Request**:
-```json
-{
-  "profile": {
-    "age": 30,
-    "farmer": true,
-    "disability": true,
-    "socialCategory": "SC",
-    "income": 200000
-  }
-}
-```
-
-**Response**:
-```json
-{
-  "status": "success",
-  "results": [
-    {
-      "scheme_id": "pm-kisan",
-      "scheme": { /* full scheme data */ },
-      "eligibility_status": "ELIGIBLE",
-      "relevance_score": 100,
-      "matched_criteria": ["farmer", "landholding"],
-      "failed_criteria": [],
-      "missing_information": []
-    }
-  ]
-}
-```
-
-### POST `/explain`
-Generates natural language explanation (AI-powered).
-
-### POST `/extract-profile`
-Extracts structured profile from natural language text.
-
-### GET `/health`
-Health check endpoint.
+Built as a college project to demonstrate full-stack development skills, government data modeling, and citizen-focused UX design.
 
 ---
 
-## 🎨 Design Principles
+## 📞 Support
 
-### Glassmorphism
-- True Apple-style frosted glass with backdrop blur
-- Visible background through panels
-- Subtle borders and shadows
-- Responsive to dark mode
-
-### Visual Hierarchy
-1. **Status badges** → Immediate attention
-2. **Scheme name** → Clear identification
-3. **Description** → Context
-4. **Benefits & Documents** → Decision-making data
-5. **Actions** → Call to action
-
-### Accessibility
-- **High contrast** in light and dark modes
-- **Keyboard navigation** support
-- **Screen reader** friendly labels
-- **Clear visual feedback** for all interactions
-
----
-
-## 🔒 Data Privacy & Disclaimer
-
-### Important Notes
-1. **Demo Authentication**: This is a demonstration environment. Sign In/Register is a UI mockup using localStorage. **No real authentication system is implemented.**
-
-2. **Local Storage**: All user data (profile, saved schemes, notifications) is stored in **browser localStorage only**. No data is sent to external servers except for the local FastAPI backend.
-
-3. **Official Verification Required**: Scheme eligibility and requirements are based on available official scheme information. **Always verify the latest requirements on the official government source before applying.**
-
-4. **Not Financial/Legal Advice**: This platform is for informational purposes only. Consult official government portals and authorized personnel for accurate eligibility determination.
-
-5. **Gemini AI**: If configured, natural language features use Google's Gemini API. Text sent to `/extract-profile` and `/explain` endpoints may be processed by Google's servers. **Do not include sensitive personal information in natural language searches.**
-
----
-
-## 🚧 Known Limitations
-
-### By Design (MVP Scope)
-- **No real authentication**: localStorage-based demo only
-- **No backend user accounts**: Profile stored client-side
-- **No real application submission**: Tracker uses mock data
-- **No email/SMS**: Contact form is demonstration only
-- **Limited translation**: Tamil labels provided but not all content translated
-- **No real-time updates**: Notifications are client-side only
-
-### Technical Constraints
-- **Web Speech API**: Voice search requires Chrome/Edge browser
-- **Web Share API**: Share functionality fallback to clipboard on unsupported browsers
-- **Gemini API**: AI features require valid API key and internet connection
-- **No verification**: Document checklists are based on research, not live data feeds
-
----
-
-## 📈 Future Enhancements (Out of Scope)
-
-Possible improvements for production deployment:
-- Real authentication (OAuth, JWT)
-- Database persistence (PostgreSQL, MongoDB)
-- Real-time scheme updates via government APIs
-- Document upload and verification
-- Application status tracking via government portals
-- SMS/Email notifications
-- Multi-language LLM translation
-- Mobile app (React Native)
-- Admin panel for scheme management
-- Analytics dashboard
-- Accessibility audit and WCAG compliance
-- Performance optimization (CDN, caching)
-
----
-
-## 📚 Data Sources & Verification
-
-All schemes in the dataset are real Indian government schemes with verifiable official sources:
-
-- **Official Portals**: pmkisan.gov.in, pmayg.nic.in, scholarships.gov.in, etc.
-- **Government Departments**: Ministry of Agriculture, Ministry of Education, Ministry of Health, etc.
-- **Document Requirements**: Based on official scheme guidelines and common application processes
-
-**Note**: Scheme rules and document requirements may change. This is a college project demonstration. For actual applications, always refer to the latest official government sources.
-
----
-
-## 🏆 Project Compliance
-
-### Requirements Met ✅
-
-#### Core Requirements (Section 1-11)
-- ✅ New project folder at `HOPE_Project/SchemEase_2.0/`
-- ✅ Old project untouched
-- ✅ Generic deterministic eligibility engine
-- ✅ Cross-category recommendations (farmer+disability = agriculture+disability schemes)
-- ✅ Data-driven scheme addition (no code changes needed)
-- ✅ 58 schemes (target: 50-60) ✅
-- ✅ 16 categories covered (minimum: 10) ✅
-- ✅ Complete document checklists (no NOT_SPECIFIED) ✅
-- ✅ Official URLs verified (.gov.in domains) ✅
-- ✅ AI layer with graceful fallback ✅
-
-#### Tech Stack (Section 12-13)
-- ✅ Frontend: React, Vite, Tailwind CSS, Framer Motion, Lucide React
-- ✅ Backend: Python, FastAPI
-- ✅ No unauthorized frameworks
-- ✅ Native `fetch` for HTTP
-
-#### File Limit (Section 14)
-- ✅ 24 files (within 25 limit, target ~18)
-
-#### Features (Section 15-42)
-- ✅ Premium landing page with government architecture
-- ✅ Glassmorphism design
-- ✅ Persistent transforming search bar
-- ✅ Natural language search + AI extraction
-- ✅ Voice search (Web Speech API)
-- ✅ Profile editor with comprehensive fields
-- ✅ Saved schemes with localStorage
-- ✅ Recently viewed tracking
-- ✅ Scheme comparison (up to 3)
-- ✅ Application tracker
-- ✅ Notifications panel
-- ✅ FAQ (animated accordion)
-- ✅ Contact/support section
-- ✅ Dark mode toggle
-- ✅ Language selector (English/Tamil)
-- ✅ Print summary
-- ✅ Share functionality
-- ✅ Department/category filtering
-- ✅ Sorting options (relevance, category, department)
-- ✅ "Why this matched" explanations
-- ✅ Animated eligibility results
-- ✅ Document checklist UI (individual items, not raw JSON)
-- ✅ Responsive design (desktop, tablet, mobile)
-
-#### Testing (Section 50-51)
-- ✅ Profile A (farmer+disability) → cross-category schemes ✅
-- ✅ Profile B (student) → education schemes ✅
-- ✅ Profile C (woman entrepreneur) → entrepreneurship + women schemes ✅
-- ✅ Profile D (senior citizen) → social security + health schemes ✅
-- ✅ Profile E (unemployed) → employment schemes ✅
-- ✅ Profile F (disability only) → disability schemes (NOT agriculture) ✅
-- ✅ Profile G (general student) → general schemes ✅
-- ✅ Edge cases: missing fields, boundary conditions tested
-
-#### Quality Bar (Section 55)
-- ✅ All 60+ checklist items verified ✅
-
----
-
-## 👥 Team & Credits
-
-**College Project by**: [Your Name/Team Name]
-
-**Technologies**: React, FastAPI, Tailwind CSS, Gemini AI
-
-**Assets**: Greater Chennai Corporation Ribbon Building imagery
-
-**Data Sources**: Official Indian Government Portals
-
-**License**: Educational/Academic Use
-
----
-
-## 📞 Support & Contact
-
-This is a college project demonstration. For actual government scheme applications:
-
-- 📧 Visit official government portals linked in each scheme
-- 📞 Contact scheme-specific helplines
-- 🏢 Visit local government offices (Gram Panchayat, District Office)
-
-**For project inquiries**: [Your contact details]
-
----
-
-## 🎓 Academic Note
-
-This project demonstrates:
-1. **Data-driven architecture**: Scheme eligibility as structured data
-2. **Generic algorithms**: Evaluation engine works for ANY scheme
-3. **Cross-category intelligence**: Multi-attribute profile matching
-4. **AI integration**: Gemini API with graceful degradation
-5. **Full-stack development**: React frontend + FastAPI backend
-6. **UI/UX design**: Glassmorphism, animations, accessibility
-7. **Testing**: Comprehensive profile scenarios
-
-**Grade-worthy features**:
-- ✅ Working MVP with 58 real schemes
-- ✅ Cross-category recommendations proven via testing
-- ✅ Complete document checklists (research-backed)
-- ✅ Premium UI with dark mode, voice search, comparison
-- ✅ AI enhancement with deterministic fallback
-- ✅ Responsive, accessible design
-- ✅ Proper project structure (24 files, well-organized)
-
----
-
-**Built with ❤️ for the college project expo 2026**
-
----
-
-## 🔗 Quick Links
-
-- **Frontend Dev Server**: http://localhost:5173
-- **Backend API**: http://localhost:8000
-- **API Docs (Swagger)**: http://localhost:8000/docs
-- **Gemini API Key**: https://aistudio.google.com/
-
----
-
-**Last Updated**: August 2026
-**Version**: 2.0 (MVP Complete)
+For questions or issues:
+1. Review the "Core Architecture" section above
+2. Check the "Files You Should Study" list
+3. Review test files for expected behavior
+4. Use the Contact form in the application (requires SMTP setup)

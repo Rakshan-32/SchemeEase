@@ -3,10 +3,15 @@
 // primaryOccupation values → engine boolean keys:
 //   Farmer          → farmer: true
 //   DailyWage       → unorganisedWorker: true
-//   Entrepreneur    → firstTimeEntrepreneur: true
-//   MSME            → firstTimeEntrepreneur: true  (closest match in current schema)
 //   StreetVendor    → streetVendor: true
 //   PersonWithDisability → disability: true (also set by the secondary disability checkbox)
+//
+// IMPORTANT: Entrepreneur and MSME do NOT automatically map to firstTimeEntrepreneur.
+// Being an MSME owner or entrepreneur does NOT mean someone is starting their first business.
+// firstTimeEntrepreneur should only be set when explicitly answered via MissingInfoModal.
+//
+// Student model: Maps new educationLevel/institutionType to legacy backend fields
+// for backwards compatibility with existing schemes.json
 function deriveProfileForEngine(profile) {
   const p = { ...profile };
   const occ = p.primaryOccupation;
@@ -15,8 +20,46 @@ function deriveProfileForEngine(profile) {
     // direct boolean values that may have been written by MissingInfoModal answers.
     p.farmer               = (occ === 'Farmer');
     p.unorganisedWorker    = (occ === 'DailyWage');
-    p.firstTimeEntrepreneur = (occ === 'Entrepreneur' || occ === 'MSME');
     p.streetVendor         = (occ === 'StreetVendor');
+
+    // Map new student model to both canonical and legacy backend fields
+    if (occ === 'Student') {
+      // Set canonical field that schemes can check directly
+      p.student = true;
+
+      // Pass educationLevel and institutionType directly (engine will use these)
+      // No need to convert - engine.py already handles list matching
+
+      // Backward compatibility: convert educationLevel → studentStatus for old schemes
+      if (p.educationLevel && !p.studentStatus) {
+        const levelToStatus = {
+          'class_1_8': 'Yes',
+          'class_9_10': 'Class 9 to 12',
+          'class_11_12': 'Class 9 to 12',
+          'iti': 'Post Matric',
+          'diploma': 'Post Matric',
+          'undergraduate': 'Post Matric',
+          'postgraduate': 'Post Matric',
+          'other': 'School',
+        };
+        p.studentStatus = levelToStatus[p.educationLevel] || 'Yes';
+      }
+
+      // Map institutionType → governmentSchoolStudent for backend compatibility
+      if (p.institutionType === 'Government' && p.governmentSchoolStudent == null) {
+        p.governmentSchoolStudent = true;
+      }
+    }
+
+    // Do NOT automatically set firstTimeEntrepreneur for Entrepreneur or MSME.
+    // If a scheme requires this field, it will show up in MissingInfoModal.
+    // Only clear it if we're switching away from a business-related occupation.
+    if (occ !== 'Entrepreneur' && occ !== 'MSME' && occ !== 'SelfEmployed') {
+      // User switched to non-business occupation, clear entrepreneur status
+      if (p.firstTimeEntrepreneur != null) p.firstTimeEntrepreneur = null;
+    }
+    // Otherwise preserve the explicitly answered value from MissingInfoModal
+
     // disability can also come from the secondaryIdentities checkbox — only add,
     // never clear, so a Farmer who also has a disability keeps disability: true.
     if (occ === 'PersonWithDisability') p.disability = true;

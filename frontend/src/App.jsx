@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useMatch, useNavigate } from 'react-router-dom';
+import { useMatch, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { AuthPage } from './Auth';
 import ProfileSetup from './ProfileSetup';
+import { normalizeProfile } from './profileNormalization';
 import { Dashboard } from './sections';
 import SchemePublicView from './SchemePublicView';
 import { extractProfile, fetchScheme } from './data';
 import { motion } from 'framer-motion';
-import { Search, Loader2, Mic, MicOff, Moon, Sun, Globe } from 'lucide-react';
+import { Search, Loader2, Moon, Sun, Globe, X } from 'lucide-react';
 
 // One-time migration: rewrite stale scheme IDs in every localStorage collection
 // that stores IDs, so favourites / recently-viewed / compare / tracker remain
@@ -74,6 +75,8 @@ migrateSchemeIds();
 function App() {
   const schemeMatch = useMatch('/schemes/:schemeId');
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [authState, setAuthState] = useState('loading'); // 'loading', 'auth', 'setup', 'dashboard'
   const [currentUser, setCurrentUser] = useState(null);
   const [profile, setProfile] = useState({});
@@ -81,14 +84,15 @@ function App() {
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
   const [language, setLanguage] = useState(() => localStorage.getItem('language') || 'en');
 
-  // Natural Language Search State
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [voiceError, setVoiceError] = useState('');
-  const recognitionRef = useRef(null);
-  const voiceSupported = ('webkitSpeechRecognition' in window) || ('SpeechRecognition' in window);
+  // Search State - now managed via URL query parameter
+  const searchQuery = searchParams.get('q') || '';
+  const [searchInput, setSearchInput] = useState(searchQuery);
   const [deepLinkNotFound, setDeepLinkNotFound] = useState(false);
+
+  // Sync search input with URL query parameter
+  useEffect(() => {
+    setSearchInput(searchQuery);
+  }, [searchQuery]);
 
   // Check for existing session on mount
   useEffect(() => {
@@ -104,9 +108,17 @@ function App() {
           const savedProfile = localStorage.getItem(`profile_${savedUser}`);
           if (savedProfile) {
             let parsedProfile = {};
-            try { parsedProfile = JSON.parse(savedProfile); } catch { /* corrupted profile — start fresh */ }
+            try {
+              parsedProfile = JSON.parse(savedProfile);
+              // Normalize profile to handle schema changes
+              parsedProfile = normalizeProfile(parsedProfile);
+              // Save normalized version back
+              localStorage.setItem(`profile_${savedUser}`, JSON.stringify(parsedProfile));
+              localStorage.setItem('user_profile', JSON.stringify(parsedProfile));
+            } catch {
+              /* corrupted profile — start fresh */
+            }
             setProfile(parsedProfile);
-            localStorage.setItem('user_profile', savedProfile);
 
             // If profile is completed, go to dashboard
             if (users[savedUser].profileCompleted) {
@@ -155,8 +167,18 @@ function App() {
       // Load existing profile
       const savedProfile = localStorage.getItem(`profile_${email}`);
       if (savedProfile) {
-        setProfile(JSON.parse(savedProfile));
-        localStorage.setItem('user_profile', savedProfile);
+        try {
+          let parsedProfile = JSON.parse(savedProfile);
+          // Normalize profile to handle schema changes
+          parsedProfile = normalizeProfile(parsedProfile);
+          setProfile(parsedProfile);
+          // Save normalized version back
+          localStorage.setItem(`profile_${email}`, JSON.stringify(parsedProfile));
+          localStorage.setItem('user_profile', JSON.stringify(parsedProfile));
+        } catch (e) {
+          console.error('Failed to load profile:', e);
+          setProfile({});
+        }
       }
       setAuthState('dashboard');
     } else {
@@ -179,81 +201,35 @@ function App() {
   const toggleDarkMode = () => setDarkMode(!darkMode);
   const toggleLanguage = () => setLanguage(language === 'en' ? 'ta' : 'en');
 
-  const handleSearchSubmit = async (e) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-
-    setIsSearching(true);
-    const extracted = await extractProfile(searchQuery);
-    if (extracted && extracted.profile) {
-      const updatedProfile = { ...profile, ...extracted.profile };
-      setProfile(updatedProfile);
-
-      // Save to localStorage
-      if (currentUser) {
-        localStorage.setItem(`profile_${currentUser}`, JSON.stringify(updatedProfile));
-      }
-      localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
-    }
-    setIsSearching(false);
-    setSearchQuery('');
+  // Determine current page context
+  const getCurrentPage = () => {
+    const path = location.pathname;
+    if (path === '/' || path === '') return 'dashboard';
+    if (path.startsWith('/schemes/') && schemeMatch) return 'scheme-detail';
+    return 'dashboard'; // Default to dashboard for authenticated state
   };
 
-  const handleVoiceSearch = () => {
-    if (!voiceSupported) return; // button is hidden when unsupported
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    const trimmedQuery = searchInput.trim();
+    if (!trimmedQuery) return;
 
-    // Stop if already listening
-    if (isListening && recognitionRef.current) {
-      recognitionRef.current.stop();
-      return;
+    const currentPage = getCurrentPage();
+
+    // Set query parameter based on context
+    if (currentPage === 'dashboard') {
+      // Stay on Dashboard, update query parameter
+      setSearchParams(trimmedQuery ? { q: trimmedQuery } : {});
+    } else {
+      // For other pages, we'll handle this in Dashboard/AllSchemes routing
+      // For now, set the query parameter (Dashboard will handle display)
+      setSearchParams(trimmedQuery ? { q: trimmedQuery } : {});
     }
+  };
 
-    setVoiceError('');
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SR();
-    recognitionRef.current = recognition;
-
-    recognition.lang = language === 'ta' ? 'ta-IN' : 'en-IN';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    recognition.onstart = () => setIsListening(true);
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setSearchQuery(transcript);
-      // Auto-submit: kick off profile extraction with the captured transcript
-      setIsSearching(true);
-      extractProfile(transcript).then((extracted) => {
-        if (extracted && extracted.profile) {
-          const updatedProfile = { ...profile, ...extracted.profile };
-          setProfile(updatedProfile);
-          if (currentUser) {
-            localStorage.setItem(`profile_${currentUser}`, JSON.stringify(updatedProfile));
-          }
-          localStorage.setItem('user_profile', JSON.stringify(updatedProfile));
-        }
-        setIsSearching(false);
-        setSearchQuery('');
-      }).catch(() => setIsSearching(false));
-    };
-
-    recognition.onerror = (event) => {
-      const msgs = {
-        'not-allowed': language === 'en' ? 'Microphone access denied. Please allow it in your browser settings.' : 'மைக்ரோஃபோன் அணுகல் மறுக்கப்பட்டது.',
-        'network':     language === 'en' ? 'Network error during voice recognition.' : 'குரல் அங்கீகாரத்தில் நெட்வொர்க் பிழை.',
-        'no-speech':   language === 'en' ? 'No speech detected. Please try again.' : 'பேச்சு கண்டறியப்படவில்லை.',
-      };
-      setVoiceError(msgs[event.error] || (language === 'en' ? `Voice error: ${event.error}` : `பிழை: ${event.error}`));
-      setIsListening(false);
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-      recognitionRef.current = null;
-    };
-
-    recognition.start();
+  const handleClearSearch = () => {
+    setSearchInput('');
+    setSearchParams({});
   };
 
   const handleUpdateProfile = (updatedProfile) => {
@@ -302,12 +278,35 @@ function App() {
       }
       return (
         <div className={`relative ${darkMode ? 'dark' : ''}`}>
+          {/* Government Emblem Watermark - Authenticated Pages Only */}
+          <div
+            className="tn-emblem-watermark"
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '450px',
+              maxWidth: '40vw',
+              height: '450px',
+              backgroundImage: 'url(/tn-emblem-watermark.png)',
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
+              opacity: darkMode ? 0.10 : 0.08,
+              zIndex: 0,
+              pointerEvents: 'none'
+            }}
+            aria-hidden="true"
+          />
           <Dashboard
             profile={profile}
             onUpdateProfile={handleUpdateProfile}
             darkMode={darkMode}
             language={language}
             initialSchemeId={schemeId}
+            searchQuery={searchQuery}
+            onClearSearch={handleClearSearch}
           />
         </div>
       );
@@ -352,82 +351,92 @@ function App() {
 
   // Dashboard
   return (
-    <div className={`relative ${darkMode ? 'dark' : ''}`}>
-      {/* Sticky Navigation */}
+    <div className={`relative app-background min-h-screen ${darkMode ? 'dark' : ''}`}>
+      {/* Government Emblem Watermark - Authenticated Pages Only */}
+      <div
+        className="tn-emblem-watermark"
+        style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '450px',
+          maxWidth: '40vw',
+          height: '450px',
+          backgroundImage: 'url(/tn-emblem-watermark.png)',
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          opacity: darkMode ? 0.10 : 0.08,
+          zIndex: 0,
+          pointerEvents: 'none'
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Refined Sticky Navigation */}
       <motion.nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-6'}`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled
+            ? 'bg-white/95 dark:bg-[#0e192d]/90 backdrop-blur-xl shadow-nav-light dark:shadow-sm border-b border-[#dde4ee] dark:border-white/[0.06] py-3'
+            : 'bg-transparent py-4'
+        }`}
       >
-        <div className="container mx-auto px-6 flex items-center justify-between gap-4">
-          <div className="text-xl font-extrabold tracking-tight text-primary dark:text-teal-400">
-            SCHEMEASE
+        <div className="container mx-auto px-8 max-w-[1600px] flex items-center justify-between gap-6">
+          {/* Stronger Brand Logo */}
+          <div className="text-[24px] font-bold tracking-tight flex-shrink-0">
+            <span className="text-[#172033] dark:text-slate-100">Scheme</span>
+            <span className="text-[#0f766e] dark:text-teal-400">Ease</span>
           </div>
 
-          {/* Persistent Search Bar transforming on scroll */}
+          {/* Search Bar */}
           <form
             onSubmit={handleSearchSubmit}
-            className={`relative flex-1 transition-all duration-500 max-w-2xl mx-auto ${isScrolled ? 'md:max-w-md ml-8' : 'md:max-w-2xl'}`}
+            className={`relative flex-1 transition-all duration-300 max-w-2xl mx-auto ${isScrolled ? 'md:max-w-md ml-8' : 'md:max-w-2xl'}`}
           >
             <div className="relative group">
               <input
                 type="text"
-                value={searchQuery}
-                onChange={e => { setSearchQuery(e.target.value); setVoiceError(''); }}
-                placeholder={isListening
-                  ? (language === 'en' ? 'Listening…' : 'கேட்கிறது…')
-                  : (language === 'en' ? 'E.g. I am a 30 year old SC farmer...' : 'எ.கா. நான் 30 வயது SC விவசாயி...')}
-                className={`w-full bg-slate-100/80 dark:bg-slate-800/80 dark:text-white backdrop-blur-sm border-transparent focus:bg-white dark:focus:bg-slate-700 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-full py-3 px-6 pl-12 pr-12 shadow-inner outline-none transition-all ${isListening ? 'ring-2 ring-red-400/50 border-red-300' : ''}`}
-                disabled={isSearching || isListening}
+                value={searchInput}
+                onChange={e => setSearchInput(e.target.value)}
+                placeholder={language === 'en' ? 'Search schemes by keyword: MSME, student, farmer, scholarship...' : 'திட்டங்களைத் தேடுங்கள்: MSME, மாணவர், விவசாயி, உதவித்தொகை...'}
+                className="w-full bg-white dark:bg-[#18273e] text-[#172033] dark:text-slate-100 border border-[#d8e0ea] dark:border-white/[0.08] focus:border-[#0f766e] dark:focus:border-primary focus:ring-2 focus:ring-[#0f766e]/20 dark:focus:ring-primary/20 rounded-xl py-2.5 px-4 pl-11 pr-10 outline-none transition-all placeholder:text-[#7a8799] dark:placeholder:text-slate-500"
               />
-              {isSearching ? (
-                <Loader2 className="absolute left-4 top-3.5 w-5 h-5 text-primary animate-spin" />
-              ) : (
-                <Search className="absolute left-4 top-3.5 w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
-              )}
-              {voiceSupported ? (
+              <Search className="absolute left-3.5 top-3 w-4 h-4 text-[#7a8799] dark:text-slate-500 group-focus-within:text-[#0f766e] dark:group-focus-within:text-primary transition-colors" />
+              {searchInput && (
                 <button
                   type="button"
-                  onClick={handleVoiceSearch}
-                  disabled={isSearching}
-                  className={`absolute right-4 top-3 p-1 rounded-full transition-all disabled:opacity-40 ${isListening ? 'bg-red-500 text-white animate-pulse' : 'hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400'}`}
-                  title={isListening
-                    ? (language === 'en' ? 'Stop listening' : 'நிறுத்து')
-                    : (language === 'en' ? 'Voice search' : 'குரல் தேடல்')}
+                  onClick={handleClearSearch}
+                  className="absolute right-3 top-2.5 p-1 rounded-md hover:bg-slate-100 dark:hover:bg-white/[0.1] text-[#7a8799] dark:text-slate-500 hover:text-[#172033] dark:hover:text-slate-300 transition-colors"
+                  aria-label="Clear search"
+                  title="Clear search"
                 >
-                  {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                  <X className="w-4 h-4" />
                 </button>
-              ) : (
-                <span
-                  className="absolute right-4 top-3 p-1 text-slate-300 dark:text-slate-600 cursor-default"
-                  title={language === 'en' ? 'Voice search not supported in this browser. Try Chrome or Edge.' : 'இந்த உலாவியில் குரல் தேடல் ஆதரிக்கப்படவில்லை.'}
-                >
-                  <MicOff className="w-5 h-5" />
-                </span>
               )}
             </div>
-            {voiceError && (
-              <p className="absolute top-full mt-1 left-4 text-xs text-red-600 dark:text-red-400 bg-white dark:bg-slate-800 rounded-lg px-3 py-1.5 shadow-md border border-red-200 dark:border-red-700 z-10">
-                {voiceError}
-              </p>
-            )}
           </form>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={toggleLanguage}
-              className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
+              className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.05] text-[#526078] dark:text-slate-300 transition-colors"
               title={language === 'en' ? 'Switch to Tamil' : 'Switch to English'}
             >
-              <Globe className="w-5 h-5" />
-              <span className="ml-1 text-xs font-semibold">{language === 'en' ? 'தமிழ்' : 'EN'}</span>
+              <Globe className="w-4 h-4 inline" />
+              <span className="ml-1.5 text-xs font-semibold">{language === 'en' ? 'தமிழ்' : 'EN'}</span>
             </button>
             <button
               onClick={toggleDarkMode}
-              className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
-              title="Toggle Dark Mode"
+              className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.05] text-[#526078] dark:text-slate-300 transition-colors"
+              title={language === 'en' ? 'Toggle Dark Mode' : 'இருண்ட பயன்முறையை மாற்றவும்'}
             >
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
-            <button onClick={handleLogout} className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-teal-400 transition-colors">
+            <button
+              onClick={handleLogout}
+              className="ml-2 text-sm font-semibold text-[#526078] dark:text-slate-300 hover:text-[#0f766e] dark:hover:text-teal-400 transition-colors"
+            >
               {language === 'en' ? 'Sign Out' : 'வெளியேறு'}
             </button>
           </div>
@@ -435,7 +444,14 @@ function App() {
       </motion.nav>
 
       {/* Main Dashboard Application */}
-      <Dashboard profile={profile} onUpdateProfile={handleUpdateProfile} darkMode={darkMode} language={language} />
+      <Dashboard
+        profile={profile}
+        onUpdateProfile={handleUpdateProfile}
+        darkMode={darkMode}
+        language={language}
+        searchQuery={searchQuery}
+        onClearSearch={handleClearSearch}
+      />
     </div>
   );
 }

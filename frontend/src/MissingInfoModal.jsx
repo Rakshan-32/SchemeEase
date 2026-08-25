@@ -1,95 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, AlertCircle } from 'lucide-react';
-
-// Map backend field names to human-readable questions
-const fieldToQuestion = (field, language = 'en') => {
-  const mapping = {
-    en: {
-      landholding: 'Do you own agricultural land?',
-      insurableInterest: 'Do you have insurable interest in crops?',
-      producesNotifiedCrops: 'Do you produce notified crops (pulses, oilseeds)?',
-      seccDatabase: 'Are you registered in the SECC database?',
-      firstChild: 'Is this your first child?',
-      pregnantWoman: 'Are you currently pregnant?',
-      pregnantOrLactatingWoman: 'Are you pregnant or lactating?',
-      noToiletAtHome: 'Do you have a toilet at home?',
-      functionalTapConnection: 'Do you have a functional tap water connection?',
-      ownsPuccaHouse: 'Do you own a pucca (permanent) house?',
-      willingToDoUnskilledWork: 'Are you willing to do unskilled manual work?',
-      governmentSchoolStudent: 'Do you study in a government school?',
-      unorganisedWorker: 'Are you an unorganised sector worker?',
-      epfoMember: 'Are you a member of EPFO?',
-      esicMember: 'Are you a member of ESIC?',
-      incomeTaxPayer: 'Do you pay income tax?',
-      indianCitizen: 'Are you an Indian citizen?',
-      bereavedFamily: 'Has your family lost the primary breadwinner?',
-      firstTimeEntrepreneur: 'Are you a first-time entrepreneur?',
-      nonCorporate: 'Is your business non-corporate?',
-      nonFarm: 'Is your business in the non-farm sector?',
-      dpiitRecognized: 'Is your startup DPIIT recognized?',
-      streetVendor: 'Are you a street vendor?',
-      fisheriesSector: 'Are you involved in the fisheries sector?',
-      minorityCommunity: 'Do you belong to a minority community?',
-      transgender: 'Do you identify as transgender?',
-      disability: 'Do you have a disability (40% or more)?',
-      poorHousehold: 'Does your household have a BPL card?',
-      sewerageConnection: 'Do you have a sewerage connection?',
-      urbanArea: 'Do you live in an urban area?',
-      engagedInBegging: 'Are you engaged in begging / destitute?',
-      institution: 'Are you applying as or through an institution / organisation?',
-      age: 'What is your age?',
-      income: 'What is your annual household income (₹)?',
-      gender: 'What is your gender?',
-      socialCategory: 'What is your social category?',
-      ruralUrban: 'Do you live in a rural or urban area?',
-      studentStatus: 'What is your student status?',
-      farmer: 'Are you a farmer?'
-    },
-    ta: {
-      landholding: 'உங்களிடம் விவசாய நிலம் உள்ளதா?',
-      insurableInterest: 'பயிர் காப்பீட்டில் உங்களுக்கு ஆர்வம் உள்ளதா?',
-      producesNotifiedCrops: 'நீங்கள் அறிவிக்கப்பட்ட பயிர்களை உற்பத்தி செய்கிறீர்களா?',
-      seccDatabase: 'நீங்கள் SECC தரவுத்தளத்தில் பதிவு செய்யப்பட்டுள்ளீர்களா?',
-      firstChild: 'இது உங்கள் முதல் குழந்தையா?',
-      pregnantWoman: 'நீங்கள் தற்போது கர்ப்பமாக உள்ளீர்களா?',
-      pregnantOrLactatingWoman: 'நீங்கள் கர்ப்பமாக அல்லது பாலூட்டுகிறீர்களா?',
-      noToiletAtHome: 'வீட்டில் கழிவறை உள்ளதா?',
-      functionalTapConnection: 'குழாய் தண்ணீர் இணைப்பு உள்ளதா?',
-      ownsPuccaHouse: 'பக்கா வீடு உள்ளதா?',
-      willingToDoUnskilledWork: 'திறமையற்ற வேலை செய்ய தயாரா?',
-      governmentSchoolStudent: 'அரசு பள்ளியில் படிக்கிறீர்களா?',
-      unorganisedWorker: 'அமைப்புசாரா தொழிலாளி?',
-      epfoMember: 'EPFO உறுப்பினரா?',
-      esicMember: 'ESIC உறுப்பினரா?',
-      incomeTaxPayer: 'வருமான வரி செலுத்துகிறீர்களா?',
-      indianCitizen: 'இந்திய குடிமகனா?',
-      bereavedFamily: 'குடும்ப தலைவரை இழந்துள்ளீர்களா?',
-      firstTimeEntrepreneur: 'முதல் முறை தொழில்முனைவோரா?',
-      streetVendor: 'தெரு விற்பனையாளரா?',
-      fisheriesSector: 'மீன்வளத் துறையில் உள்ளீர்களா?',
-      minorityCommunity: 'சிறுபான்மை சமூகத்தைச் சேர்ந்தவரா?',
-      disability: 'மாற்றுத்திறனாளியா?',
-      poorHousehold: 'BPL அட்டை உள்ளதா?',
-      nonCorporate: 'உங்கள் தொழில் நிறுவனமற்றதா (கார்பரேட் அல்ல)?',
-      nonFarm: 'உங்கள் தொழில் விவசாயமற்ற துறையிலா?',
-      dpiitRecognized: 'உங்கள் ஸ்டார்ட்அப் DPIIT அங்கீகாரம் பெற்றதா?',
-      sewerageConnection: 'சாக்கடை இணைப்பு உள்ளதா?',
-      urbanArea: 'நகர்ப்புறத்தில் வாழ்கிறீர்களா?',
-      engagedInBegging: 'நீங்கள் பிச்சை எடுக்கும் / ஆதரவற்ற நிலையில் உள்ளீர்களா?',
-      institution: 'நிறுவனம் / அமைப்பு மூலம் விண்ணப்பிக்கிறீர்களா?',
-      age: 'உங்கள் வயது என்ன?',
-      income: 'ஆண்டு வருமானம் (₹)?',
-      gender: 'பாலினம்?',
-      socialCategory: 'சமூக வகை?',
-      ruralUrban: 'கிராமம் அல்லது நகரம்?',
-      studentStatus: 'மாணவர் நிலை?',
-      farmer: 'விவசாயியா?'
-    }
-  };
-
-  return mapping[language][field] || field;
-};
+import { getEligibilityQuestion } from './eligibilityLabels';
 
 // Input component for different field types
 const FieldInput = ({ field, value, onChange, language }) => {
@@ -131,8 +43,8 @@ const FieldInput = ({ field, value, onChange, language }) => {
     );
   }
 
-  // Number fields
-  if (['age', 'income'].includes(field)) {
+  // Number fields (integer)
+  if (['age', 'income', 'loanAmount'].includes(field)) {
     return (
       <input
         type="number"
@@ -140,7 +52,23 @@ const FieldInput = ({ field, value, onChange, language }) => {
         onChange={(e) => onChange(parseInt(e.target.value) || 0)}
         min="0"
         className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary outline-none"
-        placeholder={field === 'age' ? '0' : '0'}
+        placeholder="0"
+      />
+    );
+  }
+
+  // Number fields (percentage/decimal)
+  if (['indianPromoterHolding'].includes(field)) {
+    return (
+      <input
+        type="number"
+        value={value || ''}
+        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        min="0"
+        max="100"
+        step="0.1"
+        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-primary outline-none"
+        placeholder="0.0"
       />
     );
   }
@@ -302,7 +230,7 @@ const MissingInfoModal = ({ isOpen, onClose, schemeName, missingFields, currentP
                       {index + 1}
                     </span>
                     <span className="font-medium text-slate-700 dark:text-slate-200">
-                      {fieldToQuestion(field, language)}
+                      {getEligibilityQuestion(field, language)}
                     </span>
                   </div>
                   <FieldInput

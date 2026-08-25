@@ -34,10 +34,8 @@ const getInitials = (name) => {
   return name.slice(0, 2).toUpperCase();
 };
 
-const completionPct = (profile) =>
-  Math.round(Math.min(Object.keys(profile).length / 20, 1) * 100);
-
-const CIRC = 2 * Math.PI * 36;
+// Profile completion percentage removed per product requirement
+// Required field validation is still enforced contextually
 
 // Read-only section card — renders a dl of label/value rows.
 // value === null/undefined → muted italic "Not specified".
@@ -46,22 +44,22 @@ const SectionCard = ({ title, icon: Icon, rows, delay = 0 }) => (
     initial={{ opacity: 0, y: 12 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay }}
-    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6"
+    className="bg-white dark:bg-[#16243a]/70 border border-[#dde4ee] dark:border-white/[0.06] rounded-2xl p-6 shadow-card-light dark:shadow-sm"
   >
     <div className="flex items-center gap-2 mb-4">
-      <Icon className="w-4 h-4 text-teal-500" />
-      <h3 className="font-bold text-slate-700 dark:text-slate-200 text-sm uppercase tracking-wide">
+      <Icon className="w-4 h-4 text-[#0f766e] dark:text-primary" />
+      <h3 className="font-bold text-[#172033] dark:text-white text-sm uppercase tracking-wide">
         {title}
       </h3>
     </div>
-    <dl className="divide-y divide-slate-100 dark:divide-slate-700/60">
+    <dl className="divide-y divide-[#dde4ee] dark:divide-white/[0.06]">
       {rows.map(([label, value]) => (
         <div key={label} className="flex justify-between items-start py-2.5 gap-4">
-          <dt className="text-sm text-slate-500 dark:text-slate-400 shrink-0">{label}</dt>
+          <dt className="text-sm text-[#526078] dark:text-slate-400 shrink-0">{label}</dt>
           <dd className={`text-sm font-medium text-right ${
             value == null
-              ? 'text-slate-400 dark:text-slate-500 italic'
-              : 'text-slate-800 dark:text-white'
+              ? 'text-[#7a8799] dark:text-slate-500 italic'
+              : 'text-[#172033] dark:text-white'
           }`}>
             {value ?? 'Not specified'}
           </dd>
@@ -75,7 +73,6 @@ const ProfilePage = ({ profile, onUpdate, onEdit, darkMode, language }) => {
   const t = (en, ta) => (language === 'en' ? en : ta);
   const name = getUserName();
   const initials = getInitials(name);
-  const pct = completionPct(profile);
   const occKey = profile.primaryOccupation;
   const occLabel = occKey
     ? (language === 'en' ? OCC_LABELS[occKey]?.en : OCC_LABELS[occKey]?.ta) ?? occKey
@@ -159,68 +156,50 @@ const ProfilePage = ({ profile, onUpdate, onEdit, darkMode, language }) => {
       <motion.div
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-700 shadow-lg p-6 flex flex-col sm:flex-row items-center sm:items-start gap-6"
+        className="bg-white/90 dark:bg-[#16243a]/70 border border-slate-200/60 dark:border-white/[0.06] rounded-2xl p-6 shadow-md"
       >
-        {/* Avatar circle */}
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-teal-700 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 shadow-md select-none">
-          {initials}
-        </div>
-
-        {/* Name + occupation + location */}
-        <div className="flex-1 text-center sm:text-left min-w-0">
-          <div className="flex items-start justify-center sm:justify-between gap-3">
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-white truncate">{name}</h2>
-            {onEdit && (
-              <button
-                onClick={onEdit}
-                className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-700 hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-                {t('Edit', 'திருத்து')}
-              </button>
-            )}
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+          {/* Avatar circle */}
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-teal-700 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0 shadow-md select-none">
+            {initials}
           </div>
-          <div className="mt-2 flex flex-wrap items-center justify-center sm:justify-start gap-3">
-            {occLabel && (
-              <span className="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-300">
-                <Briefcase className="w-4 h-4 text-teal-500 flex-shrink-0" />
-                {occLabel}
-              </span>
-            )}
-            {profile.ruralUrban && (
-              <span className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
-                <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                {profile.ruralUrban}
-              </span>
-            )}
-          </div>
-        </div>
 
-        {/* Completion ring */}
-        <div className="flex-shrink-0 text-center">
-          <div className="relative w-20 h-20 mx-auto">
-            <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 80 80">
-              <circle
-                cx="40" cy="40" r="36"
-                stroke="currentColor" strokeWidth="8" fill="none"
-                className="text-slate-200 dark:text-slate-700"
-              />
-              <circle
-                cx="40" cy="40" r="36"
-                stroke="currentColor" strokeWidth="8" fill="none"
-                strokeDasharray={CIRC}
-                strokeDashoffset={CIRC * (1 - pct / 100)}
-                strokeLinecap="round"
-                className="text-teal-500 transition-all duration-1000"
-              />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-lg font-bold text-teal-600 dark:text-teal-400">{pct}%</span>
+          {/* Name + occupation + location */}
+          <div className="flex-1 text-center sm:text-left min-w-0">
+            <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{name}</h2>
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-sm">
+              {occLabel && (
+                <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                  <Briefcase className="w-4 h-4 text-primary flex-shrink-0" />
+                  {occLabel}
+                </span>
+              )}
+              {profile.district && (
+                <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                  <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                  {profile.district}
+                </span>
+              )}
+              {profile.ruralUrban && (
+                <span className="text-slate-500 dark:text-slate-400">
+                  · {profile.ruralUrban}
+                </span>
+              )}
             </div>
           </div>
-          <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
-            {t('Profile', 'சுயவிவரம்')}
-          </p>
+
+          {/* Edit button - aligned to right on desktop, full width on mobile */}
+          {onEdit && (
+            <div className="flex-shrink-0 w-full sm:w-auto">
+              <button
+                onClick={onEdit}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-700 hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-colors"
+              >
+                <Pencil className="w-4 h-4" />
+                {t('Edit Profile', 'சுயவிவரத்தைத் திருத்து')}
+              </button>
+            </div>
+          )}
         </div>
       </motion.div>
 

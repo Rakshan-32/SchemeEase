@@ -14,18 +14,22 @@ export const SECTIONS = [
         labelEn: 'Age',
         labelTa: 'வயது',
         required: true,
-        min: 0,
+        min: 1,
         max: 120,
         placeholderEn: 'Enter your age',
         placeholderTa: 'உங்கள் வயதை உள்ளிடவும்',
         validationEn: (v) => {
-          if (!v && v !== 0) return 'Age is required';
-          if (v < 0 || v > 120) return 'Age must be between 0 and 120';
+          if (v == null || v === '') return 'Age is required';
+          const num = Number(v);
+          if (isNaN(num)) return 'Please enter a valid age';
+          if (num < 1 || num > 120) return 'Age must be between 1 and 120';
           return null;
         },
         validationTa: (v) => {
-          if (!v && v !== 0) return 'வயது தேவை';
-          if (v < 0 || v > 120) return 'வயது 0 முதல் 120 க்கு இடையில் இருக்க வேண்டும்';
+          if (v == null || v === '') return 'வயது தேவை';
+          const num = Number(v);
+          if (isNaN(num)) return 'சரியான வயதை உள்ளிடவும்';
+          if (num < 1 || num > 120) return 'வயது 1 முதல் 120 க்கு இடையில் இருக்க வேண்டும்';
           return null;
         },
       },
@@ -47,10 +51,24 @@ export const SECTIONS = [
         labelEn: 'Annual Income (₹)',
         labelTa: 'ஆண்டு வருமானம் (₹)',
         min: 0,
-        placeholderEn: '0',
-        placeholderTa: '0',
-        validationEn: (v) => (v < 0 ? 'Income cannot be negative' : null),
-        validationTa: (v) => (v < 0 ? 'வருமானம் எதிர்மறையாக இருக்க முடியாது' : null),
+        placeholderEn: 'Enter annual income (optional)',
+        placeholderTa: 'ஆண்டு வருமானத்தை உள்ளிடவும் (விருப்பம்)',
+        validationEn: (v) => {
+          // null/blank is allowed (optional field)
+          if (v == null || v === '') return null;
+          const num = Number(v);
+          if (isNaN(num)) return 'Please enter a valid income';
+          if (num < 0) return 'Income cannot be negative';
+          return null;
+        },
+        validationTa: (v) => {
+          // null/blank is allowed (optional field)
+          if (v == null || v === '') return null;
+          const num = Number(v);
+          if (isNaN(num)) return 'சரியான வருமானத்தை உள்ளிடவும்';
+          if (num < 0) return 'வருமானம் எதிர்மறையாக இருக்க முடியாது';
+          return null;
+        },
       },
       {
         key: 'socialCategory',
@@ -62,6 +80,52 @@ export const SECTIONS = [
           { value: 'SC',      labelEn: 'SC',      labelTa: 'SC' },
           { value: 'ST',      labelEn: 'ST',      labelTa: 'ST' },
           { value: 'OBC',     labelEn: 'OBC',     labelTa: 'OBC' },
+        ],
+      },
+      {
+        key: 'district',
+        type: 'select',
+        labelEn: 'District (Tamil Nadu)',
+        labelTa: 'மாவட்டம் (தமிழ்நாடு)',
+        options: [
+          { value: 'Ariyalur', labelEn: 'Ariyalur', labelTa: 'அரியலூர்' },
+          { value: 'Chengalpattu', labelEn: 'Chengalpattu', labelTa: 'செங்கல்பட்டு' },
+          { value: 'Chennai', labelEn: 'Chennai', labelTa: 'சென்னை' },
+          { value: 'Coimbatore', labelEn: 'Coimbatore', labelTa: 'கோயம்புத்தூர்' },
+          { value: 'Cuddalore', labelEn: 'Cuddalore', labelTa: 'கடலூர்' },
+          { value: 'Dharmapuri', labelEn: 'Dharmapuri', labelTa: 'தர்மபுரி' },
+          { value: 'Dindigul', labelEn: 'Dindigul', labelTa: 'திண்டுக்கல்' },
+          { value: 'Erode', labelEn: 'Erode', labelTa: 'ஈரோடு' },
+          { value: 'Kallakurichi', labelEn: 'Kallakurichi', labelTa: 'கள்ளக்குறிச்சி' },
+          { value: 'Kanchipuram', labelEn: 'Kanchipuram', labelTa: 'காஞ்சிபுரம்' },
+          { value: 'Kanyakumari', labelEn: 'Kanyakumari', labelTa: 'கன்னியாகுமரி' },
+          { value: 'Karur', labelEn: 'Karur', labelTa: 'கரூர்' },
+          { value: 'Krishnagiri', labelEn: 'Krishnagiri', labelTa: 'கிருஷ்ணகிரி' },
+          { value: 'Madurai', labelEn: 'Madurai', labelTa: 'மதுரை' },
+          { value: 'Mayiladuthurai', labelEn: 'Mayiladuthurai', labelTa: 'மயிலாடுதுறை' },
+          { value: 'Nagapattinam', labelEn: 'Nagapattinam', labelTa: 'நாகப்பட்டினம்' },
+          { value: 'Namakkal', labelEn: 'Namakkal', labelTa: 'நாமக்கல்' },
+          { value: 'Nilgiris', labelEn: 'Nilgiris', labelTa: 'நீலகிரி' },
+          { value: 'Perambalur', labelEn: 'Perambalur', labelTa: 'பெரம்பலூர்' },
+          { value: 'Pudukkottai', labelEn: 'Pudukkottai', labelTa: 'புதுக்கோட்டை' },
+          { value: 'Ramanathapuram', labelEn: 'Ramanathapuram', labelTa: 'இராமநாதபுரம்' },
+          { value: 'Ranipet', labelEn: 'Ranipet', labelTa: 'ராணிப்பேட்டை' },
+          { value: 'Salem', labelEn: 'Salem', labelTa: 'சேலம்' },
+          { value: 'Sivaganga', labelEn: 'Sivaganga', labelTa: 'சிவகங்கை' },
+          { value: 'Tenkasi', labelEn: 'Tenkasi', labelTa: 'தென்காசி' },
+          { value: 'Thanjavur', labelEn: 'Thanjavur', labelTa: 'தஞ்சாவூர்' },
+          { value: 'Theni', labelEn: 'Theni', labelTa: 'தேனி' },
+          { value: 'Thoothukudi', labelEn: 'Thoothukudi (Tuticorin)', labelTa: 'தூத்துக்குடி' },
+          { value: 'Tiruchirappalli', labelEn: 'Tiruchirappalli (Trichy)', labelTa: 'திருச்சிராப்பள்ளி' },
+          { value: 'Tirunelveli', labelEn: 'Tirunelveli', labelTa: 'திருநெல்வேலி' },
+          { value: 'Tirupathur', labelEn: 'Tirupathur', labelTa: 'திருப்பத்தூர்' },
+          { value: 'Tiruppur', labelEn: 'Tiruppur', labelTa: 'திருப்பூர்' },
+          { value: 'Tiruvallur', labelEn: 'Tiruvallur', labelTa: 'திருவள்ளூர்' },
+          { value: 'Tiruvannamalai', labelEn: 'Tiruvannamalai', labelTa: 'திருவண்ணாமலை' },
+          { value: 'Tiruvarur', labelEn: 'Tiruvarur', labelTa: 'திருவாரூர்' },
+          { value: 'Vellore', labelEn: 'Vellore', labelTa: 'வேலூர்' },
+          { value: 'Viluppuram', labelEn: 'Viluppuram', labelTa: 'விழுப்புரம்' },
+          { value: 'Virudhunagar', labelEn: 'Virudhunagar', labelTa: 'விருதுநகர்' },
         ],
       },
       {
@@ -112,41 +176,59 @@ export const SECTIONS = [
       {
         key: 'landholding',
         type: 'checkbox',
-        labelEn: 'I own agricultural land',
-        labelTa: 'எனக்கு விவசாய நிலம் உள்ளது',
+        labelEn: 'I own or cultivate agricultural land',
+        labelTa: 'நான் விவசாய நிலத்தை சொந்தமாக வைத்திருக்கிறேன் அல்லது பயிரிடுகிறேன்',
         showWhen: (p) => p.primaryOccupation === 'Farmer',
         indent: true,
       },
       {
         key: 'insurableInterest',
         type: 'checkbox',
-        labelEn: 'I have insurable interest in crops',
-        labelTa: 'பயிர் காப்பீடு ஆர்வம் உள்ளது',
+        labelEn: 'I grow crops or have a financial stake in the harvest',
+        labelTa: 'நான் பயிர்களை வளர்க்கிறேன் அல்லது அறுவடையில் நிதி பங்கு வைத்திருக்கிறேன்',
+        hintEn: 'Required for crop insurance schemes',
+        hintTa: 'பயிர் காப்பீடு திட்டங்களுக்கு தேவை',
         showWhen: (p) => p.primaryOccupation === 'Farmer',
         indent: true,
       },
 
       // Student-specific follow-ups
       {
-        key: 'studentStatus',
+        key: 'educationLevel',
         type: 'select',
-        labelEn: 'Student Level',
-        labelTa: 'மாணவர் நிலை',
+        labelEn: 'Current Education Level',
+        labelTa: 'தற்போதைய கல்வி நிலை',
         showWhen: (p) => p.primaryOccupation === 'Student',
         options: [
-          { value: 'Yes',               labelEn: 'Class 1 to 8',           labelTa: 'வகுப்பு 1 முதல் 8' },
-          { value: 'Class 9 to 12',     labelEn: 'Class 9 to 12',          labelTa: 'வகுப்பு 9 முதல் 12' },
-          { value: 'Post Matric',       labelEn: 'Post Matric / College',   labelTa: 'கல்லூரி' },
-          { value: 'School',            labelEn: 'School (General)',         labelTa: 'பள்ளி' },
-          { value: 'Government School', labelEn: 'Government School',       labelTa: 'அரசு பள்ளி' },
+          { value: 'class_1_8',       labelEn: 'Class 1–8',           labelTa: 'வகுப்பு 1–8' },
+          { value: 'class_9_10',      labelEn: 'Class 9–10',          labelTa: 'வகுப்பு 9–10' },
+          { value: 'class_11_12',     labelEn: 'Class 11–12',         labelTa: 'வகுப்பு 11–12' },
+          { value: 'iti',             labelEn: 'ITI',                 labelTa: 'ITI' },
+          { value: 'diploma',         labelEn: 'Diploma',             labelTa: 'டிப்ளோமா' },
+          { value: 'undergraduate',   labelEn: 'Undergraduate',       labelTa: 'இளங்கலை' },
+          { value: 'postgraduate',    labelEn: 'Postgraduate',        labelTa: 'முதுகலை' },
+          { value: 'other',           labelEn: 'Other',               labelTa: 'பிற' },
         ],
       },
       {
-        key: 'governmentSchoolStudent',
+        key: 'institutionType',
+        type: 'select',
+        labelEn: 'Institution Type',
+        labelTa: 'நிறுவன வகை',
+        showWhen: (p) => p.primaryOccupation === 'Student' && p.educationLevel,
+        options: [
+          { value: 'Government',       labelEn: 'Government',              labelTa: 'அரசு' },
+          { value: 'GovernmentAided',  labelEn: 'Government Aided',        labelTa: 'அரசு உதவி பெறும்' },
+          { value: 'Private',          labelEn: 'Private',                 labelTa: 'தனியார்' },
+          { value: 'Other',            labelEn: 'Other',                   labelTa: 'பிற' },
+        ],
+      },
+      {
+        key: 'firstGraduate',
         type: 'checkbox',
-        labelEn: 'Studying in Government School',
-        labelTa: 'அரசு பள்ளியில் படிக்கிறேன்',
-        showWhen: (p) => p.primaryOccupation === 'Student' && (p.studentStatus === 'Government School' || p.studentStatus === 'Yes'),
+        labelEn: 'First person in family to pursue higher education',
+        labelTa: 'குடும்பத்தில் உயர் கல்வி பயில்வோர் முதல் நபர்',
+        showWhen: (p) => p.primaryOccupation === 'Student' && ['undergraduate', 'postgraduate'].includes(p.educationLevel),
         indent: true,
       },
 
@@ -165,6 +247,16 @@ export const SECTIONS = [
         labelEn: 'ESIC Member',
         labelTa: 'ESIC உறுப்பினர்',
         showWhen: (p) => p.primaryOccupation === 'DailyWage',
+        indent: true,
+      },
+
+      // Entrepreneur / MSME / Self-employed follow-ups
+      {
+        key: 'firstTimeEntrepreneur',
+        type: 'checkbox',
+        labelEn: 'This is my first business venture',
+        labelTa: 'இது எனது முதல் தொழில் முயற்சி',
+        showWhen: (p) => ['Entrepreneur', 'MSME', 'SelfEmployed'].includes(p.primaryOccupation),
         indent: true,
       },
 
@@ -284,8 +376,10 @@ export const SECTIONS = [
           {
             key: 'willingToDoUnskilledWork',
             type: 'checkbox',
-            labelEn: 'Willing to do unskilled work (MGNREGA)',
-            labelTa: 'திறமையற்ற வேலை செய்ய தயாராக உள்ளேன்',
+            labelEn: 'Interested in rural employment guarantee work',
+            labelTa: 'கிராமப்புற வேலைவாய்ப்பு உத்தரவாத வேலையில் ஆர்வம்',
+            hintEn: 'For MGNREGA and similar wage employment schemes',
+            hintTa: 'MGNREGA மற்றும் இதுபோன்ற கூலி வேலைவாய்ப்பு திட்டங்களுக்கு',
             size: 'lg',
             showWhen: (p) => p.ruralUrban === 'Rural',
           },
@@ -306,8 +400,11 @@ export const SECTION_BY_STEP = Object.fromEntries(
 // null = "not yet answered" → engine treats as UNKNOWN → NEEDS_MORE_INFO.
 const OCCUPATION_SPECIFIC_FIELDS = {
   Farmer:    ['landholding', 'insurableInterest'],
-  Student:   ['studentStatus', 'governmentSchoolStudent'],
+  Student:   ['educationLevel', 'institutionType', 'firstGraduate', 'studentStatus', 'governmentSchoolStudent'], // includes legacy fields
   DailyWage: ['epfoMember', 'esicMember'],
+  Entrepreneur: ['firstTimeEntrepreneur'],
+  MSME: ['firstTimeEntrepreneur'],
+  SelfEmployed: ['firstTimeEntrepreneur'],
 };
 
 export function clearFieldsFor(occupation) {

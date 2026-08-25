@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FileText, ExternalLink, ArrowLeft, LogIn, Loader2 } from 'lucide-react';
 import { fetchScheme } from './data';
+import { getLocalizedScheme } from './schemeLocalization';
 
 const FIELD_LABELS = {
   age: 'Age', income: 'Annual income (₹)', gender: 'Gender', socialCategory: 'Social category',
@@ -95,6 +96,7 @@ const SchemePublicView = ({ schemeId: schemeIdProp, darkMode, language, onLoginC
 
   const required = scheme.eligibility?.required_criteria || {};
   const optional = scheme.eligibility?.optional_criteria || {};
+  const localizedScheme = getLocalizedScheme(scheme, language);
 
   return (
     <div className={`min-h-screen bg-slate-50 dark:bg-slate-900 ${darkMode ? 'dark' : ''}`}>
@@ -134,17 +136,17 @@ const SchemePublicView = ({ schemeId: schemeIdProp, darkMode, language, onLoginC
 
         {/* Scheme header */}
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-primary dark:text-teal-400 mb-1">{scheme.department}</p>
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-1">{scheme.name}</h1>
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary dark:text-teal-400 mb-1">{localizedScheme.department}</p>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-1">{localizedScheme.name}</h1>
           <span className="inline-block text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">{scheme.category}</span>
-          <p className="mt-4 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{scheme.description}</p>
+          <p className="mt-4 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">{localizedScheme.description}</p>
         </div>
 
         {/* Benefits */}
         <section>
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Benefits</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">{t('Benefits', 'நன்மைகள்')}</h2>
           <ul className="space-y-2">
-            {scheme.benefits.map((b, i) => (
+            {localizedScheme.benefits.map((b, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
                 <span className="mt-0.5 text-teal-500 font-bold">✓</span> {b}
               </li>
@@ -154,16 +156,16 @@ const SchemePublicView = ({ schemeId: schemeIdProp, darkMode, language, onLoginC
 
         {/* Eligibility requirements */}
         <section>
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Who Can Apply</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">{t('Who Can Apply', 'யார் விண்ணப்பிக்கலாம்')}</h2>
           {Object.keys(required).length > 0 && (
             <div className="mb-3">
-              <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">Required:</p>
+              <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">{t('Required:', 'தேவையானது:')}</p>
               <CriteriaList criteria={required} />
             </div>
           )}
           {Object.keys(optional).length > 0 && (
             <div>
-              <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">Also relevant:</p>
+              <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">{t('Also relevant:', 'மேலும் பொருத்தமானது:')}</p>
               <CriteriaList criteria={optional} />
             </div>
           )}
@@ -171,9 +173,9 @@ const SchemePublicView = ({ schemeId: schemeIdProp, darkMode, language, onLoginC
 
         {/* Documents */}
         <section>
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Required Documents</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">{t('Required Documents', 'தேவையான ஆவணங்கள்')}</h2>
           <ul className="space-y-2">
-            {scheme.documents.map((d, i) => (
+            {localizedScheme.documents.map((d, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
                 <FileText className="w-4 h-4 mt-0.5 text-slate-400 flex-shrink-0" /> {d}
               </li>
@@ -183,8 +185,8 @@ const SchemePublicView = ({ schemeId: schemeIdProp, darkMode, language, onLoginC
 
         {/* How to apply */}
         <section>
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">How to Apply</h2>
-          <p className="text-sm text-slate-700 dark:text-slate-300">{scheme.applicationMethod}</p>
+          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">{t('How to Apply', 'எவ்வாறு விண்ணப்பிக்க வேண்டும்')}</h2>
+          <p className="text-sm text-slate-700 dark:text-slate-300">{localizedScheme.applicationMethod}</p>
         </section>
 
         {/* Official link */}

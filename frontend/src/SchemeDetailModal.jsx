@@ -1,16 +1,19 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ExternalLink, FileText, CheckCircle, AlertCircle, HelpCircle, Bookmark, GitCompare, Printer, Share2 } from 'lucide-react';
-import SchemePrintView from './SchemePrintView';
+import { usePrint } from './PrintContext';
 import { shareScheme } from './components';
+import { getEligibilityLabel } from './eligibilityLabels';
+import { getLocalizedScheme } from './schemeLocalization';
 
 const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompare, onProvideMissingInfo, darkMode, language }) => {
-  const printTargetRef = useRef(null);
+  const { printScheme } = usePrint();
   const [shareState, setShareState] = useState(null); // null | 'copied' | 'error'
 
   if (!isOpen || !schemeData) return null;
 
   const { scheme, eligibility_status, relevance_score, matched_criteria, missing_information, failed_criteria } = schemeData;
+  const localizedScheme = getLocalizedScheme(scheme, language);
 
   const statusConfig = {
     ELIGIBLE: {
@@ -38,20 +41,8 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
 
   const status = statusConfig[eligibility_status];
 
-  const handlePrint = () => {
-    const el = printTargetRef.current;
-    if (!el) return;
-    el.classList.add('is-printing');
-    const cleanup = () => {
-      el.classList.remove('is-printing');
-      window.removeEventListener('afterprint', cleanup);
-    };
-    window.addEventListener('afterprint', cleanup);
-    window.print();
-  };
-
   const handleShare = () => {
-    shareScheme(scheme, language, (result) => {
+    shareScheme(localizedScheme, language, (result) => {
       setShareState(result);
       setTimeout(() => setShareState(null), 2500);
     });
@@ -80,10 +71,10 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
           <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-6 flex justify-between items-start z-10">
             <div className="flex-1 pr-4">
               <div className="text-xs font-semibold tracking-wider text-primary dark:text-teal-400 uppercase mb-2">
-                {scheme.department}
+                {localizedScheme.department}
               </div>
               <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
-                {scheme.name}
+                {localizedScheme.name}
               </h2>
               <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                 <span className="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full font-medium">
@@ -122,7 +113,7 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
                     <div className="flex flex-wrap gap-2">
                       {matched_criteria.map(c => (
                         <span key={c} className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-medium border border-green-200 dark:border-green-700">
-                          ✓ {c}
+                          ✓ {getEligibilityLabel(c, language)}
                         </span>
                       ))}
                     </div>
@@ -137,7 +128,7 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
                     <div className="flex flex-wrap gap-2 mb-3">
                       {missing_information.map(c => (
                         <span key={c} className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-3 py-1 rounded-full text-xs font-medium border border-yellow-200 dark:border-yellow-700">
-                          ? {c}
+                          ? {getEligibilityLabel(c, language)}
                         </span>
                       ))}
                     </div>
@@ -163,7 +154,7 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
                     <div className="flex flex-wrap gap-2">
                       {failed_criteria.map(c => (
                         <span key={c} className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1 rounded-full text-xs font-medium border border-red-200 dark:border-red-700">
-                          ✕ {c}
+                          ✕ {getEligibilityLabel(c, language)}
                         </span>
                       ))}
                     </div>
@@ -178,7 +169,7 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
                 {language === 'en' ? 'About this Scheme' : 'இந்த திட்டத்தைப் பற்றி'}
               </h3>
               <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                {scheme.description}
+                {localizedScheme.description}
               </p>
             </div>
 
@@ -188,7 +179,7 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
                 {language === 'en' ? 'Benefits' : 'நன்மைகள்'}
               </h3>
               <ul className="space-y-2">
-                {scheme.benefits.map((benefit, idx) => (
+                {localizedScheme.benefits.map((benefit, idx) => (
                   <li key={idx} className="flex items-start gap-3">
                     <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
                     <span className="text-slate-600 dark:text-slate-300">{benefit}</span>
@@ -203,7 +194,7 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
                 {language === 'en' ? 'Required Documents' : 'தேவையான ஆவணங்கள்'}
               </h3>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {scheme.documents.map((doc, idx) => (
+                {localizedScheme.documents.map((doc, idx) => (
                   <li key={idx} className="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
                     <FileText className="w-5 h-5 text-primary dark:text-teal-400 flex-shrink-0 mt-0.5" />
                     <span className="text-sm text-slate-700 dark:text-slate-200">{doc}</span>
@@ -218,7 +209,7 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
                 {language === 'en' ? 'How to Apply' : 'எவ்வாறு விண்ணப்பிக்க வேண்டும்'}
               </h3>
               <p className="text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
-                {scheme.applicationMethod}
+                {localizedScheme.applicationMethod}
               </p>
             </div>
 
@@ -274,7 +265,13 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
             )}
 
             <button
-              onClick={handlePrint}
+              onClick={() => printScheme({
+                scheme: localizedScheme,
+                eligibility_status,
+                matched_criteria,
+                missing_information,
+                failed_criteria
+              }, language)}
               className="flex items-center justify-center gap-2 px-4 py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg font-medium transition-all"
             >
               <Printer className="w-5 h-5" />
@@ -302,18 +299,6 @@ const SchemeDetailModal = ({ isOpen, onClose, schemeData, saved, onSave, onCompa
             </button>
           </div>
         </motion.div>
-      </div>
-
-      {/* Hidden print target */}
-      <div ref={printTargetRef} className="scheme-print-target">
-        <SchemePrintView
-          scheme={scheme}
-          eligibility_status={eligibility_status}
-          matched_criteria={matched_criteria}
-          missing_information={missing_information}
-          failed_criteria={failed_criteria}
-          relevance_score={relevance_score}
-        />
       </div>
     </AnimatePresence>
   );
